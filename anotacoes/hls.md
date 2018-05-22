@@ -8,9 +8,9 @@ O fluxo de síntese das ferramentas de HLS segue o mesmo padrão, que envolve:
 
 1. Modelagem (ou especificação)
 2. Compilação
-3. Alocação [^Nota1]
-4. Escalonamento [^Nota1]
-5. Atrelamento [^Nota1]
+3. Alocação \*
+4. Escalonamento \*
+5. Atrelamento \*
 6. Geração
 
 
@@ -53,7 +53,7 @@ Para cada operação que nosso algoritmo descreve, precisamos não só alocar os
 
 Finalmente, após o algoritmo de síntese ter realizado todas as suas operações, é gerado um arquivo com uma arquitetura RTL representando o comportamento descrito pelo modelo. O arquivo de saída pode ser de diversos formatos, tais como SystemC, Verilog e VHDL. Vale ressaltar que cada *framework* geralmente trabalha com um número limitado de modelos de placa FPGA, uma vez que estão cada vez mais frequentes o uso de FPGAs em placas integradas, tornando-se uma SoC FPGA (do inglês "*System-on-a-Chip FPGA*"). Um pouco mais será dito sobre SoC FPGAs e sistemas RTL nas anotações sobre arquitetura FPGA.
 
-[^Nota1]: Não necessariamente nessa ordem. Vide parte 2.7 para melhores explicações
+\*: Não necessariamente nessa ordem. Vide parte 2.7 para melhores explicações
 
 ## 2.7 Alocação, Escalonamento e Atrelamento: considerações especiais
 
