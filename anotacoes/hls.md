@@ -8,9 +8,9 @@ O fluxo de síntese das ferramentas de HLS segue o mesmo padrão, que envolve:
 
 1. Modelagem (ou especificação)
 2. Compilação
-3. Alocação
-4. Escalonamento
-5. Atrelamento
+3. Alocação [^Nota1]
+4. Escalonamento [^Nota1]
+5. Atrelamento [^Nota1]
 6. Geração
 
 
