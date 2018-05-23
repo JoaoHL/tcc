@@ -26,17 +26,22 @@ Devido à sua característica estática, as *SRAM*s são mais rápidas e consome
 
 ## Memórias *flash*
 
-As memórias *flash* ou baseadas em *EEPROM*s ('Electrally Erasable-Programmable Read-Only Memory', ou 'memória exclusiva para leitura eletricamente programável e apagável') são memórias não-voláteis que podem ser reconfiguradas através do uso de luz ultravioleta e descargas elétricas. Além de não-voláteis, também são estáticas e portanto consomem pouca energia, enquanto também necessitam de menos área de implementação que as *SRAM*s; no entanto, são mais caras e só podem ser programadas um número finito de vezes antes de pararem de funcionar adequadamente. 
+As memórias *flash* ou baseadas em EEPROMs ('Electrally Erasable-Programmable Read-Only Memory', ou 'memória exclusiva para leitura eletricamente programável e apagável') são memórias não-voláteis que podem ser reconfiguradas através do uso de luz ultravioleta e descargas elétricas. Além de não-voláteis, também são estáticas e portanto consomem pouca energia, enquanto também necessitam de menos área de implementação que as *SRAM*s; no entanto, são mais caras e só podem ser programadas um número finito de vezes antes de pararem de funcionar adequadamente. 
 
 ## Memória baseada em fusíveis
 
-É o tipo de memória com menor área de implementação dentre as citadas. Essa tecnologia utiliza fusíveis como *switch*s: uma vez queimados, eles implementarão as rotas desejadas no *FPGA*, o que explica sua natureza não-volátil e sua rapidez. Porém o uso de fusíveis tem desvantagens notáveis, como a programabilidade única da placa.
+É o tipo de memória com menor área de implementação dentre as citadas. Essa tecnologia utiliza fusíveis como *switches*: uma vez queimados, eles implementarão as rotas desejadas no FPGA, o que explica sua natureza não-volátil e sua rapidez. Porém o uso de fusíveis tem desvantagens notáveis, como a programabilidade única da placa.
 
-Dentre as tecnologias de programação citadas, todas possuem suas vantagens e desvantagens. O uso mais comum, atualmente, é de *FPGA*s que utilizam *SRAM*s para sua programabilidade, pois além de todas as vantagens citadas e apesar das desvantagens, as *SRAM*s seguem o padrão *CMOS* ('Complementary Metal-oxyde semiconductor', ou 'semicondutor de metal-óxido complementar') de processo de fabricação de circuitos, o que barateia sua produção e sua predominancia no mercado de semicondutores.
+Dentre as tecnologias de programação citadas, todas possuem suas vantagens e desvantagens. O uso mais comum, atualmente, é de FPGAs que utilizam SRAMs para sua programabilidade, pois além de todas as vantagens citadas e apesar das desvantagens, as SRAMs seguem o padrão *CMOS* ('Complementary Metal-oxyde semiconductor', ou 'semicondutor de metal-óxido complementar') de processo de fabricação de circuitos, o que barateia sua produção e sua predominancia no mercado de semicondutores.
 
-# Blocos lógicos de um *FPGA*
+# Blocos lógicos de um FPGA
 
+Os blocos lógicos configuráveis (BLCs) são as unidades que provêem capacidade lógica e de armazenamento para o FPGA. BLCs podem ser implementados de diversas maneiras, desde simples transistores até processadores inteiros, e essa implementação define sua granularidade. BLCs com granularidade muito pequena, como transistores, acabam se utilizando de espaço demais e torna os ineficientes. Por outro lado, os de granularidade muito grande, como processadores, podem representar um desperdício de recurso quando tratamos de funções mais simples.
+Entre esses máximos, temos um espectro de implementações de BLCs. 
 
+Os BLCs são compostos blocos lógicos básicos (BLBs), que podem ser usados em conjunto ou de forma isolada para formar um BLC (isto é, um BLC pode ser composto de um único BLB ou de um conjunto deles). As componentes usadas nesses BLBs podem variar, mas a fabricante da placa que será usada neste trabalho, a Altera (fabricante da SoC FPGA Cyclone V) utiliza *lookup tables* e *flip-flops* para armazenamento. *Lookup tables* (LUTs) são unidades parecidas com multiplexadores, onde temos uma entrada de *k* bits e um código de configuração de *2^k* bits, formando uma LUT chamada k-LUT. A depender do código de configuração usado, a entrada de *k* bits retorna uma possível saída também de *k* bits, ou seja, uma k-LUT pode retornar qualquer valor de uma determinada função booleana f tal que ```f: {0, 1}^k => {0, 1}^k```. A vantagem do uso de LUTs reside em não ter uma granularidade nem muito pequena, nem muito grande, permitindo o uso em conjunto para implementações mais complexas.
+
+Apesar do uso de LUTs ou outros métodos para implementar BLBs, como NANDs, esses métodos são mais usados para criar a parte programável do FPGA. Uma parte dele pode vir já programada com blocos lógicos especializados, como processadores de sinais digitais (conhecidos como DSPs, ou *digital signals processor*), multiplicadores, somadores, ALUs inteiras, todos criados de forma otimizada para suas tarefas. Estes são chamados de blocos rígidos, pois não podem ser reprogramados, apenas usados como estão no FPGA. Isso implica em um possível desperdício de espaço e recursos no caso desses blocos não serem utilizados pelo circuito, mas também traz a vantagem de se usar blocos feitos especialmente para determinadas tarefas.
 
 # Desvantagens
 
