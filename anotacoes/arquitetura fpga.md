@@ -53,7 +53,7 @@ Cerca de 85% da área de um FPGA consiste da rede de interconexão entre os bloc
 
 ### Redes baseadas em malha
 
-As redes baseadas em malha (do inglês '*mesh-based*', também conhecida como '*island-style*' ou '*estilo de ilha*') são organizadas em formato matricial, com blocos lógicos (BLs) cercados de fios de conexão - daí o termo 'estilo de ilha', onde os BLs parece estar "ilhados" em um mar de fios. Nas extremidades se encontram os blocos de E/S, e na rede de conexão encontramos concentrações de *switches* que chamaremos de "caixas de *switches*", ou CSs. Soma-se a essas componentes as conexões entre os blocos lógicos e a rede de comunicação, que serão chamadas de caixas de comunicação, ou CCs.
+As redes baseadas em malha (do inglês '*mesh-based*', também conhecida como '*island-style*' ou '*estilo de ilha*') são organizadas em formato matricial, com blocos lógicos (BLs) cercados de fios de conexão - daí o termo 'estilo de ilha', onde os BLs parecem estar "ilhados" em um "mar" de fios. Nas extremidades se encontram os blocos de E/S. Na rede de conexão encontramos concentrações de *switches* que chamaremos de "caixas de *switches*", ou CSs, que estabelecem a rota dos sinais entre os BLs. Soma-se a essas componentes as conexões entre os blocos lógicos e a rede de comunicação, que serão chamadas de caixas de comunicação, ou CCs, que também são configuráveis.
 
 # Desvantagens
 
