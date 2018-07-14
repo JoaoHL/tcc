@@ -14,12 +14,12 @@ Apenas o uso de ferramentas de síntese de alto nível, por si só, não é um a
 
 ---
 
-# Introdução
+# FPGAs
 
 *FPGA*s (do inglês *Field programmable gate array*) são dispositivos de silício que podem ser programados após sua fabricação, permitindo que quase qualquer *design* de circuito digital possa ser implementado nele. Essa maleabilidade de implementação torna-os atrativos para tarefas que envolvam a produção e alteração de *designs* de circuitos lógicos, pois o custo e tempo de execução dessas atividades são muito reduzidos em comparação ao tradicional ciclo de desenvolvimento com o uso de dispositivos *ASIC*s (do inglês *Application-specific integrated circuit*). Como consequência, *FPGA*s permitem que o *design* seja concluído em um menor tempo para poder ser lançado no mercado (o dito *time to market*).
 
 
-# Programabilidade de uma FPGA
+## Programabilidade de uma FPGA
 
 A flexibilidade do *FPGA* se deve à sua capacidade de ser reprogramada após sua fabricação. Para tal, há o uso de *switch*s programáveis em suas rotas de interconexão, isto é, podemos conectar ou desconectar as rotas de comunicação da forma que quiseremos. Assim, usam-se certas tecnologias de programação de circuitos que guardam os estados desses *switch*s. Este fato é o que faz com que cerca de 90% da área útil do *FPGA* seja destinado apenas para a implementação das rotas de intercomunicação do circuito.
 
@@ -27,24 +27,24 @@ A flexibilidade do *FPGA* se deve à sua capacidade de ser reprogramada após su
 
 [Resumir as tecnologias de programabilidade em parágrafos ao invés de seções]
 
-## SRAM
+### SRAM
 
 A *SRAM* ('Static Random Access Memory', ou 'memória estáticas de acesso aleatório') são um tipo de memória volátil que utiliza uma combinação de 6 transistores para guardar um *bit* de informação. O termo 'estático' refere-se à falta de necessidade de *refresh*s em seu circuito. Note que isso não significa que, na ausência de corrente elétrica, o estado se manterá: caso haja uma queda de energia, a memória perderá o dado nela contido.
 
 Devido à sua característica estática, as *SRAM*s são mais rápidas e consomem menos energia que as *DRAM*s. Entretanto, como as *SRAM*s necessitam de 6 transistores e muito mais espaço que as *DRAM*s, que utilizam apenas 1 transistor e 1 capacitor, aquelas são muito mais caras e demandam mais espaço no circuito para serem implementadas, além de ambas serem voláteis.
 
-## Memórias *flash*
+### Memórias *flash*
 
 As memórias *flash* ou baseadas em EEPROMs ('Electrally Erasable-Programmable Read-Only Memory', ou 'memória exclusiva para leitura eletricamente programável e apagável') são memórias não-voláteis que podem ser reconfiguradas através do uso de luz ultravioleta e descargas elétricas. Além de não-voláteis, também são estáticas e portanto consomem pouca energia, enquanto também necessitam de menos área de implementação que as *SRAM*s; no entanto, são mais caras e só podem ser programadas um número finito de vezes antes de pararem de funcionar adequadamente. 
 
-## Memória baseada em fusíveis
+### Memória baseada em fusíveis
 
 É o tipo de memória com menor área de implementação dentre as citadas. Essa tecnologia utiliza fusíveis como *switches*: uma vez queimados, eles implementarão as rotas desejadas no FPGA, o que explica sua natureza não-volátil e sua rapidez. Porém o uso de fusíveis tem desvantagens notáveis, como a programabilidade única da placa.
 
 Dentre as tecnologias de programação citadas, todas possuem suas vantagens e desvantagens. O uso mais comum, atualmente, é de FPGAs que utilizam SRAMs para sua programabilidade, pois além de todas as vantagens citadas e apesar das desvantagens, as SRAMs seguem o padrão *CMOS* ('Complementary Metal-oxyde semiconductor', ou 'semicondutor de metal-óxido complementar') de processo de fabricação de circuitos, o que barateia sua produção e sua predominancia no mercado de semicondutores.
 
 
-# Componentes de um *FPGA*
+## Componentes de um *FPGA*
 
 Os *FPGA*s são compostos, basicamente, por:
 
@@ -55,7 +55,7 @@ Os *FPGA*s são compostos, basicamente, por:
 Os blocos lógicos são configuráveis e implementam funções lógicas e armazenamento de dados (i.e. memória). Os blocos de E/S recebem e enviam dados para fora do *chip*. Por fim, as rotas de interconexão conectam os blocos lógicos entre si e entre os blocos de E/S. Uma forma de visualizar esses componentes é através de uma matriz, onde os blocos lógicos estão dispostos bidimensionalmente, numa grade, e conectados pelas rotas de interconexão. Nas bordas dessa matriz se encontram os blocos de E/S, integrados à matriz pelas rotas de interconexão, servindo para a comunicação do *FPGA* com dispositivos exteriores a ele.
 
 
-## Blocos lógicos de um FPGA
+### Blocos lógicos de um FPGA
 
 Os blocos lógicos configuráveis (BLCs) são as unidades que provêem capacidade lógica e de armazenamento para o FPGA. BLCs podem ser implementados de diversas maneiras, desde simples transistores até processadores inteiros, e essa implementação define sua granularidade. BLCs com granularidade muito pequena, como transistores, acabam se utilizando de espaço demais e torna os ineficientes. Por outro lado, os de granularidade muito grande, como processadores, podem representar um desperdício de recurso quando tratamos de funções mais simples.
 Entre esses máximos, temos um espectro de implementações de BLCs. 
@@ -64,24 +64,26 @@ Os BLCs são compostos blocos lógicos básicos (BLBs), que podem ser usados em 
 
 Apesar do uso de LUTs ou outros métodos para implementar BLBs, como NANDs, esses métodos são mais usados para criar a parte programável do FPGA. Uma parte dele pode vir já programada com blocos lógicos especializados, como processadores de sinais digitais (conhecidos como DSPs, ou *digital signals processor*), multiplicadores, somadores, ALUs inteiras, todos criados de forma otimizada para suas tarefas. Estes são chamados de blocos rígidos, pois não podem ser reprogramados, apenas usados como estão no FPGA. Isso implica em um possível desperdício de espaço e recursos no caso desses blocos não serem utilizados pelo circuito, mas também traz a vantagem de se usar blocos feitos especialmente para determinadas tarefas.
 
-## Rede de interconexão
+### Rede de interconexão
 
 Como dito anteriormente, a flexibilidade de um FPGA vem da capacidade de ter sua rede de interconexão reprogramada. Essa rede precisa ser flexível não só em termos de configuração de rotas, mas também de tipos de fios presentes no dispositivo para poder implementar uma grande variedade de circuitos. Apesar da maior parte das componentes de um circuito apresentar localidade (isto é, se localizarem perto umas das outras), há conexões que podem necessitar de fios mais longos.
 Cerca de 85% da área de um FPGA consiste da rede de interconexão entre os blocos lógicos. Visando otimizar a comunicação de acordo com a finalidade do circuito, essa rede pode ser construída usando arquiteturas diferentes. Duas destas são notáveis: a baseada em malha e a hierárquica.
 
 [explicar resumidamente sobre redes em malha e hierárquica. Tinha escrito com detalhes mas tirei]
 
-# Desvantagens
+## Desvantagens
 
 A maior vantagem de *FPGA*s - sua flexibilidade - também é a causa de sua maior desvantagem. Tal característica das *FPGA*s baseia-se principalmente na reprogramação das rotas de intercomunicação entre os blocos lógicos e blocos de E/S. Entretanto, a área usada por tais rotas para ocupa a maior parte do dispositivo, chengando a quase 90% da área útil do dispositivo, para permitir a sua reprogramação. Além de maiores que os *ASIC*s, as *FPGA*s são mais lentas e consomem mais energia, também por conta da sua fabricação visando a flexibilidade de implementações.
 
 ---
 
-# Definição
+# Síntese de alto-nível 
+
+## Definição
 
 Síntese de alto nível ('High level synthesis', ou HLS) é o processo de transformação linguagens de programação de alto nível para sintetizar arquiteturas RTL ('*Register-transfer level*' ou 'nível de registrador e transferência'), isto é, sintetizar arquiteturas de circuitos digitais síncronos a partir de descrições comportamentais (ou algorítmicas) do *hardware*. As saídas geradas são, em sua maioria, arquivos em linguagens HDL ('*Hardware description language*' ou linguagem de descrição de *hardware*), que são usadas para configurar o *hardware*. Tais ferramentas realizam o mesmo fluxo básico na sintetização dos circuitos, desde a especificação comportamental desejada até a geração dos arquivos em HDLs.
 
-# Fluxo de síntese
+## Fluxo de síntese
 
 O fluxo de síntese das ferramentas de HLS segue o mesmo padrão, que envolve:
 
@@ -145,6 +147,7 @@ Essas três fases estão intimamente ligadas, como já reforçado ao longo da pa
 Em geral, aplicações com restrições diferentes exigem ordens de execução diferentes. Restrições de recurso (*e.g.* área de implementação, quantidade de unidades funcionais etc) rodam primeiro a alocação, para estabelecer o máximo de recursos e área que o circuito poderá utilizar e, a partir disso, otimizar sua geração nos outros passos. Por outro lado, restrições de tempo exigem o uso prévio do escalonador para estabelecer a latência máxima do processamento dos dados e, em seguida, ocorrem as otimizações possíveis em cima desse primeiro resultado.
 
 ---
+# LegUp High-Level Synthesis
 
 ## O que é?
 
@@ -178,32 +181,33 @@ Apesar da utilização do Tiger, que é um *soft processor*, a versão mais rece
 
 ---
 
+# Benchmarking 
 
 'Benchmarking', na Computação, é o ato de medir o desempenho de um sistema, seja ele de 'hardware' ou de 'software'. Para tanto, faz-se o uso de monitoramento das execuções de testes em cima do sistema a ser avaliado, capturando dados tais como número de falhas de 'cache' e de más especulações de instruções. O 'benchmarking' de um sistema pode ser feito através de 4 metodologias: hardware on-chip, hardware off-chip, software e instrumentação microprogramada.
 
-# Hardware on-chip
+## Hardware on-chip
 
 Neste método, usamos os dados gravados pelo próprio processador, dados estes compostos principalmente de contadores de eventos. A captura de dados é feita através de instruções especiais, que atualmente são descritas pelos fabricantes dos processadores, em registradores de controle especiais . A principal vantagem é a baixa interferência da medição de eventos na taxa de processamento, mas apesar das possíveis centenas de dados capturados, cerca de apenas 2 a 10 medições podem ser feitas simultaneamente, devido à baixa disponibilidade desses registradores.
 
-# Hardware off-chip
+## Hardware off-chip
 
 Este método é parecido com o on-chip, mas utiliza hardware exterior à CPU. Dessa forma, a capacidade de armazenamento de medições aumenta de forma significativa; entretanto, a necessidade de disparar interrupções na CPU para reter os dados torna-o mais invasivo, diminuindo o uso da CPU próprio para processamento.
 
-# Benchmarking por software
+## Benchmarking por software
 
 O uso de software para realizar o benchmarking de um sistema apresenta a grande vantagem de ser mais fácil de ser realizado do que os por hardware. No entanto, também é o método mais invasivo, além de comumente realizar-se medições apenas em processos do usuário, ignorando os processos do sistema operacional. Este método entrou em declínio de uso após o advento dos contadores especiais on-chip, por este ser menos invasivo e mais preciso.
 
-# Instrumentação microprogramada
+## Instrumentação microprogramada
 
 Uma forma de conciliar os métodos vistos até agora é a utilização da microprogramação de instruções no conjunto de instruções do sistema. Assim, tais instruções de medição podem ser executadas periodicamente pelo processador para retornar os dados de medição disponibilizados pela CPU em uma parte reservada da memória, apresentando assim traços do método por hardware (através de interrupções) e por software (usando as instruções). Este método, porém, é muito invasivo, podendo desacelerar a CPU em até 10 vezes, excluindo o tempo de operações de entrada e saída, e fazendo-se necessária a adição das microinstruções no hardware, o que pode não ser trivial.
 
 Além disso, uma ferramenta de benchmarking pode ser categorizada, em sua essência, como sintética ou aplicada.
 
-# Benchmarking sintético
+## Benchmarking sintético
 
 Programa usado para medição de desempenho de um sistema ou componente de sistema particulares. Chama-se "sintético" porque a carga de trabalho realizada pelo programa é projetada para testar algo específico do sistema. Um exemplo é o benchmark Whetstone, que é composto de vários loops com aritmética de ponto flutuante, para testar a capacidade de um processador de lidar com tal aritmética de forma eficiente. Um fato curioso sobre esse tipo de benchmark é que em algumas linguagens compiladas, tais como C/C++, partes dos códigos de ferramentas dessa categoria podem ser vistas como "código morto" pelo compilador, sendo , por padrão, retiradas em tempo de compilação para melhorar a eficiência de execução; dessa forma, a ferramenta acaba não sendo fielmente executada e a qualidade da medição realizada acaba sendo altamente não-confiável.
 
-# Benchmarking aplicado
+## Benchmarking aplicado
 
 O problema do benchmark sintético é que ele é ideal, ou seja, ele não condiz com a complexidade das cargas de trabalho de aplicações do mundo real. Em contrapartida, benchmarks aplicados são programas com cargas de trabalhos mais realistas, que poderiam surgir em uma aplicação real. Um dos melhores exemplos é o famoso Linpack, um pacote de resolução de sistemas lineares programado em FORTRAN, utilizado como um dos benchmarks das máquinas do TOP500.
 
