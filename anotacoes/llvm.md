@@ -1,5 +1,7 @@
 Referência: http://www.aosabook.org/en/llvm.html
+
 Nome do livro: The Architecture of Open-Source Applications
+
 autor do capítulo: Chris Lattner
 
 # LLVM
