@@ -12,9 +12,7 @@ A figura acima representa o fluxo geral do arcabouço. No passo (1), um programa
 
 # Compilação
 
-O código de entrada utilizado pelo arcabouço deve ser escrito em C e possui limitações. A versão gratuita mais recente da ferramenta não suporta recursão, aritmética de ponto flutuante ou alocação dinâmica de memória; entretanto, o LegUp consegue sintetizar estruturas, controles de fluxo, aritmética de inteiros, manipulação de ponteiros (inclusive de funções), dentre outras características da linguagem.
-
-A compilação do código é feita usando a LLVM. LLVM (Acrônimo para "Low-level virtual machine") é um projeto de código aberto que dispobiliza ferramentas de compilação para diversas linguagens. Tais ferramentas conseguem otimizar o código em tempo de compilação e ligamento do código, provido de um *front-end* e um *back-end* do usuário. Por *front-end* entende-se um *parser* e um *lexer* da linguagem de programação a qual se deseja compilar, enquanto que por *back-end* entende-se uma lógica que converte o código próprio da LLVM (como um "bytecode" de uma JVM) em código de máquina. No caso do LegUp, o *front-end* é igual ao do GCC para o processamento do código de entrada, e o *back-end* foi substituído pelo algoritmo de síntese de hardware do arcabouço. Um exemplo de uma ferramenta famosa pertencente ao projeto LLVM é o [Clang](http://clang.llvm.org/), um compilador de C/C++/Objective-C alternativo ao GCC, que pode apresentar perfomances superiores a este.
+O código de entrada utilizado pelo arcabouço deve ser escrito em C e possui limitações. A versão gratuita mais recente da ferramenta não suporta recursão, aritmética de ponto flutuante ou alocação dinâmica de memória; entretanto, o LegUp consegue sintetizar estruturas, controles de fluxo, aritmética de inteiros, manipulação de ponteiros (inclusive de funções), dentre outras características da linguagem. A compilação do código é feita usando o projeto LLVM, descrito no capítulo anterior.
 
 [explicar melhor sobre a LLVM numa seção ou capítulo a parte, ela merece]
 

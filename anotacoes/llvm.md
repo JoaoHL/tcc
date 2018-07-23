@@ -45,6 +45,20 @@ unsigned int add1(unsigned int a, unsigned int b) {
 
 O uso dessa representação intermediária facilita o desenvolvimento de uma aplicação ao padronizar a saída do *front-end* e a entrada do *back-end*, bem como essas partes do otimizador. Assim, ao criar um novo *front-end* para a LLVM, por exemplo, um programador deve saber apenas as características da entrada e da LLVM IR. Como o otimizador e o *back-end* utilizam a LLVM IR de forma independente, não é necessário saber sobre eles para a execução de seu trabalho.
 
-## Otimizador
+## LLVM Pass Framework
 
-No meio do processo de compilação, considerando a arquitetura trifásica, encontra-se o otimizador do código. Ele é responsável por realizar modificações que melhorem, por exemplo, o tempo de execução do programa e o uso de espaço de memória do computador. No caso da LLVM, o otimizador recebe um código descrito na LLVM IR e
+No meio do processo de compilação, considerando a arquitetura trifásica, encontra-se o otimizador do código. Ele é responsável por realizar modificações que melhorem, por exemplo, o tempo de execução do programa e o uso de espaço de memória do computador. No caso da LLVM, o otimizador recebe um código descrito pela LLVM IR e altera as instruções ao reconhecer determinados padrões. Por exemplo, se houver uma instrução onde atribuimos a uma variável a subtração de um número inteiro por ele mesmo:
+```
+...
+%tmp1 = sub i32 %a, %a
+...
+```
+
+Podemos simplesmentre atribuir ```0``` à variável:
+```
+%tmp1 = i32  0
+```
+
+Ou seja, reconhecendo um padrão na instrução (e.g. subtração de um inteiro por ele mesmo), podemos substituí-la por outro mais eficiente (e.g. atribuir ```0``` à variável).
+
+O mecanismo empregado na LLVM para realizar essas otimizações são os chamados *passes*, do arcabouço *LLVM Pass Framework*, pertencente ao projeto. Em termos práticos, os passes são etapas, possivelmente independentes entre si, pelas quais o código (ou parte dele) passa por uma análise e possível alteração, ocorrendo aí a otimização; em termos técnicos, os passes são classes derivadas da superclasse ```Pass``` direta ou indiretamente, que indicam o escopo mínimo pelo qual o passe é responsável (e.g. escopo global, de função, de bloco básico, de *loop*) que sobrescrevem métodos abstratos usados pelo arcabouço para realizar as otimizações. Cada passe é, assim, responsável por identificar padrões de instrução dentro do seu escopo e otimizar o padrão observado. A alteração retratada acima, onde temos a subtração de um inteiro por ele mesmo trocada pela atribuição da variável pelo valor ```0```, poderia ser colocada dentro de um passe junto de outras otimizações em cima de aritmética de inteiros como, por exemplo, transformar ```x - 0``` em ```x```.
