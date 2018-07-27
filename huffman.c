@@ -1,19 +1,26 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-/* MINIMUM PRIORITY QUEUE 
-  * AND TRIE DEFINITIONS */
-struct node {
-	int freq;
-	char c;
-	struct node *left;
-	struct node *right;
-}; 
-typedef struct node Node;
-
 #define MAX 100
 #define MAX_INT 2147483647
+#define ALPHABET_SIZE 128
+#define TEXT_SIZE 75
 
+/* TRIE DEFINITIONS */
+struct node {
+	int freq;
+	char ch;
+	struct node *left;
+	struct node *right;
+};
+typedef struct node Node;
+
+char texto[TEXT_SIZE] = "Se eu fosse um peixinho e soubesse nada, levaria o mundo pro fundo do mar.";
+Node alfabeto[ALPHABET_SIZE];
+
+void count_frequency(char ch);
+
+/* MINIMUM PRIORITY QUEUE DEFINITIONS */
 Node heap[MAX];
 int heap_size;
 
@@ -23,18 +30,36 @@ Node get_min();
 void insert(Node new);
 void swap(int pos1, int pos2);
 
-int main(int argc, char const *argv[])
-{
+int main(int argc, char const *argv[]) {
 	int i;
+
+	for (int i = 0; i < ALPHABET_SIZE; ++i)	{
+		alfabeto[i].ch = i;
+		alfabeto[i].freq = 0;
+		alfabeto[i].left = NULL;
+		alfabeto[i].right = NULL;
+	}
+
+	for (int i = 0; i < ALPHABET_SIZE; i++) 
+		count_frequency((char) i);
 	
-	for (int i = 0; i < heap_size; i++)	{
-		printf("%d\n", heap[i].freq);
+	for (int i = 0; i < ALPHABET_SIZE; ++i)	{
+		printf("%d -> %c, %d\n", i, alfabeto[i].ch, alfabeto[i].freq);
 	}
 
 	printf("\nfim do programa\n");
 	return 0;
 }
 
+/* TRIE IMPLEMENTATIONS */
+void count_frequency(char ch) {
+	int i;
+	for (int i = 0; i < TEXT_SIZE; i++)
+		if (texto[i] == ch)
+			alfabeto[ch].freq++;
+}
+
+/* MINIMUM PRIORITY QUEUE IMPLEMENTATIONS */
 void init_heap() {
 	int i;
 
