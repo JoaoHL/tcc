@@ -40,11 +40,15 @@ int main(int argc, char const *argv[]) {
 		alfabeto[i].right = NULL;
 	}
 
-	for (int i = 0; i < ALPHABET_SIZE; i++) 
+	for (int i = 0; i < ALPHABET_SIZE; i++) {
 		count_frequency((char) i);
-	
-	for (int i = 0; i < ALPHABET_SIZE; ++i)	{
-		printf("%d -> %c, %d\n", i, alfabeto[i].ch, alfabeto[i].freq);
+		if (alfabeto[i].freq > 0) {
+			insert(alfabeto[i]);
+		}
+	}
+
+	for (int i = 0; i < heap_size; ++i)	{
+		printf("%d -", heap[i].freq);
 	}
 
 	printf("\nfim do programa\n");
