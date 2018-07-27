@@ -7,18 +7,22 @@
 #define TEXT_SIZE 75
 
 /* TRIE DEFINITIONS */
+typedef struct node Node;
 struct node {
 	int freq;
 	char ch;
-	struct node *left;
-	struct node *right;
+	Node *left;
+	Node *right;
 };
-typedef struct node Node;
 
 char texto[TEXT_SIZE] = "Se eu fosse um peixinho e soubesse nada, levaria o mundo pro fundo do mar.";
 Node alfabeto[ALPHABET_SIZE];
+// Esses nós servem como nós intermediarios da arvore, em contraposição às folhas da árvore
+Node intermediarios[ALPHABET_SIZE-1];
+int used_intermediaries = 0;
 
 void count_frequency(char ch);
+Node build_trie();
 
 /* MINIMUM PRIORITY QUEUE DEFINITIONS */
 Node heap[MAX];
@@ -32,6 +36,7 @@ void swap(int pos1, int pos2);
 
 int main(int argc, char const *argv[]) {
 	int i;
+	Node raiz;
 
 	for (int i = 0; i < ALPHABET_SIZE; ++i)	{
 		alfabeto[i].ch = i;
@@ -47,6 +52,8 @@ int main(int argc, char const *argv[]) {
 		}
 	}
 
+	raiz = build_trie();
+
 	for (int i = 0; i < heap_size; ++i)	{
 		printf("%d -", heap[i].freq);
 	}
@@ -56,11 +63,26 @@ int main(int argc, char const *argv[]) {
 }
 
 /* TRIE IMPLEMENTATIONS */
+// Conta a frequencia de cada caractere da string
 void count_frequency(char ch) {
 	int i;
 	for (int i = 0; i < TEXT_SIZE; i++)
 		if (texto[i] == ch)
 			alfabeto[ch].freq++;
+}
+// Constroi a trie de codificação. Retorna a raiz da trie.
+Node build_trie() {
+	Node raiz;
+
+	while (heap_size > 1) {
+		raiz = intermediarios[used_intermediaries];
+		raiz.left = &get_min();
+		raiz.right = &get_min();
+		insert(raiz);
+		used_intermediaries++;
+	}
+
+	return raiz;
 }
 
 /* MINIMUM PRIORITY QUEUE IMPLEMENTATIONS */
