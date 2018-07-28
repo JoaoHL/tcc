@@ -72,12 +72,17 @@ void count_frequency(char ch) {
 }
 // Constroi a trie de codificação. Retorna a raiz da trie.
 Node build_trie() {
-	Node raiz;
+	Node raiz, aux;
 
 	while (heap_size > 1) {
 		raiz = intermediarios[used_intermediaries];
-		raiz.left = &get_min();
-		raiz.right = &get_min();
+		aux = get_min();
+		raiz.left = &alfabeto[aux.ch];
+		raiz.freq += aux.freq;
+		aux = get_min();
+		raiz.right = &alfabeto[aux.ch];
+		raiz.freq += aux.freq;
+
 		insert(raiz);
 		used_intermediaries++;
 	}
