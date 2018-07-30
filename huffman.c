@@ -4,8 +4,8 @@
 #define MAX 129
 #define MAX_INT 2147483647
 #define ALPHABET_SIZE 128
-//#define TEXT_SIZE 682
-#define TEXT_SIZE 12
+#define TEXT_SIZE 682
+//#define TEXT_SIZE 12
 
 /* TRIE DEFINITIONS */
 typedef struct node Node;
@@ -16,8 +16,8 @@ struct node {
 	Node *right;
 };
 
-//char texto[TEXT_SIZE] = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent eget risus vitae massa semper aliquam quis mattis quam. Morbi vitae tortor tempus, placerat leo et, suscipit lectus. Phasellus ut euismod massa, eu eleifend ipsum. Nulla eu neque commodo, dapibus dolor eget, dictum arcu. In nec purus eu tellus consequat ultricies. Donec feugiat tempor turpis, rutrum sagittis mi venenatis at. Sed molestie lorem a blandit congue. Ut pellentesque odio quis leo volutpat, vitae vulputate felis condimentum. Praesent vulputate fermentum lorem, id rhoncus sem vehicula eu. Quisque ullamcorper, orci adipiscing auctor viverra, velit arcu malesuada metus, in volutpat tellus sem at justo.";
-char texto[TEXT_SIZE] = "ABRACADABRA!";
+char texto[TEXT_SIZE] = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent eget risus vitae massa semper aliquam quis mattis quam. Morbi vitae tortor tempus, placerat leo et, suscipit lectus. Phasellus ut euismod massa, eu eleifend ipsum. Nulla eu neque commodo, dapibus dolor eget, dictum arcu. In nec purus eu tellus consequat ultricies. Donec feugiat tempor turpis, rutrum sagittis mi venenatis at. Sed molestie lorem a blandit congue. Ut pellentesque odio quis leo volutpat, vitae vulputate felis condimentum. Praesent vulputate fermentum lorem, id rhoncus sem vehicula eu. Quisque ullamcorper, orci adipiscing auctor viverra, velit arcu malesuada metus, in volutpat tellus sem at justo.";
+//char texto[TEXT_SIZE] = "ABRACADABRA!";
 Node alfabeto[ALPHABET_SIZE];
 // Esses nós servem como nós intermediarios da arvore, em contraposição às folhas da árvore
 Node intermediarios[ALPHABET_SIZE];
@@ -122,25 +122,19 @@ void init_heap() {
 }
 
 void heapify() {
-	int pai, filho1, filho2, pos_min_filho = 0;
+	int pai, filho;
 
 	pai = 1;
-	filho1 = 2;
-	filho2 = 3;
-	while (filho1 <= heap_size || filho2 <= heap_size) {
-		if (filho1 <= heap_size && filho2 <= heap_size)
-			pos_min_filho = heap[filho1]->freq < heap[filho2]->freq ? filho1 : filho2;
-		else if (filho1 > heap_size)
-			pos_min_filho = filho2;
-		else if (filho2 > heap_size)
-			pos_min_filho = filho1;
+	filho = 2;
+	while (filho <= heap_size) {
+		if (filho < heap_size && heap[filho]->freq > heap[filho + 1]->freq)
+			filho++;
+		if (heap[filho]->freq < heap[pai]->freq)
+			swap(pai, filho);
 		else
 			break;
-
-		swap(pai, pos_min_filho);
-		pai = pos_min_filho;
-		filho1 = (2 * pai) + 1;
-		filho2 = filho1 + 1;
+		pai = filho;
+		filho = 2*filho;
 	}
 }
 
