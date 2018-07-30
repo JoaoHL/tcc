@@ -1,10 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define MAX 100
+#define MAX 129
 #define MAX_INT 2147483647
 #define ALPHABET_SIZE 128
-#define TEXT_SIZE 75
+//#define TEXT_SIZE 682
+#define TEXT_SIZE 12
 
 /* TRIE DEFINITIONS */
 typedef struct node Node;
@@ -15,30 +16,36 @@ struct node {
 	Node *right;
 };
 
-char texto[TEXT_SIZE] = "Se eu fosse um peixinho e soubesse nada, levaria o mundo pro fundo do mar.";
+//char texto[TEXT_SIZE] = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent eget risus vitae massa semper aliquam quis mattis quam. Morbi vitae tortor tempus, placerat leo et, suscipit lectus. Phasellus ut euismod massa, eu eleifend ipsum. Nulla eu neque commodo, dapibus dolor eget, dictum arcu. In nec purus eu tellus consequat ultricies. Donec feugiat tempor turpis, rutrum sagittis mi venenatis at. Sed molestie lorem a blandit congue. Ut pellentesque odio quis leo volutpat, vitae vulputate felis condimentum. Praesent vulputate fermentum lorem, id rhoncus sem vehicula eu. Quisque ullamcorper, orci adipiscing auctor viverra, velit arcu malesuada metus, in volutpat tellus sem at justo.";
+char texto[TEXT_SIZE] = "ABRACADABRA!";
 Node alfabeto[ALPHABET_SIZE];
 // Esses nós servem como nós intermediarios da arvore, em contraposição às folhas da árvore
-Node intermediarios[ALPHABET_SIZE-1];
-int used_intermediaries = 0;
+Node intermediarios[ALPHABET_SIZE];
+int used_intermediaries;
 
 void count_frequency(char ch);
-Node build_trie();
+void init_intermediarios();
+void verify_heap();
+Node *build_trie();
 
 /* MINIMUM PRIORITY QUEUE DEFINITIONS */
-Node heap[MAX];
+Node *heap[MAX];
 int heap_size;
 
 void init_heap();
 void heapify();
-Node get_min();
-void insert(Node new);
+Node *get_min();
+void insert(Node *new);
 void swap(int pos1, int pos2);
+
+/* UTILITY FUNCS - DEBUGGING ONLY */
+void rec_print_trie(Node *root);
 
 int main(int argc, char const *argv[]) {
 	int i;
-	Node raiz;
+	Node *raiz, *aux;
 
-	for (int i = 0; i < ALPHABET_SIZE; ++i)	{
+	for (int i = 0; i < ALPHABET_SIZE; i++)	{
 		alfabeto[i].ch = i;
 		alfabeto[i].freq = 0;
 		alfabeto[i].left = NULL;
@@ -48,15 +55,14 @@ int main(int argc, char const *argv[]) {
 	for (int i = 0; i < ALPHABET_SIZE; i++) {
 		count_frequency((char) i);
 		if (alfabeto[i].freq > 0) {
-			insert(alfabeto[i]);
+			insert(&alfabeto[i]);
 		}
 	}
-
+	printf("Verificando heap antes de buildar a trie...\n");
+	verify_heap();
 	raiz = build_trie();
-
-	for (int i = 0; i < heap_size; ++i)	{
-		printf("%d -", heap[i].freq);
-	}
+	//debug
+	rec_print_trie(raiz);	
 
 	printf("\nfim do programa\n");
 	return 0;
@@ -70,64 +76,86 @@ void count_frequency(char ch) {
 		if (texto[i] == ch)
 			alfabeto[ch].freq++;
 }
-// Constroi a trie de codificação. Retorna a raiz da trie.
-Node build_trie() {
-	Node raiz, aux;
 
+void init_intermediarios() {
+	int i;
+
+	used_intermediaries = 0;
+	for (int i = 0; i < ALPHABET_SIZE; i++) {
+		intermediarios[i].right = NULL;
+		intermediarios[i].left = NULL;
+	}
+}
+
+// Constroi a trie de codificação. Retorna a raiz da trie.
+Node *build_trie() {
+	Node *raiz;
+	init_intermediarios();
+
+	printf("Começo de build_trie\n");
 	while (heap_size > 1) {
-		raiz = intermediarios[used_intermediaries];
-		aux = get_min();
-		raiz.left = &alfabeto[aux.ch];
-		raiz.freq += aux.freq;
-		aux = get_min();
-		raiz.right = &alfabeto[aux.ch];
-		raiz.freq += aux.freq;
+		raiz = &intermediarios[used_intermediaries];
+		raiz->left = get_min();
+		raiz->right = get_min();
+		raiz->freq = raiz->left->freq + raiz->right->freq;
+
+		printf("Left: %d -- Right:  %d -- parent: freq:%d\n", raiz->left->freq, raiz->right->freq, raiz->freq);
 
 		insert(raiz);
+		verify_heap();
 		used_intermediaries++;
 	}
+	printf("Fim de build_trie\n");
 
-	return raiz;
+	return get_min();
 }
 
 /* MINIMUM PRIORITY QUEUE IMPLEMENTATIONS */
 void init_heap() {
 	int i;
 
-	for (i = 0; i < MAX; i++) {
-		heap[i].freq = MAX_INT;
+	for (i = 1; i < MAX+1; i++) {
+		heap[i] = NULL;
 	}
 
 	heap_size = 0;
 }
 
 void heapify() {
-	int pai, filho1, filho2, pos_min_filho;
+	int pai, filho1, filho2, pos_min_filho = 0;
 
-	pai = 0;
-	while (pai < heap_size) {
-		filho1 = (2 * pai) + 1;
-		filho2 = filho1 + 1;
-		if (heap[pai].freq <= heap[filho1].freq || heap[pai].freq <= heap[filho2].freq)
+	pai = 1;
+	filho1 = 2;
+	filho2 = 3;
+	while (filho1 <= heap_size || filho2 <= heap_size) {
+		if (filho1 <= heap_size && filho2 <= heap_size)
+			pos_min_filho = heap[filho1]->freq < heap[filho2]->freq ? filho1 : filho2;
+		else if (filho1 > heap_size)
+			pos_min_filho = filho2;
+		else if (filho2 > heap_size)
+			pos_min_filho = filho1;
+		else
 			break;
-		
-		pos_min_filho = heap[filho1].freq >= heap[filho2].freq ? filho2 : filho1;
+
 		swap(pai, pos_min_filho);
 		pai = pos_min_filho;
+		filho1 = (2 * pai) + 1;
+		filho2 = filho1 + 1;
 	}
 }
 
-Node get_min() {
-	Node result = heap[0];
+Node *get_min() {
+	Node *result = heap[1];
 
-	heap[0] = heap[heap_size-1];
+	heap[1] = heap[heap_size];
+	heap[heap_size] = NULL;
 	heap_size--;
 	heapify();
 
 	return result;
 }
 
-void insert(Node new) {
+void insert(Node *new) {
 	int p;
 
 	if (heap_size == MAX) {
@@ -135,19 +163,46 @@ void insert(Node new) {
 		return;
 	}
 	heap_size++;
-	heap[heap_size - 1] = new;
+	heap[heap_size] = new;
 
-	p = heap_size - 1;
-	while(p >= 1 && heap[p/2].freq > heap[p].freq) {
+	p = heap_size;
+	while(p > 1 && heap[p/2]->freq > heap[p]->freq ) {
 		swap(p/2, p);
 		p = p/2;
 	}
 }
 
 void swap(int pos1, int pos2) {
-	Node temp;
+	Node *temp;
 
 	temp = heap[pos1];
 	heap[pos1] = heap[pos2];
 	heap[pos2] = temp;
+}
+
+/* UTILITY FUNCS - DEBUGGING ONLY */
+void rec_print_trie(Node *root) {
+	if (root->left != NULL){
+		printf("0");
+		rec_print_trie(root->left);
+	}
+	if (root->right != NULL){
+		printf("1");
+		rec_print_trie(root->right);		
+	}
+	if (root->left == NULL && root->right == NULL)
+		printf(" -> %c (freq= %d)\n", root->ch, root->freq); 
+}
+
+void verify_heap() {
+	int i;
+
+	for (int i = 2; i <= heap_size; i++) {
+		if (heap[i/2]->freq > heap[i]->freq) {
+			printf("HEAP ZOADO\n");
+			printf("freq pai: %d // freq filho: %d\n", heap[i/2]->freq, heap[i]->freq);
+			break;
+		}
+	}
+	
 }
