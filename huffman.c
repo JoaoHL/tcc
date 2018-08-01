@@ -50,7 +50,7 @@ int main(int argc, char const *argv[]) {
 	}
 
 	printf("Calculando frequencia de caracteres...\n");
-	count_frequenies();
+	count_frequencies();
 	for (int i = 0; i < ALPHABET_SIZE; i++) {
 		if (alfabeto[i].freq > 0) {
 			insert(&alfabeto[i]);
@@ -72,7 +72,7 @@ int main(int argc, char const *argv[]) {
 
 /* TRIE IMPLEMENTATIONS */
 // Conta a frequencia de cada caractere da string
-void count_frequenies() {
+void count_frequencies() {
 	int i;
 	for (int i = 0; i < TEXT_SIZE; i++)
 		alfabeto[texto[i]].freq++;
