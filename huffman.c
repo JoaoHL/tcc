@@ -21,7 +21,7 @@ Node alfabeto[ALPHABET_SIZE];
 Node intermediarios[ALPHABET_SIZE];
 int used_intermediaries;
 
-void count_frequency(char ch);
+void count_frequencies();
 Node *build_trie();
 
 /* MINIMUM PRIORITY QUEUE DEFINITIONS */
@@ -50,8 +50,8 @@ int main(int argc, char const *argv[]) {
 	}
 
 	printf("Calculando frequencia de caracteres...\n");
+	count_frequenies();
 	for (int i = 0; i < ALPHABET_SIZE; i++) {
-		count_frequency((char) i);
 		if (alfabeto[i].freq > 0) {
 			insert(&alfabeto[i]);
 		}
@@ -72,11 +72,10 @@ int main(int argc, char const *argv[]) {
 
 /* TRIE IMPLEMENTATIONS */
 // Conta a frequencia de cada caractere da string
-void count_frequency(char ch) {
+void count_frequenies() {
 	int i;
 	for (int i = 0; i < TEXT_SIZE; i++)
-		if (texto[i] == ch)
-			alfabeto[ch].freq++;
+		alfabeto[texto[i]].freq++;
 }
 
 // Constroi a trie de codificação. Retorna a raiz da trie.
