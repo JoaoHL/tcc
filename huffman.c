@@ -1,3 +1,7 @@
+/* OBS.: Resultados da codificação verificados no site:
+ * http://resources.nerdfirst.net/huffman
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -7,6 +11,8 @@
 #define MAX_INT 2147483647
 #define ALPHABET_SIZE 128
 #define TEXT_SIZE 682
+#define TRUE 1
+#define FALSE 0
 
 /* TRIE DEFINITIONS */
 typedef struct node Node;
@@ -14,6 +20,7 @@ struct node {
 	int freq;
 	char ch;
 	char code[50];
+	short int done;
 	Node *parent;
 	Node *left;
 	Node *right;
@@ -39,7 +46,7 @@ void insert(Node *new);
 void swap(int pos1, int pos2);
 
 /* UTILITY FUNCS - DEBUGGING ONLY */
-void rec_print_trie(Node *root, char *code, int index);
+void print_codes(Node *root);
 
 int main(int argc, char const *argv[]) {
 	int i, input_size = 0;
@@ -51,6 +58,8 @@ int main(int argc, char const *argv[]) {
 	for (int i = 0; i < ALPHABET_SIZE; i++)	{
 		alfabeto[i].ch = i;
 		alfabeto[i].freq = 0;
+		alfabeto[i].done = FALSE;
+		alfabeto[i].parent = NULL;
 		alfabeto[i].left = NULL;
 		alfabeto[i].right = NULL;
 	}
@@ -59,7 +68,6 @@ int main(int argc, char const *argv[]) {
 	printf("\nCalculando frequência de caracteres...\n");
 	while (scanf("%c", &input) != EOF) {
 		input_size++;
-		printf("%c", input);
 		alfabeto[input].freq++;
 	}
 	for (int i = 0; i < ALPHABET_SIZE; i++)	{
@@ -67,12 +75,6 @@ int main(int argc, char const *argv[]) {
 			insert(&alfabeto[i]);
 	}
 	printf("\n");
-	//count_frequencies();
-	// for (int i = 0; i < ALPHABET_SIZE; i++) {
-	// 	if (alfabeto[i].freq > 0) {
-	// 		insert(&alfabeto[i]);
-	// 	}
-	// }
 	printf("Calculo de frequencia OK\n");
 
 	printf("\nBuildando trie...\n");
@@ -80,14 +82,14 @@ int main(int argc, char const *argv[]) {
 	printf("Build OK\n");
 
 	printf("\nPrintando codificação de Huffman...\n");
-	rec_print_trie(raiz, code, 0);
-	printf("Codificação de Huffman OK\n");
+	print_codes(raiz);
+	printf("Print da codificação de Huffman OK\n");
 
 	printf("\nTamanho original do arquivo (em bits): %ld\n", input_size*sizeof(char)*CHAR_BIT);
 	output_size = 0;
 	for (int i = 0; i < ALPHABET_SIZE; i++)	{
 		if (alfabeto[i].freq > 0)
-			output_size += alfabeto[i].freq * strlen(alfabeto[i].code);
+			output_size += (alfabeto[i].freq * strlen(alfabeto[i].code));
 	}
 	printf("Tamanho do arquivo codificado (em bits): %ld\n", output_size);
 	printf("Taxa de compressão: %ld/%ld = %.2f%\n", output_size, input_size*sizeof(char)*CHAR_BIT, (double) output_size/(input_size*sizeof(char)*CHAR_BIT) * 100);
@@ -111,7 +113,9 @@ Node *build_trie() {
 	while (heap_size > 1) {
 		raiz = &intermediarios[used_intermediaries];
 		raiz->left = get_min();
+		raiz->left->parent = raiz;
 		raiz->right = get_min();
+		raiz->right->parent = raiz;
 		raiz->freq = raiz->left->freq + raiz->right->freq;
 
 		insert(raiz);
@@ -186,19 +190,40 @@ void swap(int pos1, int pos2) {
 	heap[pos2] = temp;
 }
 
-/* UTILITY FUNCS - DEBUGGING ONLY */
-void rec_print_trie(Node *root, char code[], int index) {
-	if (root->left != NULL){
-		code[index] = (char) '1';
-		rec_print_trie(root->left, code, index+1);
-	}
-	if (root->right != NULL){
-		code[index] = (char) '0';
-		rec_print_trie(root->right, code, index+1);		
-	}
-	if (root->left == NULL && root->right == NULL){
-		code[index] = '\0';
-		strcpy(root->code, code);
-		printf("%s -> '%c' (freq= %d) // %ld bits\n", code, root->ch, root->freq, strlen(root->code));
+void print_codes(Node *root) {
+	Node *aux = root;
+	int index = 0;
+	char code[50];
+
+	while (!root->done) {
+		// se for uma folha
+		if (aux->left == NULL && aux->right == NULL) {
+			code[index] = '\0';
+			strcpy(aux->code, code);
+			printf("%s -> '%c' (freq= %d) // %ld bits\n", aux->code, aux->ch, aux->freq, strlen(aux->code));
+			aux->done = TRUE;
+			aux = aux->parent;
+			index--;
+		}
+		// se for um nó interno e não teve suas duas subtries codificadas
+		// OBS.: começa sempre pelo filho esquerdo
+		else if (!aux->left->done || !aux->right->done ){
+			if(!aux->left->done) {
+				code[index] = '0';
+				index++;
+				aux = aux->left;
+			}
+			else {
+				code[index] = '1';
+				index++;
+				aux = aux->right;
+			}
+		}
+		// se for um nó interno e suas subtries foram inteiramente codificadas
+		else {
+			aux->done = TRUE;
+			aux = aux->parent;
+			index--;
+		}
 	}
 }
