@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <limits.h>
 
 #define MAX 129
 #define MAX_INT 2147483647
@@ -11,6 +13,8 @@ typedef struct node Node;
 struct node {
 	int freq;
 	char ch;
+	char code[50];
+	Node *parent;
 	Node *left;
 	Node *right;
 };
@@ -38,40 +42,62 @@ void swap(int pos1, int pos2);
 void rec_print_trie(Node *root, char *code, int index);
 
 int main(int argc, char const *argv[]) {
-	int i;
+	int i, input_size = 0;
+	unsigned long int output_size = 0;
 	Node *raiz, *aux;
-	char code[50];
+	char code[50], input;
 
+	printf("\nInicializando nós...\n");
 	for (int i = 0; i < ALPHABET_SIZE; i++)	{
 		alfabeto[i].ch = i;
 		alfabeto[i].freq = 0;
 		alfabeto[i].left = NULL;
 		alfabeto[i].right = NULL;
 	}
+	printf("Inicialização OK\n");
 
-	printf("Calculando frequencia de caracteres...\n");
-	count_frequencies();
-	for (int i = 0; i < ALPHABET_SIZE; i++) {
-		if (alfabeto[i].freq > 0) {
-			insert(&alfabeto[i]);
-		}
+	printf("\nCalculando frequência de caracteres...\n");
+	while (scanf("%c", &input) != EOF) {
+		input_size++;
+		printf("%c", input);
+		alfabeto[input].freq++;
 	}
+	for (int i = 0; i < ALPHABET_SIZE; i++)	{
+		if (alfabeto[i].freq > 0)
+			insert(&alfabeto[i]);
+	}
+	printf("\n");
+	//count_frequencies();
+	// for (int i = 0; i < ALPHABET_SIZE; i++) {
+	// 	if (alfabeto[i].freq > 0) {
+	// 		insert(&alfabeto[i]);
+	// 	}
+	// }
 	printf("Calculo de frequencia OK\n");
 
-	printf("Buildando trie...\n");
+	printf("\nBuildando trie...\n");
 	raiz = build_trie();
 	printf("Build OK\n");
 
-	printf("Printando codificação de Huffman...\n");
+	printf("\nPrintando codificação de Huffman...\n");
 	rec_print_trie(raiz, code, 0);
 	printf("Codificação de Huffman OK\n");
+
+	printf("\nTamanho original do arquivo (em bits): %ld\n", input_size*sizeof(char)*CHAR_BIT);
+	output_size = 0;
+	for (int i = 0; i < ALPHABET_SIZE; i++)	{
+		if (alfabeto[i].freq > 0)
+			output_size += alfabeto[i].freq * strlen(alfabeto[i].code);
+	}
+	printf("Tamanho do arquivo codificado (em bits): %ld\n", output_size);
+	printf("Taxa de compressão: %ld/%ld = %.2f%\n", output_size, input_size*sizeof(char)*CHAR_BIT, (double) output_size/(input_size*sizeof(char)*CHAR_BIT) * 100);
 
 	printf("\nFim do programa\n");
 	return 0;
 }
 
 /* TRIE IMPLEMENTATIONS */
-// Conta a frequencia de cada caractere da string
+// Conta a frequencia de cada caractere da string hardcoded
 void count_frequencies() {
 	int i;
 	for (int i = 0; i < TEXT_SIZE; i++)
@@ -163,16 +189,16 @@ void swap(int pos1, int pos2) {
 /* UTILITY FUNCS - DEBUGGING ONLY */
 void rec_print_trie(Node *root, char code[], int index) {
 	if (root->left != NULL){
-		code[index] = (char) '0';
+		code[index] = (char) '1';
 		rec_print_trie(root->left, code, index+1);
 	}
 	if (root->right != NULL){
-		code[index] = (char) '1';
+		code[index] = (char) '0';
 		rec_print_trie(root->right, code, index+1);		
 	}
 	if (root->left == NULL && root->right == NULL){
 		code[index] = '\0';
-		puts(code);
-		printf(" -> %c (freq= %d)\n", root->ch, root->freq);
+		strcpy(root->code, code);
+		printf("%s -> '%c' (freq= %d) // %ld bits\n", code, root->ch, root->freq, strlen(root->code));
 	}
 }
