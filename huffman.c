@@ -17,7 +17,7 @@
 /* TRIE DEFINITIONS */
 typedef struct node Node;
 struct node {
-	int freq;
+	unsigned long int freq;
 	char ch;
 	char code[50];
 	short int done;
@@ -49,8 +49,8 @@ void swap(int pos1, int pos2);
 void print_codes(Node *root);
 
 int main(int argc, char const *argv[]) {
-	int i, input_size = 0;
-	unsigned long int output_size = 0;
+	int i;
+	unsigned long int output_size = 0, input_size = 0;
 	Node *raiz, *aux;
 	char code[50], input;
 
@@ -85,13 +85,13 @@ int main(int argc, char const *argv[]) {
 	print_codes(raiz);
 	printf("Print da codificação de Huffman OK\n");
 
-	printf("\nTamanho original do arquivo (em bits): %ld\n", input_size*sizeof(char)*CHAR_BIT);
+	printf("\nTamanho original do arquivo (em megabytes): %.2f\n", (double) (input_size*sizeof(char))/1000000);
 	output_size = 0;
 	for (int i = 0; i < ALPHABET_SIZE; i++)	{
 		if (alfabeto[i].freq > 0)
 			output_size += (alfabeto[i].freq * strlen(alfabeto[i].code));
 	}
-	printf("Tamanho do arquivo codificado (em bits): %ld\n", output_size);
+	printf("Tamanho do arquivo codificado (em megabytes, aprox.): %.2f\n", (double) output_size/8000000);
 	printf("Taxa de compressão: %ld/%ld = %.2f%\n", output_size, input_size*sizeof(char)*CHAR_BIT, (double) output_size/(input_size*sizeof(char)*CHAR_BIT) * 100);
 
 	printf("\nFim do programa\n");
@@ -200,7 +200,7 @@ void print_codes(Node *root) {
 		if (aux->left == NULL && aux->right == NULL) {
 			code[index] = '\0';
 			strcpy(aux->code, code);
-			printf("%s -> '%c' (freq= %d) // %ld bits\n", aux->code, aux->ch, aux->freq, strlen(aux->code));
+			//printf("%s -> '%c' (freq= %d) // %ld bits\n", aux->code, aux->ch, aux->freq, strlen(aux->code));
 			aux->done = TRUE;
 			aux = aux->parent;
 			index--;
