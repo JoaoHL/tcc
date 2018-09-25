@@ -6,6 +6,7 @@
 #define MAX_WEIGHT 30000
 #define NUM_VERTEX 10
 #define NUM_EDGES (10*(10 - 1))/2
+#define NUM_MST_EDGES 10-1
 #define MAX_HEAP_SIZE 100
 
 /* GRAPH DECLARATIONS */
@@ -16,8 +17,9 @@ typedef struct edge {
 	short int deleted;
 } Edge;
 Edge edges[NUM_VERTEX*NUM_VERTEX];
-Edge mst_edges[NUM_VERTEX-1];
-short int euler_path[2*(NUM_VERTEX-1)];
+Edge mst_edges[2*NUM_MST_EDGES];
+short int bsf_touched_vertex[NUM_VERTEX];
+short int euler_path[NUM_VERTEX];
 short int hamilton_path[NUM_VERTEX];
 short int adj_matrix[NUM_VERTEX][NUM_VERTEX] = 
 {
@@ -33,6 +35,7 @@ short int adj_matrix[NUM_VERTEX][NUM_VERTEX] =
 	{100, 100, 100, 100, 100, 100, 100,   1, 100, MAX_WEIGHT},
 };
 void init_edges();
+char is_bridge(short int a, short int b);
 
 /* UNION-FIND DECLARATIONS */
 short int ufind_groups[NUM_VERTEX];
@@ -52,11 +55,16 @@ void swap(int pos1, int pos2);
 /* MINIMUM SPANNING TREE DECLARATIONS */
 int mst_num_edges;
 void mst();
+void mst_duplicate_edges();
 
+/* QUEUES DECLARATIONS */
+short int queue[NUM_VERTEX];
+short int queue_first = 0;
+short int queue_last = 0;
 
 
 int main(void) {
-	int i, sum_w = 0;
+	int i, j, sum_w = 0;
 
 	ufind_init();
 	init_heap();
@@ -70,7 +78,17 @@ int main(void) {
 		sum_w += mst_edges[i].weight;
 	}
 	printf("Numero final de grupos: %d\n", ufind_num_group);
-	printf("Peso da arvore geradora mínima: %d", sum_w);
+	printf("Numero de arestas da MST: %d\n", mst_num_edges);
+	printf("Peso da arvore geradora mínima: %d\n", sum_w);
+
+	//mst_duplicate_edges();
+
+	for (i = 0; i < NUM_MST_EDGES; i++){
+		j = i + NUM_MST_EDGES;
+		printf("Aresta %d-%d com aresta duplicada %d-%d //", mst_edges[i].from, mst_edges[i].to, mst_edges[i].from, mst_edges[i].to);
+		printf("Aresta %d-%d é uma ponte? Resposta: %d //\n", mst_edges[i].from, mst_edges[i].to, is_bridge(mst_edges[i].from, mst_edges[i].to));
+		//printf("Aresta %d-%d é uma ponte? Resposta: %d\n", mst_edges[j].from, mst_edges[j].to, is_bridge(mst_edges[j].from, mst_edges[j].to));
+	}
 
 	return 0;
 }
@@ -108,17 +126,18 @@ short int ufind_from_same_group(short int a, short int b) {
 void init_edges() {
 	int i, j, k;
 
-	mst_num_edges = 0;
 	k = 0;
-	for (i = 0; i < NUM_VERTEX; i++)
+	mst_num_edges = 0;
+	for (i = 0; i < NUM_VERTEX; i++) {
 		for (j = 0; j < NUM_VERTEX; j++)
 		{
 			edges[k].from = i;
 			edges[k].to = j;
 			edges[k].weight = adj_matrix[i][j];
-			edges[k].deleted = 0;
+			edges[k].deleted = FALSE;
 			k++;
 		}
+	}
 }
 
 /* MINIMUM PRIORITY QUEUE IMPLEMENTATIONS */
@@ -185,7 +204,7 @@ void swap(int pos1, int pos2) {
 	heap[pos2] = temp;
 }
 
-/* Calculate the minimum spanning tree of the graph */
+/* Calcula a árvore geradora mínima do grafo */
 void mst() {
 	int i, j;
 	Edge *dummy;
@@ -203,3 +222,68 @@ void mst() {
 	}
 
 }
+
+/* Duplica as arestas da MST */
+void mst_duplicate_edges() {
+	int i, j;
+
+	for (i = 0; i < NUM_MST_EDGES; i++) {
+		j = i + NUM_MST_EDGES;
+		mst_edges[j].to = mst_edges[i].from;
+		mst_edges[j].from = mst_edges[i].to;
+		mst_edges[j].weight = mst_edges[i].weight;
+		mst_edges[j].deleted = 0;
+	}
+}
+
+/* Diz se o arco a-b é uma ponte do grafo. Usa BFS. */
+char is_bridge(short int a, short int b) {
+	int s, i, j;
+
+	for (i = 0; i < NUM_VERTEX; i++)
+		bsf_touched_vertex[i] = FALSE;
+
+	// deleta o arco a-b
+	for (i = 0; i < 2*NUM_MST_EDGES; i++) {
+		if (mst_edges[i].from == a && mst_edges[i].to == b) {
+			mst_edges[i].deleted = TRUE;
+		}
+	}
+
+	// BFS no grafo sem o arco a-b
+	// inicializa a queue
+	queue_first = 0;
+	queue_last = 0;
+	queue[queue_first] = a;
+
+	while (queue_first <= queue_last) {
+		//pega o primeiro elemento da fila
+		s = queue[queue_first % NUM_VERTEX];
+		queue_first++;
+		bsf_touched_vertex[s] = TRUE;
+
+		// coloca todos os vértices adjacentes a s na fila
+		for (i = 0; i < 2*NUM_MST_EDGES; i++) {
+			if (mst_edges[i].deleted) {
+				if (mst_edges[i].from == s && bsf_touched_vertex[mst_edges[i].to] == FALSE) {
+					queue_last++;
+					queue[queue_last % NUM_VERTEX] = mst_edges[i].to;
+				}
+			}
+		}
+	}
+
+	//recoloca o arco a-b
+	for (i = 0; i < 2*NUM_MST_EDGES; i++) {
+		if (mst_edges[i].from == a && mst_edges[i].to == b) {
+			mst_edges[i].deleted = FALSE;
+		}
+	}
+
+	// se b não foi tocado, a-b é uma ponte.
+	if (!bsf_touched_vertex[b]) {
+		return TRUE;
+	}
+	return FALSE;
+}
+
