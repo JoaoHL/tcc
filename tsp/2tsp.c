@@ -19,7 +19,7 @@ typedef struct edge {
 Edge edges[NUM_VERTEX*NUM_VERTEX];
 Edge mst_edges[2*NUM_MST_EDGES];
 short int bsf_touched_vertex[NUM_VERTEX];
-short int euler_path[NUM_VERTEX];
+short int euler_path[2*NUM_MST_EDGES + 1];
 short int hamilton_path[NUM_VERTEX];
 short int adj_matrix[NUM_VERTEX][NUM_VERTEX] = 
 {
@@ -57,6 +57,8 @@ int mst_num_edges;
 void mst();
 void mst_duplicate_edges();
 
+void find_euler_path();
+
 /* QUEUES DECLARATIONS */
 short int queue[NUM_VERTEX];
 short int queue_first = 0;
@@ -89,6 +91,8 @@ int main(void) {
 		printf("Aresta %d-%d é uma ponte? Resposta: %d //", mst_edges[i].from, mst_edges[i].to, is_bridge(mst_edges[i].from, mst_edges[i].to));
 		printf("Aresta %d-%d é uma ponte? Resposta: %d\n", mst_edges[j].from, mst_edges[j].to, is_bridge(mst_edges[j].from, mst_edges[j].to));
 	}
+
+	find_euler_path();
 
 	return 0;
 }
@@ -252,12 +256,12 @@ char is_bridge(short int a, short int b) {
 		}
 	}
 
-	// BFS no grafo sem o arco a-b
 	// inicializa a queue
 	queue_first = 0;
 	queue_last = 0;
 	queue[queue_first] = a;
 
+	// BFS no grafo sem o arco a-b
 	while (queue_first <= queue_last) {
 		//pega o primeiro elemento da fila
 		s = queue[queue_first % NUM_VERTEX];
@@ -293,5 +297,105 @@ char is_bridge(short int a, short int b) {
 		return TRUE;
 	}
 	return FALSE;
+}
+
+// Acha o caminho euleriano na MST do grafo. Supõe que o grafo é euleriano.
+void find_euler_path() {
+	int i, v, count_edges, count_deleted_edges, next_index, last_index;
+	char mst_empty = FALSE;
+	last_index = 1;
+	next_index = 0;
+
+	for (i = 0; i < 2*NUM_MST_EDGES + 1; i++)
+		euler_path[i] = -1;
+
+	euler_path[next_index] = 0; //primeiro vertice do caminho é o 0.
+
+	while (!mst_empty) {
+		for (i = 0; i < 2*NUM_MST_EDGES + 1; i++)
+			printf("(%d)-", euler_path[i]);
+		printf("(%d) -- caminho de euler\n", euler_path[0]);
+		v = euler_path[next_index]; 
+		next_index++;
+
+		// verifica quantas arestas são incidentes em v
+		count_edges = 0;
+		count_deleted_edges = 0;
+		for (i = 0; i < 2*NUM_MST_EDGES; i++) {
+			if (!mst_edges[i].deleted) {
+				if (mst_edges[i].to == v || mst_edges[i].from == v) {
+					count_edges++;
+				}
+			} else {
+				count_deleted_edges++;
+			}
+		}
+		printf("Count edges: %d -- count deleted: %d\n", count_edges, count_deleted_edges);
+		if (count_deleted_edges == 2*NUM_MST_EDGES) {
+			mst_empty = TRUE;
+		} 
+		else if (count_edges == 1) {
+			for (i = 0; i < 2*NUM_MST_EDGES; i++) {
+				if(!mst_edges[i].deleted) {
+					if (mst_edges[i].to == v) {
+						euler_path[last_index] = mst_edges[i].from;
+						last_index++;
+						mst_edges[i].deleted = TRUE;
+						break;
+					} 
+					else if (mst_edges[i].from == v) {
+						euler_path[last_index] = mst_edges[i].to;
+						last_index++;
+						mst_edges[i].deleted = TRUE;
+						break;
+					}
+				}
+			}
+		} 
+		else if (count_edges > 1) {
+			for (i = 0; i < 2*NUM_MST_EDGES; i++) {
+				if (!mst_edges[i].deleted) {
+					if (mst_edges[i].to == v) {
+						if (!is_bridge(mst_edges[i].to, mst_edges[i].from)) {
+							euler_path[last_index] = mst_edges[i].from;
+							last_index++;
+							mst_edges[i].deleted = TRUE;
+							break;
+						}
+					} 
+					else if (mst_edges[i].from == v) {
+						if (!is_bridge(mst_edges[i].from, mst_edges[i].to)) {
+							euler_path[last_index] = mst_edges[i].to;
+							last_index++;
+							mst_edges[i].deleted = TRUE;
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
+	printf("Caminho euleriano:\n");
+	for (i = 0; i < 2*NUM_MST_EDGES +1; i++) {
+		printf("%d->", euler_path[i]);
+	}
+	printf("%d\n", euler_path[0]);
+
+	//G' := G { G' = (V', E')} 
+	//v0 := um vértice de G' 
+	//C := [v0] {Inicialmente, o circuito contém só v0} 
+	//	Enquanto E' não vazio
+	//		vi := último vértice de C 
+	//		Se vi tem só uma aresta incidente;
+	//			ai := a aresta incidente a vi em G'
+	//		Senão
+	//			ai := uma aresta incidente a vi em G' e que não é uma ponte
+	//		Retirar a aresta ai do grafo G' 
+	//		Acrescentar ai no final de C 
+	//		vj := vértice ligado a vi por ai 
+	//		Acrescentar vj no final de C
+//
+//	Retornar C
+
 }
 
