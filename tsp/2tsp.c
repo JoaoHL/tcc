@@ -23,16 +23,16 @@ short int euler_path[NUM_VERTEX];
 short int hamilton_path[NUM_VERTEX];
 short int adj_matrix[NUM_VERTEX][NUM_VERTEX] = 
 {
-	{MAX_WEIGHT,   1, 100, 100, 100, 100, 100, 100, 100, 100},
-	{  1, MAX_WEIGHT,   1, 100,   1, 100, 100, 100, 100, 100},
-	{100,   1, MAX_WEIGHT, 100, 100, 100, 100, 100, 100, 100},
-	{100, 100, 100, MAX_WEIGHT,   1, 100, 100, 100, 100, 100},
-	{100,   1, 100,   1, MAX_WEIGHT,   1, 100,   1, 100, 100},
-	{100, 100, 100, 100,   1, MAX_WEIGHT, 100, 100, 100, 100},
-	{100, 100, 100, 100, 100, 100, MAX_WEIGHT,   1, 100, 100},
-	{100, 100, 100, 100, 100, 100,   1, MAX_WEIGHT,   1,   1},
-	{100, 100, 100, 100, 100, 100, 100,   1, MAX_WEIGHT, 100},
-	{100, 100, 100, 100, 100, 100, 100,   1, 100, MAX_WEIGHT},
+	{MAX_WEIGHT,  5, 10, 10, 10, 10, 10, 10, 10, 10},
+	{  5, MAX_WEIGHT, 5, 10,  5, 10, 10, 10, 10, 10},
+	{10,  5, MAX_WEIGHT, 10, 10, 10, 10, 10, 10, 10},
+	{10, 10, 10, MAX_WEIGHT,  5, 10, 10, 10, 10, 10},
+	{10,  5, 10,  5, MAX_WEIGHT,  5, 10,  5, 10, 10},
+	{10, 10, 10, 10,  5, MAX_WEIGHT, 10, 10, 10, 10},
+	{10, 10, 10, 10, 10, 10, MAX_WEIGHT,  5, 10, 10},
+	{10, 10, 10, 10, 10, 10,  5, MAX_WEIGHT,  5,  5},
+	{10, 10, 10, 10, 10, 10, 10,  5, MAX_WEIGHT, 10},
+	{10, 10, 10, 10, 10, 10, 10,  5, 10, MAX_WEIGHT},
 };
 void init_edges();
 char is_bridge(short int a, short int b);
@@ -81,13 +81,13 @@ int main(void) {
 	printf("Numero de arestas da MST: %d\n", mst_num_edges);
 	printf("Peso da arvore geradora mínima: %d\n", sum_w);
 
-	//mst_duplicate_edges();
+	mst_duplicate_edges();
 
 	for (i = 0; i < NUM_MST_EDGES; i++){
 		j = i + NUM_MST_EDGES;
-		printf("Aresta %d-%d com aresta duplicada %d-%d //", mst_edges[i].from, mst_edges[i].to, mst_edges[i].from, mst_edges[i].to);
-		printf("Aresta %d-%d é uma ponte? Resposta: %d //\n", mst_edges[i].from, mst_edges[i].to, is_bridge(mst_edges[i].from, mst_edges[i].to));
-		//printf("Aresta %d-%d é uma ponte? Resposta: %d\n", mst_edges[j].from, mst_edges[j].to, is_bridge(mst_edges[j].from, mst_edges[j].to));
+		printf("Aresta %d-%d com aresta duplicada %d-%d //", mst_edges[i].from, mst_edges[i].to, mst_edges[j].from, mst_edges[j].to);
+		printf("Aresta %d-%d é uma ponte? Resposta: %d //", mst_edges[i].from, mst_edges[i].to, is_bridge(mst_edges[i].from, mst_edges[i].to));
+		printf("Aresta %d-%d é uma ponte? Resposta: %d\n", mst_edges[j].from, mst_edges[j].to, is_bridge(mst_edges[j].from, mst_edges[j].to));
 	}
 
 	return 0;
@@ -240,8 +240,10 @@ void mst_duplicate_edges() {
 char is_bridge(short int a, short int b) {
 	int s, i, j;
 
-	for (i = 0; i < NUM_VERTEX; i++)
+	for (i = 0; i < NUM_VERTEX; i++) {
 		bsf_touched_vertex[i] = FALSE;
+		queue[i] = 0;
+	}
 
 	// deleta o arco a-b
 	for (i = 0; i < 2*NUM_MST_EDGES; i++) {
@@ -264,10 +266,16 @@ char is_bridge(short int a, short int b) {
 
 		// coloca todos os vértices adjacentes a s na fila
 		for (i = 0; i < 2*NUM_MST_EDGES; i++) {
-			if (mst_edges[i].deleted) {
+			if (!mst_edges[i].deleted) {
 				if (mst_edges[i].from == s && bsf_touched_vertex[mst_edges[i].to] == FALSE) {
 					queue_last++;
 					queue[queue_last % NUM_VERTEX] = mst_edges[i].to;
+					bsf_touched_vertex[mst_edges[i].to] = TRUE;
+				}
+				else if (mst_edges[i].to == s && bsf_touched_vertex[mst_edges[i].from] == FALSE) {
+					queue_last++;
+					queue[queue_last % NUM_VERTEX] = mst_edges[i].from;	
+					bsf_touched_vertex[mst_edges[i].from] = TRUE;
 				}
 			}
 		}
