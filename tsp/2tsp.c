@@ -19,7 +19,7 @@ typedef struct edge {
 Edge edges[NUM_VERTEX*NUM_VERTEX];
 Edge mst_edges[2*NUM_MST_EDGES];
 short int bsf_touched_vertex[NUM_VERTEX];
-short int euler_path[2*NUM_MST_EDGES + 1];
+short int euler_path[2*NUM_MST_EDGES - 1];
 short int hamilton_path[NUM_VERTEX];
 short int adj_matrix[NUM_VERTEX][NUM_VERTEX] = 
 {
@@ -58,6 +58,7 @@ void mst();
 void mst_duplicate_edges();
 
 void find_euler_path();
+int find_hamiltonian_path();
 
 /* QUEUES DECLARATIONS */
 short int queue[NUM_VERTEX];
@@ -87,12 +88,27 @@ int main(void) {
 
 	for (i = 0; i < NUM_MST_EDGES; i++){
 		j = i + NUM_MST_EDGES;
-		printf("Aresta %d-%d com aresta duplicada %d-%d //", mst_edges[i].from, mst_edges[i].to, mst_edges[j].from, mst_edges[j].to);
-		printf("Aresta %d-%d é uma ponte? Resposta: %d //", mst_edges[i].from, mst_edges[i].to, is_bridge(mst_edges[i].from, mst_edges[i].to));
-		printf("Aresta %d-%d é uma ponte? Resposta: %d\n", mst_edges[j].from, mst_edges[j].to, is_bridge(mst_edges[j].from, mst_edges[j].to));
+		printf("Aresta %d-%d com aresta duplicada %d-%d //\n", mst_edges[i].from, mst_edges[i].to, mst_edges[j].from, mst_edges[j].to);
 	}
 
 	find_euler_path();
+
+	printf("Caminho euleriano:\n");
+	for (i = 0; i < 2*NUM_MST_EDGES -1; i++) {
+		printf("%d->", euler_path[i]);
+	}
+	printf("%d\n\n", euler_path[0]);
+
+	sum_w = find_hamiltonian_path();
+	for (i = 0; i < NUM_VERTEX; i++) {
+		printf("%d->", hamilton_path[i]);
+	}
+	printf("%d\n", hamilton_path[0]);
+	printf("Peso total do caminho hamiltoniano: %d\n", sum_w);
+	printf("Caminho ótimo tem peso: %d.\n", 70);
+	if (sum_w <= 2* 70) {
+		printf("ALGORITMO PASSOU!\n");
+	}
 
 	return 0;
 }
@@ -312,9 +328,6 @@ void find_euler_path() {
 	euler_path[next_index] = 0; //primeiro vertice do caminho é o 0.
 
 	while (!mst_empty) {
-		for (i = 0; i < 2*NUM_MST_EDGES + 1; i++)
-			printf("(%d)-", euler_path[i]);
-		printf("(%d) -- caminho de euler\n", euler_path[0]);
 		v = euler_path[next_index]; 
 		next_index++;
 
@@ -326,11 +339,11 @@ void find_euler_path() {
 				if (mst_edges[i].to == v || mst_edges[i].from == v) {
 					count_edges++;
 				}
-			} else {
+			}
+			else {
 				count_deleted_edges++;
 			}
 		}
-		printf("Count edges: %d -- count deleted: %d\n", count_edges, count_deleted_edges);
 		if (count_deleted_edges == 2*NUM_MST_EDGES) {
 			mst_empty = TRUE;
 		} 
@@ -375,12 +388,8 @@ void find_euler_path() {
 			}
 		}
 	}
-	printf("Caminho euleriano:\n");
-	for (i = 0; i < 2*NUM_MST_EDGES +1; i++) {
-		printf("%d->", euler_path[i]);
-	}
-	printf("%d\n", euler_path[0]);
 
+	// ALGORITMO DE FLEURY - achar caminho euleriano
 	//G' := G { G' = (V', E')} 
 	//v0 := um vértice de G' 
 	//C := [v0] {Inicialmente, o circuito contém só v0} 
@@ -399,3 +408,34 @@ void find_euler_path() {
 
 }
 
+// Acha o caminho hamiltoniano a partir do caminho euleriano
+int find_hamiltonian_path() {
+	int v, i, j, path_index, total_weight;
+	char v_in_hamilton_path;
+
+	for (i = 0; i < NUM_VERTEX; i++)
+		hamilton_path[i] = -1;
+
+	total_weight = 0;
+	hamilton_path[0] = euler_path[0];
+	path_index = 1;
+
+	for (i = 1; i < 2*NUM_MST_EDGES - 1; i++) {
+		v = euler_path[i];
+		v_in_hamilton_path = FALSE;
+
+		for (j = 0; j < NUM_VERTEX; j++) {
+			if (hamilton_path[j] == v)
+				v_in_hamilton_path = TRUE;
+		}
+
+		if (!v_in_hamilton_path) {
+			hamilton_path[path_index] = v;
+			total_weight += adj_matrix[hamilton_path[path_index-1]][v];
+			path_index++;
+		}
+	}
+	total_weight += adj_matrix[ hamilton_path[NUM_VERTEX-1] ][ hamilton_path[0] ];
+
+	return total_weight;
+}
