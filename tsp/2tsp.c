@@ -4,10 +4,10 @@
 #define TRUE 1
 #define FALSE 0
 #define MAX_WEIGHT 30000
-#define NUM_VERTEX 10
-#define NUM_EDGES (10*(10 - 1))/2
-#define NUM_MST_EDGES 10-1
-#define MAX_HEAP_SIZE 100
+#define NUM_VERTEX 1000
+#define NUM_EDGES (1000*1000)
+#define NUM_MST_EDGES (1000-1)
+#define MAX_HEAP_SIZE (1000*1000)
 
 /* GRAPH DECLARATIONS */
 typedef struct edge {
@@ -21,19 +21,7 @@ Edge mst_edges[2*NUM_MST_EDGES];
 short int bsf_touched_vertex[NUM_VERTEX];
 short int euler_path[2*NUM_MST_EDGES - 1];
 short int hamilton_path[NUM_VERTEX];
-short int adj_matrix[NUM_VERTEX][NUM_VERTEX] = 
-{
-	{MAX_WEIGHT,  5, 10, 10, 10, 10, 10, 10, 10, 10},
-	{  5, MAX_WEIGHT, 5, 10,  5, 10, 10, 10, 10, 10},
-	{10,  5, MAX_WEIGHT, 10, 10, 10, 10, 10, 10, 10},
-	{10, 10, 10, MAX_WEIGHT,  5, 10, 10, 10, 10, 10},
-	{10,  5, 10,  5, MAX_WEIGHT,  5, 10,  5, 10, 10},
-	{10, 10, 10, 10,  5, MAX_WEIGHT, 10, 10, 10, 10},
-	{10, 10, 10, 10, 10, 10, MAX_WEIGHT,  5, 10, 10},
-	{10, 10, 10, 10, 10, 10,  5, MAX_WEIGHT,  5,  5},
-	{10, 10, 10, 10, 10, 10, 10,  5, MAX_WEIGHT, 10},
-	{10, 10, 10, 10, 10, 10, 10,  5, 10, MAX_WEIGHT},
-};
+short int adj_matrix[NUM_VERTEX][NUM_VERTEX];
 void init_edges();
 char is_bridge(short int a, short int b);
 
@@ -65,6 +53,7 @@ short int queue[NUM_VERTEX];
 short int queue_first = 0;
 short int queue_last = 0;
 
+void init_adj();
 
 int main(void) {
 	int i, j, sum_w = 0;
@@ -72,6 +61,8 @@ int main(void) {
 	ufind_init();
 	init_heap();
 	init_edges();
+    for (i = 0; i < 500; i++)
+	    init_adj();
 
 	printf("Numero de grupos: %d\n", ufind_num_group);
 	mst();
@@ -111,6 +102,34 @@ int main(void) {
 	}
 
 	return 0;
+}
+
+void init_adj() {
+    int i, j;
+    
+    for (i = 0; i < NUM_VERTEX; i++) {
+        for (j = 0; j < NUM_VERTEX; j++) {
+            adj_matrix[i][j] = 10;
+        }
+        adj[i][i] = MAX_WEIGHT;
+    }
+    adj[0][1] = 5;
+    adj[1][0] = 5;
+    adj[1][2] = 5;
+    adj[2][1] = 5;
+    adj[1][4] = 5;
+    for (i = 3; i < NUM_VERTEX - 3; i += 3) {
+        adj[i][i+1] = 5;
+        adj[i+1][i] = 5;
+        adj[i+1][i+2] = 5;
+        adj[i+2][i+1] = 5;
+        adj[i+1][i-2] = 5;
+        if  (i + 4 < 1000)
+            adj[i+1][i+4] = 5;
+        else
+            adj[i+1][i+3] = 5;
+    }
+    adj[999][997] = 5;
 }
 
 void ufind_init() {
