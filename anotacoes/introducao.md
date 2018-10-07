@@ -8,6 +8,12 @@ Como efeito secundário, foi criada uma referência em português para o estudo 
 
 ## Introdução (terminar e elaborar melhor)
 
-O desenvolvimento e pesquisa em hardware sofrem atualmente com um déficit de profissionais em relação aos de software. O número de engenheiros de software ultrapassa o de engenheiros de hardware numa proporção de quase 10 pra 1 [colocar ref]. [colocar mais coisas aqui]
+# tópicos por parágrafo (nessa ordem)
+
+ - breve história da computação, com foco no desenvolvimento de hardware e citar lei de Moore
+ - iminente quebra da lei de Moore, falar sobre a procura de formas de melhorar o desempenho de processamento de dados (multicore, GPUs, **FPGA** como hardware dedicado a certas tarefas)
+ - falar sobre a situação atual do desenvolvimento de hardware, problemas do método de desenvolvimento atual, citar FPGA como solução de alguns desses problemas e citar o problema de incluir engenheiros de software no dev de hardware
+ - introdução à HLS como solução pra integrar o dev de algoritmos em hardware, falar o que é e citar um pouco do processo, desde uma linguagem tipo C até um verilog/VHDL da vida
+ - citar o LegUp, motivos de se ter escolhido ele como ferramenta etc
 
 Apenas o uso de ferramentas de síntese de alto nível, por si só, não é um atrativo suficiente para despertar interesse no desenvolvimento de hardware pelos engenheiros de software. Ainda há o empecilho de se implementar o design do hardware, o que pode ser custoso e demorado. Atualmente, fabricar uma única peça de hardware customizado pode custar na ordem de milhares de reais, bem como demorar meses entre o pedido e a entrega no Brasil [colocar ref]. Não só o custo e o tempo são chaves nesse processo, como também a reusabilidade: cada circuito ainda pode apresentar defeitos de fabricação que inviabilizam seu uso, acarretando em um novo pedido, com mais dinheiro e tempo consumidos.
