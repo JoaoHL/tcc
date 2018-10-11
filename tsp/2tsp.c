@@ -3,11 +3,12 @@
 
 #define TRUE 1
 #define FALSE 0
+#define OPT_TOTAL_WEIGHT 6670
 #define MAX_WEIGHT 30000
-#define NUM_VERTEX 10
-#define NUM_EDGES (10*(10 - 1))/2
-#define NUM_MST_EDGES 10-1
-#define MAX_HEAP_SIZE 100
+#define NUM_VERTEX 1000
+#define NUM_EDGES ((NUM_VERTEX*(NUM_VERTEX-1))/2)
+#define NUM_MST_EDGES (NUM_VERTEX-1)
+#define MAX_HEAP_SIZE (NUM_VERTEX*NUM_VERTEX)
 
 /* GRAPH DECLARATIONS */
 typedef struct edge {
@@ -21,19 +22,7 @@ Edge mst_edges[2*NUM_MST_EDGES];
 short int bsf_touched_vertex[NUM_VERTEX];
 short int euler_path[2*NUM_MST_EDGES - 1];
 short int hamilton_path[NUM_VERTEX];
-short int adj_matrix[NUM_VERTEX][NUM_VERTEX] = 
-{
-	{MAX_WEIGHT,  5, 10, 10, 10, 10, 10, 10, 10, 10},
-	{  5, MAX_WEIGHT, 5, 10,  5, 10, 10, 10, 10, 10},
-	{10,  5, MAX_WEIGHT, 10, 10, 10, 10, 10, 10, 10},
-	{10, 10, 10, MAX_WEIGHT,  5, 10, 10, 10, 10, 10},
-	{10,  5, 10,  5, MAX_WEIGHT,  5, 10,  5, 10, 10},
-	{10, 10, 10, 10,  5, MAX_WEIGHT, 10, 10, 10, 10},
-	{10, 10, 10, 10, 10, 10, MAX_WEIGHT,  5, 10, 10},
-	{10, 10, 10, 10, 10, 10,  5, MAX_WEIGHT,  5,  5},
-	{10, 10, 10, 10, 10, 10, 10,  5, MAX_WEIGHT, 10},
-	{10, 10, 10, 10, 10, 10, 10,  5, 10, MAX_WEIGHT},
-};
+short int adj_matrix[NUM_VERTEX][NUM_VERTEX];
 void init_edges();
 char is_bridge(short int a, short int b);
 
@@ -65,52 +54,68 @@ short int queue[NUM_VERTEX];
 short int queue_first = 0;
 short int queue_last = 0;
 
+void init_adj();
 
 int main(void) {
 	int i, j, sum_w = 0;
 
+	printf("Começando inicialização\n");
+	for (i = 0; i < 1000; i++) //só pro programa não terminar muito rápido
+		init_adj();
 	ufind_init();
 	init_heap();
 	init_edges();
+	printf("Inicialização finalizada\n\n");
 
-	printf("Numero de grupos: %d\n", ufind_num_group);
+	printf("Gerando MST\n");
 	mst();
+	printf("MST gerada\n\n");
 
-	for (i = 0; i < NUM_VERTEX-1; i++){
-		printf("Aresta %d-%d com peso %d\n", mst_edges[i].from, mst_edges[i].to, mst_edges[i].weight);
-		sum_w += mst_edges[i].weight;
-	}
-	printf("Numero final de grupos: %d\n", ufind_num_group);
-	printf("Numero de arestas da MST: %d\n", mst_num_edges);
-	printf("Peso da arvore geradora mínima: %d\n", sum_w);
-
+	printf("Duplicando aresta\n");
 	mst_duplicate_edges();
+	printf("Arestas duplicadas\n\n");
 
-	for (i = 0; i < NUM_MST_EDGES; i++){
-		j = i + NUM_MST_EDGES;
-		printf("Aresta %d-%d com aresta duplicada %d-%d //\n", mst_edges[i].from, mst_edges[i].to, mst_edges[j].from, mst_edges[j].to);
-	}
-
+	printf("Calculando caminho euleriano\n");
 	find_euler_path();
+	printf("Caminho euleriano calculado\n\n");
 
-	printf("Caminho euleriano:\n");
-	for (i = 0; i < 2*NUM_MST_EDGES -1; i++) {
-		printf("%d->", euler_path[i]);
-	}
-	printf("%d\n\n", euler_path[0]);
-
+	printf("Calculando caminho hamiltoniano\n");
 	sum_w = find_hamiltonian_path();
-	for (i = 0; i < NUM_VERTEX; i++) {
-		printf("%d->", hamilton_path[i]);
-	}
-	printf("%d\n", hamilton_path[0]);
-	printf("Peso total do caminho hamiltoniano: %d\n", sum_w);
-	printf("Caminho ótimo tem peso: %d.\n", 70);
-	if (sum_w <= 2* 70) {
+	printf("Caminho hamiltoniano calculado\n\n");
+
+	if (sum_w <= 2*OPT_TOTAL_WEIGHT) {
 		printf("ALGORITMO PASSOU!\n");
 	}
 
 	return 0;
+}
+
+void init_adj() {
+    int i, j;
+    
+    for (i = 0; i < NUM_VERTEX; i++) {
+        for (j = 0; j < NUM_VERTEX; j++) {
+            adj_matrix[i][j] = 10;
+        }
+        adj_matrix[i][i] = MAX_WEIGHT;
+    }
+    adj_matrix[0][1] = 5;
+    adj_matrix[1][0] = 5;
+    adj_matrix[1][2] = 5;
+    adj_matrix[2][1] = 5;
+    adj_matrix[1][4] = 5;
+    for (i = 3; i < NUM_VERTEX - 3; i += 3) {
+        adj_matrix[i][i+1] = 5;
+        adj_matrix[i+1][i] = 5;
+        adj_matrix[i+1][i+2] = 5;
+        adj_matrix[i+2][i+1] = 5;
+        adj_matrix[i+1][i-2] = 5;
+        if  (i + 4 < 1000)
+            adj_matrix[i+1][i+4] = 5;
+        else
+            adj_matrix[i+1][i+3] = 5;
+    }
+    adj_matrix[999][997] = 5;
 }
 
 void ufind_init() {
