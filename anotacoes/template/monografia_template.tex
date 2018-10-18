@@ -185,25 +185,25 @@
 % CAPA
 \thispagestyle{empty}
 \begin{center}
-    \vspace*{2.3cm}
-    Universidade de São Paulo\\
-    Instituto de Matemática e Estatística\\
-    Bachalerado em Ciência da Computação
-
-
-    \vspace*{3cm}
-    \Large{Nome completo do Autor}
-    
-
-    \vspace{3cm}
-    \textbf{\Large{Título da monografia \\
-    se for longo ocupa esta linha também}}
-    
-       
-    \vskip 5cm
-    \normalsize{São Paulo}
-
-    \normalsize{Dezembro de 2015}
+	\vspace*{2.3cm}
+	Universidade de São Paulo\\
+	Instituto de Matemática e Estatística\\
+	Bachalerado em Ciência da Computação
+	
+	
+	\vspace*{3cm}
+	\Large{João Henrique Luciano}
+	
+	
+	\vspace{3cm}
+	\textbf{\Large{Implementação de algoritmos em FPGAs\\
+			usando síntese de alto nível}}
+	
+	
+	\vskip 5cm
+	\normalsize{São Paulo}
+	
+	\normalsize{Dezembro de 2018}
 \end{center}
 
 % ---------------------------------------------------------------------------- %
@@ -211,31 +211,30 @@
 %
 \newpage
 \thispagestyle{empty}
-    \begin{center}
-        \vspace*{2.3 cm}
-        \textbf{\Large{Título da monografia \\
-    se for longo ocupa esta linha também}}
-        \vspace*{2 cm}
-    \end{center}
+\begin{center}
+	\vspace*{2.3 cm}
+	\textbf{\Large{Implementação de algoritmos em FPGAs\\
+			usando síntese de alto nível}}
+	\vspace*{2 cm}
+\end{center}
 
-    \vskip 2cm
+\vskip 2cm
 
-    \begin{flushright}
+\begin{flushright}
 	Monografia final da disciplina \\
-        MAC0499 -- Trabalho de Formatura Supervisionado.
-    \end{flushright}
+	MAC0499 -- Trabalho de Formatura Supervisionado.
+\end{flushright}
 
-    \vskip 5cm
+\vskip 5cm
 
-    \begin{center}
-    Supervisor: Prof. Dr. Nome do Supervisor\\
-    $[$ Cosupervisor: Prof. Dr. Nome do Cosupervisor $]$
-
-    \vskip 5cm
-    \normalsize{São Paulo}
-
-    \normalsize{Dezembro de 2015}
-    \end{center}
+\begin{center}
+	Supervisor: Prof. Dr. Alfredo Goldman\\
+	
+	\vskip 5cm
+	\normalsize{São Paulo}
+	
+	\normalsize{Dezembro de 2018}
+\end{center}
 \pagebreak
 
 
@@ -258,24 +257,18 @@
 % Resumo
 \chapter*{Resumo}
 
-Elemento obrigatório, constituído de uma sequência de frases concisas e
-objetivas, em forma de texto.  Deve apresentar os objetivos, métodos empregados,
-resultados e conclusões.  O resumo deve ser redigido em parágrafo único, conter
-no máximo 500 palavras e ser seguido dos termos representativos do conteúdo do
-trabalho (palavras-chave).
-\\
+O presente trabalho visa o estudo e experimentação do uso de ferramentas de síntese de alto nível para o design de circuitos eletrônicos. O intuito é destacar tecnologias emergentes de hardware, como os FPGAs, assim como aproximar engenheiros de software do desenvolvimento de hardware. Para tanto, foi usado o LegUp, um arcabouço de código aberto para síntese de alto nível em FPGAs. Logo, o estudo do funcionamento interno e uso dessa ferramenta foi primordial para a elaboração do projeto. Com ele, dois algoritmos foram desenvolvidos na linguagem de programação C e, dessa forma, efetuar-se a síntese de alto nível do algoritmo para um circuito descrito em Verilog e implementado em FPGA. Como efeito secundário, foi criada uma referência em português para o estudo e uso da síntese de alto nível usando o sistema operacional Ubuntu, a placa SoC FPGA Cyclone V, da Altera, e o arcabouço de código aberto LegUp.\newline
 
-\noindent \textbf{Palavras-chave:} palavra-chave1, palavra-chave2, palavra-chave3.
+
+\noindent \textbf{Palavras-chave:} FPGA, síntese de alto nível, hardware, algoritmos, C, Verilog.
 
 % ---------------------------------------------------------------------------- %
 % Abstract
 \chapter*{Abstract}
 
-Elemento obrigatório, elaborado com as mesmas características do resumo em
-língua portuguesa.
-\\
+This work aims the study and usage of high-level synthesis tools for electronic circuits design. Alongside that, there is emphasis in newer technologies, such as FPGAs, as well as bringing together software engineers and hardware development. To do that, LegUp, a open-source high-level synthesis framework, is used along with a system-on-a-chip FPGA. Furthermore, the internal structure and usage of the framework was essential for the project development. Using LegUp, two algorithms were implemented using C programming language to feed its high-level synthesis process and create a Verilog HDL, which was downloaded into a FPGA. As side effect, there is the creation of a brazilian reference for this area of study, which is quite scarse.\newline
 
-\noindent \textbf{Keywords:} keyword1, keyword2, keyword3.
+\noindent \textbf{Keywords:} FPGA, high-level synthesis, hardware, algorithms, C, Verilog.
 
 
 % ---------------------------------------------------------------------------- %
@@ -322,6 +315,7 @@ língua portuguesa.
 
 \input cap-introducao        % associado ao arquivo: 'cap-introducao.tex'
 \input cap-fpga
+\input cap-hls
 \input cap-legup
 \input cap-conclusoes        % associado ao arquivo: 'cap-conclusoes.tex'
 

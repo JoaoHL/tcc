@@ -2,13 +2,17 @@
 \chapter{LegUp High-Level Synthesis}
 \label{cap:legup}
 
-LegUp (http://legup.eecg.utoronto.ca/) é um arcabouço de síntese de alto nível open-source desenvolvido na Universidade de Toronto (Canadá). O LegUp converte códigos em C para Verilog, usando algumas ferramentas comerciais como o Quartus Prime II, da Intel, e o Tiger MIPS Processor, da Universidade de Cambridge (Reino Unido). 
+LegUp é um arcabouço \textit{open-source} de síntese de alto nível desenvolvido na Universidade de Toronto (Canadá). Sua síntese converte códigos em C para Verilog e usa algumas ferramentas comerciais como o Quartus Prime II, da Intel, e o Tiger MIPS Processor, da Universidade de Cambridge (Reino Unido). 
 
 Atualmente em sua versão 4.0, seu uso é simples e versátil, além de apresentar uma arquitetura que permite alterações em seus algoritmos, como os de escalonamento e emparelhamento, de maneira descomplicada. Como sua arquitetura usa uma compilação em escopo de funções para implementação em hardware - isto é, ele usa funções como unidade básica para síntese de hardware -, é possível especificar funções para aceleração em hardware enquanto o resto do programa é executado em software; tal técnica é chamada de "fluxo híbrido" pelos criadores da ferramenta.
 
 \section{Fluxo de execução}
 
-[INSERIR FIGURA 'legup-flow.png' AQUI]
+\begin{figure}[htb]
+	\centering
+	\includegraphics[width=5cm]{figuras/graph}
+	\caption{\label{fig:graph}Fluxo de execução do LegUp.}
+\end{figure}
 
 A figura acima representa o fluxo geral do arcabouço. No passo (1), um programa em C desenvolvido pelo usuário é compilado para executar em um processador. O binário resultante é executado em (2) enquanto é analisado dinamicamente pelo próprio processador por partes do código que podem se beneficiar consideravelmente de uma aceleração por hardware (\textit{self-profiling} ou autoavaliação). Após a etapa de autoavaliação, os dados da análise são disponibilizados para o usuário no passo (3), onde ele deve escolher quais funções serão executadas em hardware dedicado. Feitas as escolhas do usuário, a ferramenta cria a representação em hardware das funções marcadas no passo (4) e, no passo (5), recompila o programa do usuário usando funções embrulhadas ("\textit{wrapper functions}") que chamam o aceleradores de hardware correspondentes às funções sintetizadas pelo LegUp.
 
