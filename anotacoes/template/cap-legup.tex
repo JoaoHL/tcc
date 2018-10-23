@@ -10,11 +10,11 @@ Atualmente em sua versão 4.0, seu uso é simples e versátil, além de apresentar u
 
 \begin{figure}[htb]
 	\centering
-	\includegraphics[width=5cm]{figuras/graph}
+	\includegraphics[width=13cm]{figuras/legup-flow}
 	\caption{\label{fig:graph}Fluxo de execução do LegUp.}
 \end{figure}
 
-A figura acima representa o fluxo geral do arcabouço. No passo (1), um programa em C desenvolvido pelo usuário é compilado para executar em um processador. O binário resultante é executado em (2) enquanto é analisado dinamicamente pelo próprio processador por partes do código que podem se beneficiar consideravelmente de uma aceleração por hardware (\textit{self-profiling} ou autoavaliação). Após a etapa de autoavaliação, os dados da análise são disponibilizados para o usuário no passo (3), onde ele deve escolher quais funções serão executadas em hardware dedicado. Feitas as escolhas do usuário, a ferramenta cria a representação em hardware das funções marcadas no passo (4) e, no passo (5), recompila o programa do usuário usando funções embrulhadas ("\textit{wrapper functions}") que chamam o aceleradores de hardware correspondentes às funções sintetizadas pelo LegUp.
+A figura acima representa o fluxo geral do arcabouço. A entrada do fluxo é um programa desenvolvido em C puro, que é compilado e otimizado pela LLVM, sendo transformado em sua representação intermediária (IR). Em seguida, na fase de alocação, o LegUp usa os dados sobre o \textit{hardware} no qual queremos implementar o algoritmo para alocar os recursos disponíveis no \textit{chip}, tais como blocos de memória e unidades lógicas. Na etapa de escalonamento, as instruções da IR são mapeadas do grafo de controle e fluxo de dados para uma máquina de estados finita, onde cada estado é designado para um ciclo de \textit{clock} específico. Depois esse mapeamento, o algoritmo de síntese atribui, a cada operação da máquina de estados, os recursos do \textit{chip} necessários para sua execução. Com as operações e recursos definidos, o arcabouço gera o RTL equivalente e, por fim, usa esse RTL para criar um arquivo, escrito em Verilog, que o descreve.
 
 \section{Compilação}
 

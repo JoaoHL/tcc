@@ -20,9 +20,8 @@
 \BOOKMARK [1][]{section.4.2}{Compila\347\343o}{chapter.4}% 20
 \BOOKMARK [1][]{section.4.3}{Processador}{chapter.4}% 21
 \BOOKMARK [0][]{chapter.5}{Conclus\365es}{}% 22
-\BOOKMARK [0][]{appendix.A}{T\355tulo do ap\352ndice}{}% 23
-\BOOKMARK [0][]{appendix.B}{Projeto LLVM}{}% 24
-\BOOKMARK [1][]{section.B.1}{Estrutura}{appendix.B}% 25
-\BOOKMARK [1][]{section.B.2}{Representa\347\343o intermedi\341ria}{appendix.B}% 26
-\BOOKMARK [1][]{section.B.3}{LLVM Pass Framework}{appendix.B}% 27
-\BOOKMARK [0][]{appendix*.11}{Refer\352ncias Bibliogr\341ficas}{}% 28
+\BOOKMARK [0][]{appendix.A}{Projeto LLVM}{}% 23
+\BOOKMARK [1][]{section.A.1}{Estrutura}{appendix.A}% 24
+\BOOKMARK [1][]{section.A.2}{Representa\347\343o intermedi\341ria}{appendix.A}% 25
+\BOOKMARK [1][]{section.A.3}{LLVM Pass Framework}{appendix.A}% 26
+\BOOKMARK [0][]{appendix*.11}{Refer\352ncias Bibliogr\341ficas}{}% 27
