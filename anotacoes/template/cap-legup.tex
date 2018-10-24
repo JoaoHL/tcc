@@ -18,7 +18,7 @@ A figura acima representa o fluxo geral do arcabouço. A entrada da ferramenta é 
 
 \subsection{Fluxos de transformação}
 
-Apesar da existência do fluxo geral de funcionamento do LegUp, a ferramenta define três fluxos distintos chamados aqui de \textit{fluxos de transformação}. Cada um deles transforma o programa de entrada em um tipo de circuito diferente, cada qual apresentando suas vantagens e desvantagens. Os fluxos implementados são o de puro \textit{hardware}, puro \textit{software}, e híbrido.
+Apesar da existência do fluxo geral de funcionamento do LegUp, a ferramenta define três fluxos distintos chamados aqui de \textit{fluxos de transformação}. Cada um deles transforma o programa de entrada em um tipo de circuito diferente, cada qual apresentando suas vantagens e desvantagens. Os fluxos implementados são o de puro \textit{hardware}, puro \textit{software}, e híbrido. O fluxo utilizado neste trabalho foi o de puro \textit{hardware}, com o intuito de aproximar cientistas da computação à compreensão do processo de pesquisa e desenvolvimento em \textit{hardware}.
 
 \subsubsection{Puro hardware}
 
@@ -29,7 +29,7 @@ A maior vantagem desse fluxo é a velocidade de execução do algoritmo, que chega 
 
 \subsubsection{Puro software}
 
-Neste fluxo, todo o programa de entrada do LegUp é compilado para \textit{software}. Um processador \textit{soft} (\textit{softprocessor}) é instanciado pelo arcabouço, das instruções a serem executadas e os dados necessários. Após a compilação da descrição de \textit{hardware} na placa FPGA, o processador é executado no tecido FPGA como um processador comum. O processador usado pelo LegUp é descrito na subseção \ref{subsubsection:tiger}. 
+Neste fluxo, todo o programa de entrada do LegUp é transformado em \textit{software}. Um processador \textit{soft} (\textit{softprocessor}) é instanciado pelo arcabouço, junto dos dados da aplicação, como instruções a serem executadas. Após a compilação da descrição de \textit{hardware} na placa FPGA, o processador é executado no tecido FPGA como um processador comum. O processador usado pelo LegUp é descrito na subseção \ref{subsubsection:tiger}. 
 
 Utilizar esse fluxo dá a oportunidade de uso de técnicas importantes de programação, como recursão e alocação dinâmica de memória, ambas inviáveis via \textit{hardware} puro. Além disso, ao executar um processador de forma isolada, o único processo existente para utilizá-lo é o da aplicação da FPGA, resultando em um menor \textit{overhead} de troca de processos por parte de um sistema operacional. Entretanto, devido à frequência de \textit{clock} de um \textit{chip} FPGA ser da ordem de 10 vezes menor que o de um processador médio de um computador pessoal atual (\textbf{colocar referencia}), mesmo com a exclusividade de acesso do processo ao processador, a velocidade de execução pode ser muito inferior a um sistema embarcado com processador de uso geral implementado em um ASIC.
 
