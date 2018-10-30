@@ -16,6 +16,8 @@ Atualmente em sua versão 4.0, apresenta uma arquitetura que permite alterações e
 
 A figura acima representa o fluxo geral do arcabouço. A entrada da ferramenta é um programa desenvolvido em C puro, que é compilado, otimizado e transformado em sua representação intermediária (IR) pela LLVM (vide apêndice \ref{cap:ape-llvm}). Em seguida, na fase de alocação, o LegUp usa os dados sobre o \textit{hardware} no qual queremos implementar o algoritmo para alocar os recursos disponíveis no \textit{chip}, tais como blocos de memória e unidades lógicas. Na etapa de escalonamento, as instruções da IR são mapeadas do grafo de controle e fluxo de dados para uma máquina de estados finita, onde cada estado é designado para um ciclo de \textit{clock} específico. Depois esse mapeamento, o algoritmo de síntese atribui, a cada estado da máquina de estados, os recursos do \textit{chip} necessários para a execução de suas instruções. Com as operações e recursos definidos, o arcabouço gera o RTL equivalente ao algoritmo e, por fim, o usa para criar um arquivo de descrição de \textit{hardware}, escrito em Verilog.
 
+Dada a forma como o arcabouço foi construído, isto é, na linguagem C++, utilizando o paradigma de programação orientada a objetos para modularizar o código, as etapas da síntese de alto nível feitas sobre o código compilado são implementadas em classes separadas, uma para cada etapa.
+
 \subsection{Fluxos de transformação}
 
 Apesar da existência do fluxo geral de funcionamento do LegUp, a ferramenta define três fluxos distintos chamados aqui de \textit{fluxos de transformação}. Cada um deles transforma o programa de entrada em um tipo de circuito diferente, cada qual apresentando suas vantagens e desvantagens. Os fluxos implementados são o de puro \textit{hardware}, puro \textit{software}, e híbrido. O fluxo utilizado neste trabalho foi o de puro \textit{hardware}, com o intuito de aproximar cientistas da computação à compreensão do processo de pesquisa e desenvolvimento em \textit{hardware}.
@@ -44,17 +46,47 @@ O fluxo híbrido permite a aceleração de funções computacionalmente pesadas enqua
 
 \subsection{Compilação}
 
-O código usado como entrada do arcabouço deve ser escrito em C e possui algumas limitações para certos fluxos. A versão gratuita mais recente da ferramenta não suporta funções recursivas, aritmética de ponto flutuante ou alocação dinâmica de memória; entretanto, o LegUp consegue sintetizar estruturas, controles de fluxo, aritmética de inteiros, manipulação de ponteiros (inclusive de funções), dentre outras características da linguagem.
+O código usado como entrada do arcabouço deve ser escrito em C e possui limitações para certos fluxos. A versão gratuita mais recente da ferramenta não suporta implementações de recursão ou alocação dinâmica de memória; apesar disso, o LegUp consegue sintetizar estruturas, controles de fluxo, aritmética de inteiros, manipulação de ponteiros (inclusive ponteiros de funções), dentre outras características da linguagem.
 
-A compilação é feita no \textit{front-end} da LLVM usando o Clang 3.5, pertencente ao projeto LLVM, e cria um arquivo de \textit{bytecode} contendo a LLVM IR correspondente ao programa de entrada. Algumas funções em C que lidam com o manejo da memória (como \texttt{memset} e \texttt{memcopy}, da biblioteca \texttt{string.h}) são compiladas em funções já implementadas pela LLVM, chamadas \textit{funções intrínsecas}. Para contornar a situação, passes do otimizador são executados no código para substituir as funções intrínsecas para funções implementadas manualmente pelo arcabouço, gerando um \textit{bytecode} composto apenas de LLVM IR, sem funções intrínsecas.
+A compilação do código é feita no \textit{front-end} da LLVM usando o Clang 3.5, um compliador da linguagem C pertencente ao projeto LLVM, e cria um arquivo de \textit{bytecode} contendo a LLVM IR correspondente ao programa de entrada. Algumas funções nativas da linguagem que lidam com o manejo da memória (como \texttt{memset} e \texttt{memcopy}, da biblioteca \texttt{string.h}) são compiladas pelo Clang em funções já implementadas pela LLVM, chamadas \textit{funções intrínsecas}. Para contornar a situação, passes do otimizador são executados no código para substituir as funções intrínsecas para funções implementadas manualmente pelo arcabouço, gerando um \textit{bytecode} composto da LLVM IR pura, sem funções intrínsecas.
 
 \subsubsection{Processador}
 \label{subsubsection:tiger}
 
-O processador utilizado pelo arcabouço é o Tiger MIPS Soft Processor (https://www.cl.cam.ac.uk/teaching/0910/ECAD+Arch/mips.html), um processador que pode ser implementado usando síntese lógica, isto é, seu comportamento pode ser descrito por uma linguagem de descrição de hardware (e.g. Verilog HDL) e posteriormente convertido em um design de hardware. Tal tipo de processador é denominado \textit{softprocessor}. Ele é usado na elaboração do circuito apenas nos fluxos híbrido e puro *software*, onde há a necessidade de um módulo central que comande o funcionamento do circuito. A vantagem de se usar o Tiger é seu código aberto e sua arquitetura RISC, que permitem a adição de novas instruções no processador de maneira muito menos complexa que a arquitetura CISC.
+O processador \textit{soft} utilizado pelo arcabouço é o Tiger MIPS Soft Processor (https://www.cl.cam.ac.uk/teaching/0910/ECAD+Arch/mips.html), um processador que pode ser implementado usando síntese lógica, isto é, seu comportamento pode ser descrito por uma linguagem de descrição de \textit{hardware} (e.g. Verilog HDL) e então convertido em um \textit{design} de \textit{hardware}. Possuindo um tamanho de palavra (\textit{word size}) de $32$ bits, ele é usado na elaboração do circuito apenas nos fluxos híbrido e puro \textit{software}, onde há a necessidade de um módulo central que controle o funcionamento do circuito. A vantagem de se usar o Tiger é seu código aberto e sua arquitetura RISC, que permitem a adição de novas instruções no processador, e de maneira menos complexa que a arquitetura CISC.
 
-A possibilidade de modificação do processador do circuito é a característica chave do processo de autoavaliação que o LegUp realiza em seu fluxo de execução. Ao adicionar instrumentações para observar a execução do programa, é possível dizer quais instruções são mais utilizadas e por quais funções elas são mais chamadas. Isso permite uma análise extremamente precisa, uma vez que ela é feita a nível de instrução. Outra vantagem é na análise por parte dos usuários, já que o Tiger possui uma documentação de fácil leitura, dada a complexidade do seu funcionamento. Isso dá oportunidade ao usuário de verificar as instruções resultantes da compilação do código em C e otimizá-las manualmente, de acordo com suas necessidades.
+A possibilidade de modificação do processador do circuito é a característica chave do processo de autoavaliação que o LegUp realiza em seu fluxo de execução. Ao adicionar instrumentações para observar a execução do programa, é possível dizer quais instruções são mais utilizadas e por quais funções elas são mais chamadas. Isso permite uma análise extremamente precisa, uma vez que ela é feita a nível de instrução. Isso dá oportunidade ao usuário de verificar as instruções resultantes da compilação do código em C e otimizá-las manualmente, de acordo com suas necessidades.
 
-Apesar da utilização do Tiger, que é um \textit{softprocessor}, a versão mais recente do LegUp open-source também dá suporte aos processadores *hard processor* da Altera e da Xilinx. Um \textit{hard processor} não pode ser descrito simplesmente por uma HDL e, por isso, seu design é construído de forma rígida no \textit{chip}, como propriedade intelectual. Isso tira a flexibilidade de customização do processador, mas aumenta sua eficiência em termos de energia, latência e área.
+Apesar da utilização do Tiger, que é um \textit{softprocessor}, a versão mais recente do LegUp open-source também dá suporte aos processadores \textit{hard} da Altera e da Xilinx. Um processador \textit{hard} não pode ser descrito por uma HDL e, por isso, seu design é construído de forma rígida no \textit{chip}, como propriedade intelectual. O motivo dessa impossibilidade em descrevê-lo por uma HDL é pelo fato de que um processador \textit{hard} tem sua construção especificada a nível de transístor, resultando em uma arquitetura muito específica para ser precisamente descrita por uma descrição de \textit{hardware}. Apesar de afetar a flexibilidade de customização do processador, o uso desses tipos de processador aumenta a eficiência do FPGA em termos de energia, latência e área.
 
-Nota: a versão mais recente do LegUp, a 5.0, tornou-se comercial. Veja mais aqui(https://www.legupcomputing.com/main/about)
+Nota: a partir da versão 5.0, o LegUp tornou-se comercial. Veja mais aqui(https://www.legupcomputing.com/main/about)
+
+\subsection{Alocação de recursos}
+
+Essa etapa é feita pela classe \texttt{Allocation} da ferramenta, e usa \textit{scripts} TCL para efetuar a alocação dos recursos presentes no \textit{chip} FPGA. Um desses \textit{scripts} contém a especificação do dispositivo, opções de síntese de alto nível e restrições de tempo; outro contém as restrições de área e latência de operações. Todas essas informações são armazenadas em uma instância da classe para que os estágios seguintes da síntese possam usá-las.
+
+\subsection{Escalonamento}
+
+Cada função do código de entrada é transformado em uma função na LLVM IR durante a compilação. O escalonador do LegUp transforma cada uma dessas funções em um objeto da classe \texttt{FiniteStateMachine}, que representa a máquina de estados finita daquela função. Cada objeto desses contém objetos da classe \texttt{State} que guardam cada estado da máquina de estados; este, por sua vez, contém instâncias da classe \textit{InstructionNodes} que guardam informações sobre as instruções a serem executadas no estado correspondente, tais como suas latências. Ao final do processo, o escalonador retorna um objeto \textit{FiniteStateMachine} para cada função compilada, que serão usados na etapa de emparelhamento.
+
+As instâncias de \texttt{InstructionNodes} são criadas por uma classe chamada \texttt{SchedulerDAG}, responsável por ler cada instrução do programa e calcular as dependências de memória e de dados entre elas e, depois, inserir nas instâncias tais cálculos. Depois do cálculo de dependências, o escalonador mapeia cada \texttt{InstructionNodes} para seus respectivos estados através da classe \texttt{SchedulerMapping}.
+
+A estratégia adotada pelo escalonador é baseada na formulação matemática das dependências como um problema de otimização linear, chamado \textit{sistema de restrições de diferença}, como descrito em (J. Cong and Z. Zhang, ?An Efficient and Versatile Scheduling Algorithm Based On SDC Formulation,? Proceedings of the 2006 Design Automation Conference, San Francisco, CA, pp. 433-438, July 2006.). Nessa formulação, o programa linear contém restrições da forma
+
+\begin{equation}
+x_1 - x_2 \; REL \;  y
+\end{equation} 
+
+onde
+
+\begin{equation}
+REL \in \{\leq, \geq, =\}
+\end{equation}
+
+No processo de criação do sistema linear, o arcabouço mapeia as operações para serem feitas o mais cedo possível, dadas as dependências entre elas. Tal estratégia, chamada \textit{as-soon-as-possible scheduling} ou \textit{ASAP scheduling}, pode ser trocada para outra, oposta, chamada \textit{as-late-as-possible scheduling} ou \textit{ALAP scheduling}. Finalmente, após a modelagem do programa linear com as operações e suas dependências, o sistema é resolvido utilizando-se a biblioteca \textit{open source} \texttt{lpsolve} (http://lpsolve.sourceforge.net/).
+
+Período de \textit{clock} do \textit{chip} utilizado, estratégia de escalonamento (\textit{ALAP} ou \textit{ASAP}), dentre outras informações importantes para o processo de escalonamento são encontradas em arquivos TCL pelos diretórios da ferramenta.
+
+\subsection{Emparelhamento}
+
+\subsection{Geração do RTL}
