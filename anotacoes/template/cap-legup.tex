@@ -91,4 +91,46 @@ Período de \textit{clock} do \textit{chip} utilizado, estratégia de escalonament
 
 \subsection{Emparelhamento}
 
+Depois de calcular quais operações devem ser feitas em quais ciclos de \textit{clock}, o LegUp precisa atribuir cada uma dessas operações às unidades funcionais correspondentes. Como exposto no capítulo \ref{cap:fpga}, essas unidades são compostas de \textit{lookup tables} e registradores, e seus tipos e respectivas quantidades disponíveis no \textit{chip} são determinados na fase de alocação de acordo com o dispositivo almejado.
+
+Cada ciclo de \textit{clock} contém um conjunto de operações a serem feitas. Estas, por sua vez, podem ser executadas por um conjunto de unidades funcionais disponíveis no \textit{chip}. Uma única unidade funcional consegue ser usada para fazer mais de uma operação ao usar-se multiplexadores na entrada, e mapeando operações em ciclos diferentes. Este padrão de implementação de circuitos é chamado de \textit{compartilhamento de recursos} e,  em termos de recursos do \textit{chip}, pode ser custoso. Deve-se ter em mente três pontos principais sobre o compartilhamento de recursos:
+
+\begin{itemize}
+	\item É preferível que, caso haja necessidade de compartilhar unidades funcionais, isso seja feito da forma mais uniforme possível. Assim, evita-se sobrecarregar uma única unidade funcional com muitas entradas, remetendo ao item anterior sobre multiplexadores com muitas entradas.
+	\item Ter um multiplexador com muitas entradas diminui a latência do circuito, devido à quantidade de lógica necessária para implementá-lo. Assim, operações que compartilham da mesma entrada no mesmo ciclo podem ser atribuídas à mesma unidade funcional sem precisar de um multiplexador.
+	\item Uma unidade funcional pode realizar operações pertencentes a ciclos distintos. Dessa forma, ela usará apenas um registrador de saída e, por consequência, não precisará de um multiplexador de saída.
+\end{itemize}
+
+Tendo em vista estes pontos, os desenvolvedores da ferramenta criaram uma função para calcular o custo de emparelhamento entre uma operação $op$ e uma unidade funcional $uf$, dada pela equação
+
+\begin{eqnarray}\label{equacao-custo-emparelhamento}
+\nonumber custo(op, uf) &=& \omega * numeroInputsDeMuxExistentes(fu)\\
+          && + \beta * novasEntradasParaMux(op, fu)\\
+\nonumber && - \theta * registradorDeSaidaCompartilhavel(op, fu)
+\end{eqnarray}
+
+onde $\omega = 0.1$, $\beta = 1$ e $\theta = 0.5$. Os pesos são atribuídos a cada item considerado no comaprtilhamento de recursos de forma a priorizar a economia de criação de novas entradas nos multiplexadores ($\beta$), depois a economia de registradores de saída ($\theta$) e, por fim, balancear as entradas nos multiplexadores existentes ($\omega$).
+
+Calculados os custos, a ferramenta modela o problema do emparelhamento da síntese de alto nível como um problema de emparelhamento de um grafo bipartido com pesos. Dois conjuntos, $O$ e $U$, representam as operações e as unidades funcionais, e cada arco entre $op \in  O$ e $uf \in U$ tem peso $custo(op, uf)$, como representado na equação \ref{equacao-custo-emparelhamento}. O problema pode ser resolvido usando-se o Método Húngaro [COLOCAR REF AQUI] em tempo polinomial. A cada ciclo de \textit{clock}, a ferramenta faz a formulação e resolução do problema, mapeando as operações às unidades funcionais mais adequadas para executá-las.
+
 \subsection{Geração do RTL}
+
+A geração do RTL correspondente ao programa de entrada é feito pela classe \texttt{GenerateRTL} e, posteriormente, escrito em um arquivo Verilog pela classe \texttt{VerilogWriter}.
+
+A classe \texttt{GenerateRTL} recebe os dados das etapas de escalonamento e emparelhamento para gerar o circuito do algoritmo usando cinco outras classes que, quando aninhadas entre si, geram a arquitetura desejada. As classes são:
+
+\begin{itemize}
+	\item \texttt{RTLModule} - um módulo de \textit{hardware}.
+	\item \texttt{RTLSignal} - um registrador ou sinal no circuito. O sinal pode ser gerenciado por outros \texttt{RTLSignal}, também gerenciados por um \texttt{RTLSignal}, a fim de se criar um multiplexador.
+	\item \texttt{RTLConst} - um valor constante.
+	\item \texttt{RTLOp} - uma unidade funcional que representa uma operação com um, dois ou três operandos.
+	\item \texttt{RTLWidth} - o tamanho, em bits, de um \texttt{RTLSignal}.
+\end{itemize}
+
+No RTL gerado há algumas otimizações feitas pela ferramenta a fim de melhorar o desempenho do circuito, principalmente no que diz respeito à implementação da memória dos módulos. O LegUp define a arquitetura de memória em quatro tipos: memória local, global, cache e \textit{off-chip}. As duas últimas, que correspondem à memória cache do processador e ao gerenciador de memória externa ao \textit{chip} FPGA, não são pertinentes ao fluxo de puro \textit{hardware} uma vez que não existe um processador para gerenciar seus funcionamentos.
+
+As duas hierarquias comuns a todos os fluxos, a local e a global, são usadas de acordo com a localidade das variáveis e estruturas de dados empregadas no programa, e são gerenciadas por um controlador de memória. Ao fazer uma análise sobre as referências de memória feitas durante a execução do programa (\textit{points-to analysis}), o LegUp verifica quais regiões de memória (e.g. vetores) são usadas por quais módulos. Se uma região é usada apenas por um módulo, uma memória local é instanciada para lidar com ela. Por outro lado, se uma região for usada por mais de um módulo, ou se a análise de ponteiros não chegar a uma conclusão definitiva sobre os ponteiros, uma memória global é instanciada.
+
+A memória global é composta por blocos de memória \textit{RAM} e possui um controlador de memória usado como interface entre a memória em si e os módulos que desejam acessá-la. Para cada bloco de memória, existe uma etiqueta ou \textit{tag} que o identifica de forma única. Um endereço de memória global é composto de $32$ bits, dos quais os $8$ bits mais significativos são os bits de etiqueta (ou \textit{tag bits}) e os outros $24$ bits são o endereço de memória que se deseja acessar. Considerando que as etiquetas \texttt{0x0} e \texttt{0x1} são reservadas para ponteiros nulos e endereços do processador, respectivamente, é possível, então, endereçar $254$ blocos de $16$ \textit{megabytes}, totalizando $4080$ \textit{megabytes} de memória. Essa quantidade é especialmente útil em placas que possuem uma memória \textit{off-chip} grande; no entanto, no fluxo de puro \textit{hardware}, torna-se desnecessária dada a pouca quantidade de memória  que pode ser alocada pelos recursos do \textit{chip} FPGA.
+
+A memória local é uma instância de um bloco de memória \textit{RAM} utilizada apenas pelo módulo que a instanciou. Com isso, a latência de acesso é menor, uma vez que não há necessidade de existir um controlador de memória para ela.
