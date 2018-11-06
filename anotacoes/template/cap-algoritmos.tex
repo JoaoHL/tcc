@@ -14,14 +14,44 @@ Essa quantidade de dados pode ser utilizada para aplicações modernas, como análi
 
 \subsection{Algoritmo de Huffman}
 
-\subsection{Implementação}
+\subsubsection{Implementação}
 
 \section{Aproximação do problema do caixeiro viajante}
 
+O problema do caixeiro viajante é um dos problemas de otimização combinatória mais famosos do mundo. Trata-se de um problema NP-Difícil, e ainda não foi encontrado um algoritmo que produza uma solução ótima em tempo polinomial. A formulação abstrata do problema é dada a seguir.\\
+
+\newtheorem*{tsp}{Problema do Caixeiro Viajante}
+\begin{tsp}\label{def-tsp}
+	Dado um conjunto de cidades, e a distância entre cada par de cidades, qual o menor caminho que deve ser percorrido para que cada cidade seja visitada exatamente uma vez?
+\end{tsp}
+
+O problema do caixeiro viajante, ou TSP (do inglês \textit{Travelling Salesman Problem}), é frequentemente modelado usando grafos adirecionados, principalmente para facilitar sua visualização. Neste caso, as cidades são consideradas como vértices de um grafo, e as distâncias entre duas cidades são os pesos das arestas que as conectam. Existem casos específicos do problema, tal como o TSP métrico, cuja definição é\\
+
+\newtheorem*{tsp-metrico}{TSP métrico}
+\begin{tsp-metrico}
+	Um TSP métrico é um caso particular do problema do caixeiro viajante, tal que o grafo $G = (V,E)$ que o representa possui as seguintes propriedades:
+	\begin{itemize}
+		\item G é completo, ou seja, $\forall i, j \in V$, $\exists \bar{ij} \in E$
+		\item os pesos das arestas de G respeitam a desigualdade triangular, ou seja, $\forall i, j, k \in V$, $p(\bar{ij}) \leq p(\bar{ik}) + p(\bar{kj})$, onde $p(\bar{ij})$ é o peso da aresta $\bar{ij}$.
+	\end{itemize}
+\end{tsp-metrico}
+
+O caso métrico do TSP surge de forma natural pois, em exemplos reais como visitar todas as cidades de um estado brasileiro, sempre há uma rota entre duas cidades; além disso, percorrer a distância equivalente de uma rota que passa por uma cidade intermediária não deve ser maior do que a rota que vai direto para a cidade destino. Ele foi escolhido para implementação pois além de ser condizente com situações reais, possui um algoritmo de aproximação de tempo polinomial e implementação razoavelmente simples. O algoritmo em questão é uma 2-aproximação do TSP, que calcula um caminho, no máximo, duas vezes mais comprido que o caminho mais curto, como demonstrado em (COLOCAR REFERENCIA AQUI). O algoritmo é descrito em pseudocódigo em \ref{pseudocodigo-aprox-tsp}.\\
 
 
-Um exemplo de figura está na figura~\ref{fig:graph}.
-\begin{figure}[htb]
-\includegraphics[width=5cm]{figuras/graph}
-\caption{\label{fig:graph}Exemplo de uma figura.}
-\end{figure}
+\begin{algorithm}[H]\label{pseudocodigo-aprox-tsp}
+	\caption{Algoritmo de Rosenkrantz-Stearn-Lewis para TSP métrico}
+	\begin{algorithmic}
+	\REQUIRE $G = (V,E)$
+	\REQUIRE $P = \{p(\bar{ij}), \; \forall i, j \in V\} $
+
+	\STATE $T \gets ArvoreGeradoraMinima(G, P)$
+	\STATE $T' \gets T + T$
+	\STATE $P \gets CaminhoEuleriano(T')$
+	\STATE $C \gets CaminhoHamiltoniano(P)$
+	
+	\RETURN C\;
+	\end{algorithmic}
+\end{algorithm}
+
+\subsubsection{Implementação}
