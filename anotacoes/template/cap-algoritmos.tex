@@ -6,15 +6,37 @@ Este capítulo descreve o processo de escolha e desenvolvimento dos algoritmos us
 
 Tal fluxo foi utilizado devido à mudança radical entre um algoritmo programado para um processador comum, e o mesmo algoritmo rodando puramente em \textit{hardware}. Usar os fluxos híbrido ou de puro \textit{software} trariam muitas semelhanças a sistemas já existentes e, possivelmente, mais eficientes, como sistemas embarcados com uso de microprocessadores (e.g. placas Arduino) ou mesmo um computador pessoal de propósito geral.
 
-\section{Compressão de dados}
+\subsection{Algoritmo de Huffman}
 
 Nos tempos atuais, uma quantidade massiva de dados é produzida diariamente. Por exemplo, estima-se que a rede social Twitter, no segundo quadrimestre de $2018$, possuiu uma média de $335$ milhões de usuários ativos mensais (https://investor.twitterinc.com/static-files/4bfbf376-fefd-43cc-901e-aedd6a7f1daf). Se cada usuário publicar um texto de $140$ caracteres ASCII, que possuem $1$ \textit{byte} cada, serão gerados $46,9$ \textit{gigabytes} em um único instante. Apesar de parecer uma quantia baixa, a hipótese é de que cada usuário publique apenas uma vez no mês, o que é irrealista. Dessa forma, podemos supor que essa rede social, sozinha, produz mensalmente uma quantidade de dados várias ordens de grandeza maiores que isso. Na verdade, estima-se que os servidores do Twitter armazenem cerca de $250$ milhões de publicações por dia (REFERENCIAS AQUI: https://www.quora.com/How-much-data-does-Twitter-store-daily).
 	
-Essa quantidade de dados pode ser utilizada para aplicações modernas, como análise de sentimentos ou aprendizado de máquina. Ainda assim, é necessário uma forma eficiente de armazená-la e transportá-la. Nesse contexto, surgem os algoritmos de compressão de dados, muito utilizados por \textit{softwares} de compressão de arquivos e por bancos de dados. Dentre tais algoritmos, um é relativamente simples e eficiente para grandes sequências de dados: o algoritmo de Huffman.
+Essa quantidade de dados pode ser utilizada para aplicações modernas, como análise de sentimentos ou aprendizado de máquina. Ainda assim, é necessário uma forma eficiente de armazená-la e transportá-la. Nesse contexto, surgem os algoritmos de compressão de dados, muito utilizados por \textit{softwares} de compressão de arquivos e por bancos de dados. Um deles é relativamente simples e eficiente para grandes sequências de dados: o algoritmo de Huffman.
 
-\subsection{Algoritmo de Huffman}
+O algoritmo (ou codificação) de Huffman é um algoritmo que constrói uma codificação para comprimir uma sequência de caracteres com base na frequência de cada um deles no arquivo. A ideia do algoritmo é a de que caracteres (ou sequências de caracteres) mais frequentes sejam codificados em um código menor, diminuindo a quantidade de \textit{bits} necessários para representá-los. Tal algoritmo é utilizado em compactadores de arquivos famosos, como o \textit{gzip} (http://www.gzip.org/).
 
 \subsubsection{Implementação}
+
+A implementação do algoritmo de Huffman envolve, em termos de estruturas de dados, o uso de \textit{heaps} mínimos para construir uma \textit{trie} que representa a codificação. A entrada deve conter caracteres de um conjunto previamente fornecido para o algoritmo como, por exemplo, os caracteres ASCII ou UTF-8. Tal conjunto é denominado \textit{alfabeto} do algoritmo. A codificação é descrita pelo pseudocódigo em \ref{pseudocodigo-huffman}.
+
+\begin{algorithm}[H]\label{pseudocodigo-huffman}
+	\caption{Algoritmo de Huffman}
+	\begin{algorithmic}
+		\REQUIRE $A =$ alfabeto do algoritmo
+		\REQUIRE $S =$ sequência de caracteres $s$ tal que $\forall s \in S,\; s \in A$
+		
+		\STATE $M \gets contaFrequenciaCaracteres(S, A)$
+		\STATE $populaMinHeap(M)$
+		
+		
+		\RETURN C\;
+	\end{algorithmic}
+\end{algorithm}
+
+
+
+
+
+
 
 \section{Aproximação do problema do caixeiro viajante}
 
@@ -36,22 +58,24 @@ O problema do caixeiro viajante, ou TSP (do inglês \textit{Travelling Salesman P
 	\end{itemize}
 \end{tsp-metrico}
 
-O caso métrico do TSP surge de forma natural pois, em exemplos reais como visitar todas as cidades de um estado brasileiro, sempre há uma rota entre duas cidades; além disso, percorrer a distância equivalente de uma rota que passa por uma cidade intermediária não deve ser maior do que a rota que vai direto para a cidade destino. Ele foi escolhido para implementação pois além de ser condizente com situações reais, possui um algoritmo de aproximação de tempo polinomial e implementação razoavelmente simples. O algoritmo em questão é uma 2-aproximação do TSP, que calcula um caminho, no máximo, duas vezes mais comprido que o caminho mais curto, como demonstrado em (COLOCAR REFERENCIA AQUI). O algoritmo é descrito em pseudocódigo em \ref{pseudocodigo-aprox-tsp}.\\
+O caso métrico do TSP surge de forma natural pois, em exemplos reais como visitar todas as cidades de um estado brasileiro, sempre há uma rota entre duas cidades; além disso, percorrer a distância equivalente de uma rota que passa por uma cidade intermediária não deve ser maior do que a rota que vai direto para a cidade destino. Ele foi escolhido para implementação pois além de ser condizente com situações reais, possui um algoritmo de aproximação de tempo polinomial e implementação razoavelmente simples. O algoritmo em questão é uma 2-aproximação do TSP, que calcula um caminho, no máximo, duas vezes mais comprido que o caminho mais curto, como demonstrado em (COLOCAR REFERENCIA AQUI).
+
+\subsubsection{Implementação}
+
+ O algoritmo é descrito em pseudocódigo em \ref{pseudocodigo-aprox-tsp}.\\
 
 
 \begin{algorithm}[H]\label{pseudocodigo-aprox-tsp}
 	\caption{Algoritmo de Rosenkrantz-Stearn-Lewis para TSP métrico}
 	\begin{algorithmic}
-	\REQUIRE $G = (V,E)$
-	\REQUIRE $P = \{p(\bar{ij}), \; \forall i, j \in V\} $
-
-	\STATE $T \gets ArvoreGeradoraMinima(G, P)$
-	\STATE $T' \gets T + T$
-	\STATE $P \gets CaminhoEuleriano(T')$
-	\STATE $C \gets CaminhoHamiltoniano(P)$
-	
-	\RETURN C\;
+		\REQUIRE $G = (V,E)$
+		\REQUIRE $P = \{p(\bar{ij}), \; \forall i, j \in V\} $
+		
+		\STATE $T \gets ArvoreGeradoraMinima(G, P)$
+		\STATE $T' \gets T + T$
+		\STATE $P \gets CaminhoEuleriano(T')$
+		\STATE $C \gets CaminhoHamiltoniano(P)$
+		
+		\RETURN C\;
 	\end{algorithmic}
 \end{algorithm}
-
-\subsubsection{Implementação}
