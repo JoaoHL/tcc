@@ -6,7 +6,9 @@ Este capítulo descreve o processo de escolha e desenvolvimento dos algoritmos us
 
 Tal fluxo foi utilizado devido à mudança radical entre um algoritmo programado para um processador comum, e o mesmo algoritmo rodando puramente em \textit{hardware}. Usar os fluxos híbrido ou de puro \textit{software} trariam muitas semelhanças a sistemas já existentes e, possivelmente, mais eficientes, como sistemas embarcados com uso de microprocessadores (e.g. placas Arduino) ou mesmo um computador pessoal de propósito geral.
 
-\subsection{Algoritmo de Huffman}
+Vale ressaltar que o intuito deste trabalho não é se aprofundar nas provas matemáticas envolvidas na construção dos algoritmos, mas sim em seus respectivos conceitos, contextualizações e implementações.
+
+\section{Algoritmo de Huffman}
 
 Nos tempos atuais, uma quantidade massiva de dados é produzida diariamente. Por exemplo, estima-se que a rede social Twitter, no segundo quadrimestre de $2018$, possuiu uma média de $335$ milhões de usuários ativos mensais (https://investor.twitterinc.com/static-files/4bfbf376-fefd-43cc-901e-aedd6a7f1daf). Se cada usuário publicar um texto de $140$ caracteres ASCII, que possuem $1$ \textit{byte} cada, serão gerados $46,9$ \textit{gigabytes} em um único instante. Apesar de parecer uma quantia baixa, a hipótese é de que cada usuário publique apenas uma vez no mês, o que é irrealista. Dessa forma, podemos supor que essa rede social, sozinha, produz mensalmente uma quantidade de dados várias ordens de grandeza maiores que isso. Na verdade, estima-se que os servidores do Twitter armazenem cerca de $250$ milhões de publicações por dia (REFERENCIAS AQUI: https://www.quora.com/How-much-data-does-Twitter-store-daily).
 	
@@ -14,23 +16,63 @@ Essa quantidade de dados pode ser utilizada para aplicações modernas, como análi
 
 O algoritmo (ou codificação) de Huffman é um algoritmo que constrói uma codificação para comprimir uma sequência de caracteres com base na frequência de cada um deles no arquivo. A ideia do algoritmo é a de que caracteres (ou sequências de caracteres) mais frequentes sejam codificados em um código menor, diminuindo a quantidade de \textit{bits} necessários para representá-los. Tal algoritmo é utilizado em compactadores de arquivos famosos, como o \textit{gzip} (http://www.gzip.org/).
 
-\subsubsection{Implementação}
+\subsection{Implementação}
 
-A implementação do algoritmo de Huffman envolve, em termos de estruturas de dados, o uso de \textit{heaps} mínimos para construir uma \textit{trie} que representa a codificação. A entrada deve conter caracteres de um conjunto previamente fornecido para o algoritmo como, por exemplo, os caracteres ASCII ou UTF-8. Tal conjunto é denominado \textit{alfabeto} do algoritmo. A codificação é descrita pelo pseudocódigo em \ref{pseudocodigo-huffman}.
+A implementação do algoritmo de Huffman envolve, em termos de estruturas de dados, o uso de \textit{heaps} mínimos para construir uma \textit{trie} que representa a codificação. A entrada deve conter caracteres de um conjunto fechado e previamente fornecido  para o algoritmo como, por exemplo, os caracteres ASCII ou UTF-8. Tal conjunto é denominado \textit{alfabeto} do algoritmo. A codificação é descrita pelo pseudocódigo em \ref{pseudocodigo-huffman}.
 
-\begin{algorithm}[H]\label{pseudocodigo-huffman}
+\begin{algorithm}[H]
 	\caption{Algoritmo de Huffman}
+	\label{pseudocodigo-huffman}
 	\begin{algorithmic}
 		\REQUIRE $A =$ alfabeto do algoritmo
 		\REQUIRE $S =$ sequência de caracteres $s$ tal que $\forall s \in S,\; s \in A$
 		
 		\STATE $M \gets contaFrequenciaCaracteres(S, A)$
-		\STATE $populaMinHeap(M)$
+		\STATE $Heap \gets constroiMinHeap(M)$
+		\WHILE{tamanhoDoHeap > 1}
+			\STATE $novoNo \gets criaNovoNo()$
+			\STATE $filho1 \gets pegaMinimoHeap(Heap)$
+			\STATE $filho2 \gets pegaMinimoHeap(Heap)$
+			\STATE $novoNo.frequencia \gets filho1.frequencia + filho2.frequencia$
+			\STATE $novoNo.filhos \gets filho1, filho2$
+			\STATE $insereNoHeap(novoNo, Heap)$
+		\ENDWHILE
 		
+		\STATE $trie \gets pegaMinimoHeap(Heap)$
 		
-		\RETURN C\;
+		\RETURN trie\;
 	\end{algorithmic}
 \end{algorithm}
+
+A chamada de função \texttt{contaFrequenciaCaracteres(S, A)} conta a frequência de cada caractere do alfabeto na sequência $S$ recebida pelo algoritmo. Ela devolve um conjunto $M$ de pares chave-valor do tipo $(c, f)$ tal que $c$ é um caractere do alfabeto e $f$ é o seu número de ocorrências na entrada. O conjunto é, depois, usado para construir o \textit{heap} mínimo, criando-se uma \textit{trie} de um nó contendo o caractere correspondente a ele e a sua frequência. A partir disso, começa o processo de construir a \textit{trie} de codificação para o arquivo: a cada iteração do laço, retiram-se as duas \textit{tries} com menor frequência e cria-se um novo nó, inserindo as \textit{tries} retiradas como filhas dele, e atribuindo à sua frequência a soma das frequências das \textit{tries} mínimas. Perecebe-se que ao retirar $2$ elementos e adicionar o novo nó no \textit{heap}, há a diminuição de $1$ em seu número de \textit{tries} a cada iteração do laço. Ao fim do laço há um único elemento no \textit{heap} contendo a chamada \textit{trie de Huffman}, que representa a codificação de cada caractere. O código é gerado ao percorrê-la em uma busca em profundidade, onde nós-filhos à direita de um nó representam um \texttt{1} e nós-filhos à esquerda, \texttt{0}, finalizando ao alcançar uma folha da \textit{trie}.
+
+Um exemplo do resultado da execução algoritmo, retirado de (COLOCAR REFERENCIA AQUI: ALGORITHMS 4TH EDITION, DO SEDGEWICK), pode ser visto na figura \ref{image-huffman-tree}. A entrada utilizada foi a sequência de caracteres $\texttt{ABRACADABRA!}$, cujo alfabeto é o código ASCII.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=10cm]{figuras/huffman-code}
+	\caption{\label{image-huffman-tree}\textit{Trie} de Huffman para a frase \texttt{ABRACADABRA!}}
+\end{figure}
+
+No código C, o nó é representado pela estrutura \texttt{Node}, como representado no código \ref{estrutura-node}. Os campos \texttt{ch}, \texttt{code} e \texttt{freq} armazenam, respectivamente, o caractere do alfabeto, sua codificação final, e sua frequência na entrada. Os ponteiros \texttt{left} e \texttt{right} são usados  dentro do laço de \ref{pseudocodigo-huffman} para atribuir as \textit{tries} mínimas como filhos de um novo nó, e também na geração do código de cada caractere. Por fim, \texttt{parent} e \texttt{done} são usados na codificação do alfabeto a partir da \textit{trie} de Huffman, simulando uma busca em profundidade que percorre a \textit{trie} e gera os códigos. Nota-se que a recursão é apenas simulada, pois ela não é permitida pelo LegUp para ser sintetizada em \textit{hardware}.
+
+\begin{lstlisting}[style=c, label={estrutura-node}, caption={Estrutura Node usada na implementação do algoritmo de Huffman}]
+typedef struct node Node;
+struct node {
+	unsigned long int freq;
+	char ch;
+	char code[50];
+	short int done;
+	Node *parent;
+	Node *left;
+	Node *right;
+};
+\end{lstlisting}
+
+Considerando o uso de \textit{heap} mínimo em um vetor desordenado, o algoritmo de Huffman tem o tempo de execução de ordem $O(n \cdot log_2 n)$, onde $n$ é o tamanho do alfabeto. No entanto, essa análise é estritamente válida para sua execução de forma atemporal, isto é, considerando que a entrada é recebida em sua totalidade de forma instantânea. No caso da implementação feita para este trabalho, o alfabeto utilizado foi o código ASCII, e o arquivo comprimido usado como entrada possuía tamanho da ordem de $2$ \textit{gigabytes} contendo apenas caracteres ASCII. Dessa forma, a leitura do arquivo e a contagem de frequência de caracteres foram os gargalos principais da experimentação feita.
+
+Devido a esse gargalo, o foco das experiências feitas com a síntese de alto nível, na placa FPGA, foi no uso do algoritmo de aproximação para o problema do caixeiro viajante. No entanto, algumas métricas foram realizadas em termos de ciclos de \textit{clock}, que são exibidas no capítulo \ref{cap-experiencias}.
+
 
 
 
@@ -60,7 +102,7 @@ O problema do caixeiro viajante, ou TSP (do inglês \textit{Travelling Salesman P
 
 O caso métrico do TSP surge de forma natural pois, em exemplos reais como visitar todas as cidades de um estado brasileiro, sempre há uma rota entre duas cidades; além disso, percorrer a distância equivalente de uma rota que passa por uma cidade intermediária não deve ser maior do que a rota que vai direto para a cidade destino. Ele foi escolhido para implementação pois além de ser condizente com situações reais, possui um algoritmo de aproximação de tempo polinomial e implementação razoavelmente simples. O algoritmo em questão é uma 2-aproximação do TSP, que calcula um caminho, no máximo, duas vezes mais comprido que o caminho mais curto, como demonstrado em (COLOCAR REFERENCIA AQUI).
 
-\subsubsection{Implementação}
+\subsection{Implementação}
 
  O algoritmo é descrito em pseudocódigo em \ref{pseudocodigo-aprox-tsp}.\\
 
