@@ -44,7 +44,7 @@ A implementação do algoritmo de Huffman envolve, em termos de estruturas de dado
 	\end{algorithmic}
 \end{algorithm}
 
-A chamada de função \texttt{contaFrequenciaCaracteres(S, A)} conta a frequência de cada caractere do alfabeto na sequência $S$ recebida pelo algoritmo. Ela devolve um conjunto $M$ de pares chave-valor do tipo $(c, f)$ tal que $c$ é um caractere do alfabeto e $f$ é o seu número de ocorrências na entrada. O conjunto é, depois, usado para construir o \textit{heap} mínimo, criando-se uma \textit{trie} de um nó contendo o caractere correspondente a ele e a sua frequência. A partir disso, começa o processo de construir a \textit{trie} de codificação para o arquivo: a cada iteração do laço, retiram-se as duas \textit{tries} com menor frequência e cria-se um novo nó, inserindo as \textit{tries} retiradas como filhas dele, e atribuindo à sua frequência a soma das frequências das \textit{tries} mínimas. Perecebe-se que ao retirar $2$ elementos e adicionar o novo nó no \textit{heap}, há a diminuição de $1$ em seu número de \textit{tries} a cada iteração do laço. Ao fim do laço há um único elemento no \textit{heap} contendo a chamada \textit{trie de Huffman}, que representa a codificação de cada caractere. O código é gerado ao percorrê-la em uma busca em profundidade, onde nós-filhos à direita de um nó representam um \texttt{1} e nós-filhos à esquerda, \texttt{0}, finalizando ao alcançar uma folha da \textit{trie}.
+A função \texttt{contaFrequenciaCaracteres} conta a frequência de cada caractere do alfabeto $A$ na sequência $S$ recebida pelo algoritmo. Ela devolve um conjunto $M$ de pares chave-valor do tipo $(c, f)$ tal que $c$ é um caractere do alfabeto e $f$ é o seu número de ocorrências na entrada. O conjunto é, depois, usado para construir o \textit{heap} mínimo usando a função \texttt{constroiMinHeap}, criando-se, para cada caractere com frequência positiva não-nula, uma \textit{trie} de um nó contendo o caractere correspondente a ele e sua frequência. A partir disso, começa o processo de construir a \textit{trie} de codificação para o arquivo: a cada iteração do laço, retiram-se as duas \textit{tries} com menor frequência e cria-se um novo nó, inserindo as \textit{tries} retiradas como filhas dele, e atribuindo à sua frequência a soma das frequências das \textit{tries} mínimas. Perecebe-se que ao retirar $2$ elementos e adicionar o novo nó no \textit{heap}, há a diminuição de $1$ em seu número de \textit{tries} a cada iteração do laço. Ao fim do laço há um único elemento no \textit{heap} contendo a chamada \textit{trie de Huffman}, que representa a codificação de cada caractere. O código é gerado ao percorrê-la em uma busca em profundidade, onde nós-filhos à direita de um nó representam um \texttt{1} e nós-filhos à esquerda, \texttt{0}, finalizando ao alcançar uma folha da \textit{trie}.
 
 Um exemplo do resultado da execução algoritmo, retirado de (COLOCAR REFERENCIA AQUI: ALGORITHMS 4TH EDITION, DO SEDGEWICK), pode ser visto na figura \ref{image-huffman-tree}. A entrada utilizada foi a sequência de caracteres $\texttt{ABRACADABRA!}$, cujo alfabeto é o código ASCII.
 
@@ -75,21 +75,21 @@ Devido a esse gargalo, o foco das experiências feitas com a síntese de alto níve
 
 
 
-
-
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% -----------------------------CAIXEIRO VIAJANTE-----------------------------%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 \section{Aproximação do problema do caixeiro viajante}
 
-O problema do caixeiro viajante é um dos problemas de otimização combinatória mais famosos do mundo. Trata-se de um problema NP-Difícil, e ainda não foi encontrado um algoritmo que produza uma solução ótima em tempo polinomial. A formulação abstrata do problema é dada a seguir.\\
+O problema do caixeiro viajante, ou TSP (do inglês \textit{Travelling Salesman Problem}), é um dos problemas de otimização combinatória mais famosos do mundo. Trata-se de um problema NP-Difícil, e ainda não foi encontrado um algoritmo que produza uma solução ótima em tempo polinomial. A formulação abstrata do problema é dada a seguir.\\
 
 \newtheorem*{tsp}{Problema do Caixeiro Viajante}
 \begin{tsp}\label{def-tsp}
 	Dado um conjunto de cidades, e a distância entre cada par de cidades, qual o menor caminho que deve ser percorrido para que cada cidade seja visitada exatamente uma vez?
 \end{tsp}
 
-O problema do caixeiro viajante, ou TSP (do inglês \textit{Travelling Salesman Problem}), é frequentemente modelado usando grafos adirecionados, principalmente para facilitar sua visualização. Neste caso, as cidades são consideradas como vértices de um grafo, e as distâncias entre duas cidades são os pesos das arestas que as conectam. Existem casos específicos do problema, tal como o TSP métrico, cuja definição é\\
+O TSP é frequentemente modelado usando grafos adirecionados. As cidades são consideradas como vértices de um grafo, e as distâncias entre duas cidades são os pesos das arestas que as conectam. Existem casos específicos do problema, tal como o TSP métrico. Sua definição é\\
 
 \newtheorem*{tsp-metrico}{TSP métrico}
 \begin{tsp-metrico}
@@ -100,15 +100,17 @@ O problema do caixeiro viajante, ou TSP (do inglês \textit{Travelling Salesman P
 	\end{itemize}
 \end{tsp-metrico}
 
-O caso métrico do TSP surge de forma natural pois, em exemplos reais como visitar todas as cidades de um estado brasileiro, sempre há uma rota entre duas cidades; além disso, percorrer a distância equivalente de uma rota que passa por uma cidade intermediária não deve ser maior do que a rota que vai direto para a cidade destino. Ele foi escolhido para implementação pois além de ser condizente com situações reais, possui um algoritmo de aproximação de tempo polinomial e implementação razoavelmente simples. O algoritmo em questão é uma 2-aproximação do TSP, que calcula um caminho, no máximo, duas vezes mais comprido que o caminho mais curto, como demonstrado em (COLOCAR REFERENCIA AQUI).
+O caso métrico do TSP surge de forma natural pois, em exemplos reais como visitar todas as cidades de um estado brasileiro, sempre há uma rota entre duas cidades; além disso, percorrer a distância equivalente de uma rota que passa por uma cidade intermediária não deve ser maior do que a rota que vai direto para a cidade destino. Esse exemplo evidencia uma das grandes utilidades da resolução do problema: a otimização de rotas em aplicações de localização, com uso de GPS, a fim de diminuir gastos com transporte.
+
+O TSP métrico foi escolhido para implementação por ser condizente com situações reais, e apresentar um algoritmo de aproximação de tempo polinomial e implementação razoavelmente simples. O algoritmo em questão é uma 2-aproximação do TSP que calcula um caminho, no máximo, duas vezes mais comprido que o caminho ótimo do problema, como demonstrado em (COLOCAR REFERENCIA AQUI).
 
 \subsection{Implementação}
 
  O algoritmo é descrito em pseudocódigo em \ref{pseudocodigo-aprox-tsp}.\\
 
-
-\begin{algorithm}[H]\label{pseudocodigo-aprox-tsp}
+\begin{algorithm}[H]
 	\caption{Algoritmo de Rosenkrantz-Stearn-Lewis para TSP métrico}
+	\label{pseudocodigo-aprox-tsp}
 	\begin{algorithmic}
 		\REQUIRE $G = (V,E)$
 		\REQUIRE $P = \{p(\bar{ij}), \; \forall i, j \in V\} $
@@ -121,3 +123,28 @@ O caso métrico do TSP surge de forma natural pois, em exemplos reais como visita
 		\RETURN C\;
 	\end{algorithmic}
 \end{algorithm}
+
+A função \texttt{ArvoreGeradoraMinima} calcula o subconjunto $T \subseteq E$ de arestas que compõem a árvore geradora mínima do grafo $G$, usando o algoritmo de Kruskal, como descrito em (COLOCAR REFERENCIA: CORMEN). Calculada a árvore geradora mínima, dobram-se as arestas, isto é, cada aresta $\bar{ij} \in T$ possui dois elementos no conjunto $T'$. Com o conjunto $T'$, é possível calcular um caminho euleriano da árvore duplicada, ou seja, um caminho que passe por todas as arestas do grafo uma única vez, utilizando-se o algoritmo de Fleury (COLOCAR REFERENCIA). Por fim, calcula-se um caminho hamiltoniano a partir do grafo $P$ usando o algoritmo \ref{pseudocodigo-caminho-hamiltoniano}.
+
+\begin{algorithm}[H]
+	\caption{Algoritmo para achar um caminho hamiltoniano a partir de um caminho euleriano}
+	\label{pseudocodigo-caminho-hamiltoniano}
+	\begin{algorithmic}
+		\REQUIRE $G = (V,E)$
+		\REQUIRE $U =$ sequência de vértices $v_0, v_1, \dots, v_n$
+		
+		\STATE $C \gets v_0$
+		
+		\FOR{$v_i \in U$}
+			\IF{$v_i \notin C$}
+				\STATE $C \gets v_i$
+			\ENDIF
+		\ENDFOR
+		
+		\STATE $C \gets v_0$
+		
+		\RETURN C\;
+	\end{algorithmic}
+\end{algorithm}
+
+No algoritmo \ref{pseudocodigo-caminho-hamiltoniano}, $U$ é um caminho euleriano em $G$. A sequência de vértices $C$ representa as arestas de $G$ que formam o caminho hamiltoniano, de tal forma que dois vértices consecutivos na sequência $v_i$ e $v_{i+1}$, $i \in 0, \dots, n-1$, implicam que a aresta $\bar{v_{i}v_{i+1}} \in E$ está contida no caminho. Note que o vértice $v_0$ é adicionado uma segunda vez ao final do algoritmo, para representar a aresta $\bar{v_{n}v_0}$.
