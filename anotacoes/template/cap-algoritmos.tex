@@ -124,18 +124,20 @@ O TSP métrico foi escolhido para implementação por ser condizente com situações 
 	\end{algorithmic}
 \end{algorithm}
 
-A função \texttt{ArvoreGeradoraMinima} calcula o subconjunto $T \subseteq E$ de arestas que compõem a árvore geradora mínima do grafo $G$, usando o algoritmo de Kruskal, como descrito em (COLOCAR REFERENCIA: CORMEN). Calculada a árvore geradora mínima, dobram-se as arestas, isto é, cada aresta $\bar{ij} \in T$ possui dois elementos no conjunto $T'$. Com o conjunto $T'$, é possível calcular um caminho euleriano da árvore duplicada, ou seja, um caminho que passe por todas as arestas do grafo uma única vez, utilizando-se o algoritmo de Fleury (COLOCAR REFERENCIA). Por fim, calcula-se um caminho hamiltoniano a partir do grafo $P$ usando o algoritmo \ref{pseudocodigo-caminho-hamiltoniano}.
+A subrotina \texttt{ArvoreGeradoraMinima} calcula o subconjunto $T \subseteq E$ de arestas que compõem a árvore geradora mínima do grafo $G$, usando o algoritmo de Kruskal, como descrito em (COLOCAR REFERENCIA: CORMEN). Calculada a árvore geradora mínima $T$, dobram-se as arestas, isto é, cada aresta $\bar{ij} \in T$ é inserida duas vezes no conjunto $T'$. Com o conjunto $T'$ é possível calcular um caminho euleriano da árvore duplicada, ou seja, um caminho que passe por todas as arestas do grafo uma única vez, utilizando-se o algoritmo de Fleury (COLOCAR REFERENCIA). Por fim, calcula-se um caminho hamiltoniano a partir do caminho euleriano $P$ usando o algoritmo \ref{pseudocodigo-caminho-hamiltoniano}, cuja suposição é a de que o grafo $G = (V,E)$ do qual se origina o caminho $P$ é um grafo completo.
+
+A ideia por trás do algoritmo \ref{pseudocodigo-caminho-hamiltoniano} é usar a sequência de vértices do caminho euleriano $P$ caso eles não tenham sido inseridos no caminho hamiltoniano $C$, uma vez que $P$ foi calculado a partir da árvore geradora mínima; caso um vértice já tenha sido colocado em $C$, adiciona-se uma aresta que não está em $P$ mas está em $G$, sob a garantia de que, por $G$ ser completo, vão existir arestas para quaisquer pares de vértices de $V$.
 
 \begin{algorithm}[H]
 	\caption{Algoritmo para achar um caminho hamiltoniano a partir de um caminho euleriano}
 	\label{pseudocodigo-caminho-hamiltoniano}
 	\begin{algorithmic}
 		\REQUIRE $G = (V,E)$
-		\REQUIRE $U =$ sequência de vértices $v_0, v_1, \dots, v_n$
+		\REQUIRE $P =$ sequência de vértices $v_0, v_1, \dots, v_n$
 		
 		\STATE $C \gets v_0$
 		
-		\FOR{$v_i \in U$}
+		\FOR{$v_i \in P$}
 			\IF{$v_i \notin C$}
 				\STATE $C \gets v_i$
 			\ENDIF
@@ -147,11 +149,12 @@ A função \texttt{ArvoreGeradoraMinima} calcula o subconjunto $T \subseteq E$ de 
 	\end{algorithmic}
 \end{algorithm}
 
-No algoritmo \ref{pseudocodigo-caminho-hamiltoniano}, $U$ é um caminho euleriano em $G$. A sequência de vértices $C$ representa as arestas de $G$ que formam o caminho hamiltoniano, de tal forma que dois vértices consecutivos na sequência $v_i$ e $v_{i+1}$, $i \in 0, \dots, n-1$, implicam que a aresta $\bar{v_{i}v_{i+1}} \in E$ está contida no caminho. Note que o vértice $v_0$ é adicionado uma segunda vez ao final do algoritmo, para representar a aresta $\bar{v_{n}v_0}$.
+No algoritmo \ref{pseudocodigo-caminho-hamiltoniano}, $P$ é um caminho euleriano em $G$. A sequência de vértices $C$ representa as arestas de $G$ que formam o caminho hamiltoniano, de tal forma que dois vértices consecutivos na sequência $v_i$ e $v_{i+1}$, $i \in 0, \dots, n-1$, implicam que a aresta $\bar{v_{i}v_{i+1}} \in E$ está contida no caminho. Note que o vértice $v_0$ é adicionado uma segunda vez ao final do algoritmo, para representar a aresta $\bar{v_{n}v_0}$ que fecha o caminho hamiltoniano.
 
-Na implementação em C, o código usa uma estrutura denominada \texttt{Edge}, descrita melhor no código \ref{estrutura-edge}. Os campos \texttt{to} e \texttt{from} guardam os vértices de origem e destino da aresta, ainda que o grafo seja adirecionado. O campo \texttt{weight} guarda o peso da aresta, e \texttt{deleted} é usado nas subrotinas do algoritmo para simular a exclusão das arestas do grafo. Além de \texttt{Edge}, uma matriz de adjacência foi utilizada para guardar os pesos de todas as arestas do grafo, além de vetores quem contêm os caminhos euleriano e hamiltoniano, e a árvore geradora mínima.
+Na implementação em C, o código usa uma estrutura denominada \texttt{Edge}, descrita melhor no código \ref{estrutura-edge}. Os campos \texttt{to} e \texttt{from} guardam os vértices de origem e destino da aresta, ainda que o grafo seja adirecionado. O campo \texttt{weight} guarda o peso da aresta, e \texttt{deleted} é usado nas subrotinas do algoritmo para simular a exclusão das arestas do grafo. Além de \texttt{Edge}, uma matriz de adjacência foi utilizada para guardar os pesos de todas as arestas do grafo, além de vetores quem contêm os caminhos euleriano e hamiltoniano, e a árvore geradora mínima. Todos os campos são do tipo \texttt{short int} na tentativa de diminuir o tamanho das entradas e, por consequência, a quantidade de memória utilizada no circuito gerado.
+\newpage
 
-\begin{lstlisting}[style=c, label={estrutura-edge}, caption={Estruturas Vertex e Edge usadas na implementação do algoritmo de Rosenkrantz-Stearn-Lewis}]
+\begin{lstlisting}[style=c, label={estrutura-edge}, caption={Estrutura Edge da implementação do algoritmo de Rosenkrantz-Stearn-Lewis}]
 typedef struct edge {
 	short int from;
 	short int to;
@@ -159,3 +162,16 @@ typedef struct edge {
 	short int deleted;
 } Edge;
 \end{lstlisting}
+
+O grafo usado na implementação foi pensado de tal forma que o cálculo do caminho ótimo seja dado por uma expressão matemática fechada, a fim de comparar se o resultado devolvido pelo algoritmo \ref{pseudocodigo-aprox-tsp} é, de fato, no máximo duas vezes maior que ele. A modelagem parte da representação da árvore geradora mínima do grafo, dada pela figura 
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=10cm]{figuras/huffman-code}
+	\caption{\label{image-grafo-2tsp}Grafo usado na implementação do TSP}
+\end{figure}
+
+
+O tempo de execução do algoritmo é de ordem $O(n^2 \cdot log_{2}n)$. A principal vantagem do uso da implementação do TSP sobre o algoritmo de Huffman é a capacidade de aumentar o processamento realizado de forma mais expressiva: dobrar o número de vértices da entrada do TSP impacta mais o tempo de processamento do que dobrar a sequência de entrada do algoritmo de Huffman. 
+
+Além disso, para realizarem-se experimentações expressivas deste segundo algoritmo seriam necessárias, no circuito gerado, a implementação de uma interface de comunicação USB entre a placa FPGA e um computador, e a adaptação do programa sintetizado para captar a entrada por essa interface, o que fugiria muito do escopo do trabalho. No caso do TSP, menos recursos do \textit{chip} são alocados para aumentar expressivamente a latência do processamento devido ao tempo de execução de maior ordem.
