@@ -6,7 +6,7 @@ Este capítulo descreve o processo de escolha e desenvolvimento dos algoritmos us
 
 Tal fluxo foi utilizado devido à mudança radical entre um algoritmo programado para um processador comum, e o mesmo algoritmo rodando puramente em \textit{hardware}. Usar os fluxos híbrido ou de puro \textit{software} trariam muitas semelhanças a sistemas já existentes e, possivelmente, mais eficientes, como sistemas embarcados com uso de microprocessadores (e.g. placas Arduino) ou mesmo um computador pessoal de propósito geral.
 
-Vale ressaltar que o intuito deste trabalho não é se aprofundar nas provas matemáticas envolvidas na construção dos algoritmos, mas sim em seus respectivos conceitos, contextualizações e implementações.
+Vale ressaltar que o intuito deste trabalho não é se aprofundar nas provas matemáticas envolvidas na construção dos algoritmos, mas sim em seus respectivos conceitos, contextualizações e implementações. Os códigos desenvolvidos estão disponíveis na página deste trabalho (COLOCAR REF PARA O SITE DO TCC).
 
 \section{Algoritmo de Huffman}
 
@@ -148,3 +148,14 @@ A função \texttt{ArvoreGeradoraMinima} calcula o subconjunto $T \subseteq E$ de 
 \end{algorithm}
 
 No algoritmo \ref{pseudocodigo-caminho-hamiltoniano}, $U$ é um caminho euleriano em $G$. A sequência de vértices $C$ representa as arestas de $G$ que formam o caminho hamiltoniano, de tal forma que dois vértices consecutivos na sequência $v_i$ e $v_{i+1}$, $i \in 0, \dots, n-1$, implicam que a aresta $\bar{v_{i}v_{i+1}} \in E$ está contida no caminho. Note que o vértice $v_0$ é adicionado uma segunda vez ao final do algoritmo, para representar a aresta $\bar{v_{n}v_0}$.
+
+Na implementação em C, o código usa uma estrutura denominada \texttt{Edge}, descrita melhor no código \ref{estrutura-edge}. Os campos \texttt{to} e \texttt{from} guardam os vértices de origem e destino da aresta, ainda que o grafo seja adirecionado. O campo \texttt{weight} guarda o peso da aresta, e \texttt{deleted} é usado nas subrotinas do algoritmo para simular a exclusão das arestas do grafo. Além de \texttt{Edge}, uma matriz de adjacência foi utilizada para guardar os pesos de todas as arestas do grafo, além de vetores quem contêm os caminhos euleriano e hamiltoniano, e a árvore geradora mínima.
+
+\begin{lstlisting}[style=c, label={estrutura-edge}, caption={Estruturas Vertex e Edge usadas na implementação do algoritmo de Rosenkrantz-Stearn-Lewis}]
+typedef struct edge {
+	short int from;
+	short int to;
+	short int weight;
+	short int deleted;
+} Edge;
+\end{lstlisting}
