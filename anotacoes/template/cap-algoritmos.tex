@@ -6,24 +6,87 @@ Este capítulo descreve o processo de escolha e desenvolvimento dos algoritmos us
 
 Tal fluxo foi utilizado devido à mudança radical entre um algoritmo programado para um processador comum, e o mesmo algoritmo rodando puramente em \textit{hardware}. Usar os fluxos híbrido ou de puro \textit{software} trariam muitas semelhanças a sistemas já existentes e, possivelmente, mais eficientes, como sistemas embarcados com uso de microprocessadores (e.g. placas Arduino) ou mesmo um computador pessoal de propósito geral.
 
+Vale ressaltar que o intuito deste trabalho não é se aprofundar nas provas matemáticas envolvidas na construção dos algoritmos, mas sim em seus respectivos conceitos, contextualizações e implementações. Os códigos desenvolvidos estão disponíveis na página deste trabalho (COLOCAR REF PARA O SITE DO TCC).
+
 \section{Algoritmo de Huffman}
 
 Nos tempos atuais, uma quantidade massiva de dados é produzida diariamente. Por exemplo, estima-se que a rede social Twitter, no segundo quadrimestre de $2018$, possuiu uma média de $335$ milhões de usuários ativos mensais (https://investor.twitterinc.com/static-files/4bfbf376-fefd-43cc-901e-aedd6a7f1daf). Se cada usuário publicar um texto de $140$ caracteres ASCII, que possuem $1$ \textit{byte} cada, serão gerados $46,9$ \textit{gigabytes} em um único instante. Apesar de parecer uma quantia baixa, a hipótese é de que cada usuário publique apenas uma vez no mês, o que é irrealista. Dessa forma, podemos supor que essa rede social, sozinha, produz mensalmente uma quantidade de dados várias ordens de grandeza maiores que isso. Na verdade, estima-se que os servidores do Twitter armazenem cerca de $250$ milhões de publicações por dia (REFERENCIAS AQUI: https://www.quora.com/How-much-data-does-Twitter-store-daily).
 	
-Essa quantidade de dados pode ser utilizada para aplicações modernas, como análise de sentimentos ou aprendizado de máquina. Ainda assim, é necessário uma forma eficiente de armazená-la e transportá-la. Nesse contexto, surgem os algoritmos de compressão de dados, muito utilizados por \textit{softwares} de compressão de arquivos e por bancos de dados. Dentre tais algoritmos, um é relativamente simples e eficiente para grandes sequências de dados: o algoritmo de Huffman.
+Essa quantidade de dados pode ser utilizada para aplicações modernas, como análise de sentimentos ou aprendizado de máquina. Ainda assim, é necessário uma forma eficiente de armazená-la e transportá-la. Nesse contexto, surgem os algoritmos de compressão de dados, muito utilizados por \textit{softwares} de compressão de arquivos e por bancos de dados. Um deles é relativamente simples e eficiente para grandes sequências de dados: o algoritmo de Huffman.
 
-\subsubsection{Implementação}
+O algoritmo (ou codificação) de Huffman é um algoritmo que constrói uma codificação para comprimir uma sequência de caracteres com base na frequência de cada um deles no arquivo. A ideia do algoritmo é a de que caracteres (ou sequências de caracteres) mais frequentes sejam codificados em um código menor, diminuindo a quantidade de \textit{bits} necessários para representá-los. Tal algoritmo é utilizado em compactadores de arquivos famosos, como o \textit{gzip} (http://www.gzip.org/).
+
+\subsection{Implementação}
+
+A implementação do algoritmo de Huffman envolve, em termos de estruturas de dados, o uso de \textit{heaps} mínimos para construir uma \textit{trie} que representa a codificação. A entrada deve conter caracteres de um conjunto fechado e previamente fornecido  para o algoritmo como, por exemplo, os caracteres ASCII ou UTF-8. Tal conjunto é denominado \textit{alfabeto} do algoritmo. A codificação é descrita pelo pseudocódigo em \ref{pseudocodigo-huffman}.
+
+\begin{algorithm}[H]
+	\caption{Algoritmo de Huffman}
+	\label{pseudocodigo-huffman}
+	\begin{algorithmic}
+		\REQUIRE $A =$ alfabeto do algoritmo
+		\REQUIRE $S =$ sequência de caracteres $s$ tal que $\forall s \in S,\; s \in A$
+		
+		\STATE $M \gets contaFrequenciaCaracteres(S, A)$
+		\STATE $Heap \gets constroiMinHeap(M)$
+		\WHILE{tamanhoDoHeap > 1}
+			\STATE $novoNo \gets criaNovoNo()$
+			\STATE $filho1 \gets pegaMinimoHeap(Heap)$
+			\STATE $filho2 \gets pegaMinimoHeap(Heap)$
+			\STATE $novoNo.frequencia \gets filho1.frequencia + filho2.frequencia$
+			\STATE $novoNo.filhos \gets filho1, filho2$
+			\STATE $insereNoHeap(novoNo, Heap)$
+		\ENDWHILE
+		
+		\STATE $trie \gets pegaMinimoHeap(Heap)$
+		
+		\RETURN trie\;
+	\end{algorithmic}
+\end{algorithm}
+
+A função \texttt{contaFrequenciaCaracteres} conta a frequência de cada caractere do alfabeto $A$ na sequência $S$ recebida pelo algoritmo. Ela devolve um conjunto $M$ de pares chave-valor do tipo $(c, f)$ tal que $c$ é um caractere do alfabeto e $f$ é o seu número de ocorrências na entrada. O conjunto é, depois, usado para construir o \textit{heap} mínimo usando a função \texttt{constroiMinHeap}, criando-se, para cada caractere com frequência positiva não-nula, uma \textit{trie} de um nó contendo o caractere correspondente a ele e sua frequência. A partir disso, começa o processo de construir a \textit{trie} de codificação para o arquivo: a cada iteração do laço, retiram-se as duas \textit{tries} com menor frequência e cria-se um novo nó, inserindo as \textit{tries} retiradas como filhas dele, e atribuindo à sua frequência a soma das frequências das \textit{tries} mínimas. Perecebe-se que ao retirar $2$ elementos e adicionar o novo nó no \textit{heap}, há a diminuição de $1$ em seu número de \textit{tries} a cada iteração do laço. Ao fim do laço há um único elemento no \textit{heap} contendo a chamada \textit{trie de Huffman}, que representa a codificação de cada caractere. O código é gerado ao percorrê-la em uma busca em profundidade, onde nós-filhos à direita de um nó representam um \texttt{1} e nós-filhos à esquerda, \texttt{0}, finalizando ao alcançar uma folha da \textit{trie}.
+
+Um exemplo do resultado da execução algoritmo, retirado de (COLOCAR REFERENCIA AQUI: ALGORITHMS 4TH EDITION, DO SEDGEWICK), pode ser visto na figura \ref{image-huffman-tree}. A entrada utilizada foi a sequência de caracteres $\texttt{ABRACADABRA!}$, cujo alfabeto é o código ASCII.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=10cm]{figuras/huffman-code}
+	\caption{\label{image-huffman-tree}\textit{Trie} de Huffman para a frase \texttt{ABRACADABRA!}}
+\end{figure}
+
+No código C, o nó é representado pela estrutura \texttt{Node}, como representado no código \ref{estrutura-node}. Os campos \texttt{ch}, \texttt{code} e \texttt{freq} armazenam, respectivamente, o caractere do alfabeto, sua codificação final, e sua frequência na entrada. Os ponteiros \texttt{left} e \texttt{right} são usados  dentro do laço de \ref{pseudocodigo-huffman} para atribuir as \textit{tries} mínimas como filhos de um novo nó, e também na geração do código de cada caractere. Por fim, \texttt{parent} e \texttt{done} são usados na codificação do alfabeto a partir da \textit{trie} de Huffman, simulando uma busca em profundidade que percorre a \textit{trie} e gera os códigos. Nota-se que a recursão é apenas simulada, pois ela não é permitida pelo LegUp para ser sintetizada em \textit{hardware}.
+
+\begin{lstlisting}[style=c, label={estrutura-node}, caption={Estrutura Node usada na implementação do algoritmo de Huffman}]
+typedef struct node Node;
+struct node {
+	unsigned long int freq;
+	char ch;
+	char code[50];
+	short int done;
+	Node *parent;
+	Node *left;
+	Node *right;
+};
+\end{lstlisting}
+
+Considerando o uso de \textit{heap} mínimo em um vetor desordenado, o algoritmo de Huffman tem o tempo de execução de ordem $O(n \cdot log_2 n)$, onde $n$ é o tamanho do alfabeto. No entanto, essa análise é estritamente válida para sua execução de forma atemporal, isto é, considerando que a entrada é recebida em sua totalidade de forma instantânea. No caso da implementação feita para este trabalho, o alfabeto utilizado foi o código ASCII, e o arquivo comprimido usado como entrada possuía tamanho da ordem de $2$ \textit{gigabytes} contendo apenas caracteres ASCII. Dessa forma, a leitura do arquivo e a contagem de frequência de caracteres foram os gargalos principais da experimentação feita.
+
+Devido a esse gargalo, o foco das experiências feitas com a síntese de alto nível, na placa FPGA, foi no uso do algoritmo de aproximação para o problema do caixeiro viajante. No entanto, algumas métricas foram realizadas em termos de ciclos de \textit{clock}, que são exibidas no capítulo \ref{cap-experiencias}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% -----------------------------CAIXEIRO VIAJANTE-----------------------------%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Aproximação do problema do caixeiro viajante}
 
-O problema do caixeiro viajante é um dos problemas de otimização combinatória mais famosos do mundo. Trata-se de um problema NP-Difícil, e ainda não foi encontrado um algoritmo que produza uma solução ótima em tempo polinomial. A formulação abstrata do problema é dada a seguir.\\
+O problema do caixeiro viajante, ou TSP (do inglês \textit{Travelling Salesman Problem}), é um dos problemas de otimização combinatória mais famosos do mundo. Trata-se de um problema NP-Difícil, e ainda não foi encontrado um algoritmo que produza uma solução ótima em tempo polinomial. A formulação abstrata do problema é dada a seguir.\\
 
 \newtheorem*{tsp}{Problema do Caixeiro Viajante}
 \begin{tsp}\label{def-tsp}
 	Dado um conjunto de cidades, e a distância entre cada par de cidades, qual o menor caminho que deve ser percorrido para que cada cidade seja visitada exatamente uma vez?
 \end{tsp}
 
-O problema do caixeiro viajante, ou TSP (do inglês \textit{Travelling Salesman Problem}), é frequentemente modelado usando grafos adirecionados, principalmente para facilitar sua visualização. Neste caso, as cidades são consideradas como vértices de um grafo, e as distâncias entre duas cidades são os pesos das arestas que as conectam. Existem casos específicos do problema, tal como o TSP métrico, cuja definição é\\
+O TSP é frequentemente modelado usando grafos adirecionados. As cidades são consideradas como vértices de um grafo, e as distâncias entre duas cidades são os pesos das arestas que as conectam. Existem casos específicos do problema, tal como o TSP métrico. Sua definição é\\
 
 \newtheorem*{tsp-metrico}{TSP métrico}
 \begin{tsp-metrico}
@@ -34,22 +97,117 @@ O problema do caixeiro viajante, ou TSP (do inglês \textit{Travelling Salesman P
 	\end{itemize}
 \end{tsp-metrico}
 
-O caso métrico do TSP surge de forma natural pois, em exemplos reais como visitar todas as cidades de um estado brasileiro, sempre há uma rota entre duas cidades; além disso, percorrer a distância equivalente de uma rota que passa por uma cidade intermediária não deve ser maior do que a rota que vai direto para a cidade destino. Ele foi escolhido para implementação pois além de ser condizente com situações reais, possui um algoritmo de aproximação de tempo polinomial e implementação razoavelmente simples. O algoritmo em questão é uma 2-aproximação do TSP, que calcula um caminho, no máximo, duas vezes mais comprido que o caminho mais curto, como demonstrado em (COLOCAR REFERENCIA AQUI). O algoritmo é descrito em pseudocódigo em \ref{pseudocodigo-aprox-tsp}.\\
+O caso métrico do TSP surge de forma natural pois, em exemplos reais como visitar todas as cidades de um estado brasileiro, sempre há uma rota entre duas cidades; além disso, percorrer a distância equivalente de uma rota que passa por uma cidade intermediária não deve ser maior do que a rota que vai direto para a cidade destino. Esse exemplo evidencia uma das grandes utilidades da resolução do problema: a otimização de rotas em aplicações de localização, com uso de GPS, a fim de diminuir gastos com transporte.
 
+O TSP métrico foi escolhido para implementação por ser condizente com situações reais, e apresentar um algoritmo de aproximação de tempo polinomial e implementação razoavelmente simples. O algoritmo em questão é uma 2-aproximação do TSP que calcula um caminho, no máximo, duas vezes mais comprido que o caminho ótimo do problema, como demonstrado em (COLOCAR REFERENCIA AQUI).
 
-\begin{algorithm}[H]\label{pseudocodigo-aprox-tsp}
+\subsection{Implementação}
+
+ O algoritmo é descrito em pseudocódigo em \ref{pseudocodigo-aprox-tsp}.\\
+
+\begin{algorithm}[H]
 	\caption{Algoritmo de Rosenkrantz-Stearn-Lewis para TSP métrico}
+	\label{pseudocodigo-aprox-tsp}
 	\begin{algorithmic}
-	\REQUIRE $G = (V,E)$
-	\REQUIRE $P = \{p(\bar{ij}), \; \forall i, j \in V\} $
-
-	\STATE $T \gets ArvoreGeradoraMinima(G, P)$
-	\STATE $T' \gets T + T$
-	\STATE $P \gets CaminhoEuleriano(T')$
-	\STATE $C \gets CaminhoHamiltoniano(P)$
-	
-	\RETURN C\;
+		\REQUIRE $G = (V,E)$
+		\REQUIRE $P = \{p(\bar{ij}), \; \forall i, j \in V\} $
+		
+		\STATE $T \gets ArvoreGeradoraMinima(G, P)$
+		\STATE $T' \gets T + T$
+		\STATE $P \gets CaminhoEuleriano(T')$
+		\STATE $C \gets CaminhoHamiltoniano(P)$
+		
+		\RETURN C\;
 	\end{algorithmic}
 \end{algorithm}
 
-\subsubsection{Implementação}
+A subrotina \texttt{ArvoreGeradoraMinima} calcula o subconjunto $T \subseteq E$ de arestas que compõem a árvore geradora mínima do grafo $G$, usando o algoritmo de Kruskal, como descrito em (COLOCAR REFERENCIA: CORMEN). Calculada a árvore geradora mínima $T$, dobram-se as arestas, isto é, cada aresta $\bar{ij} \in T$ é inserida duas vezes no conjunto $T'$. Com o conjunto $T'$ é possível calcular um caminho euleriano da árvore duplicada, ou seja, um caminho que passe por todas as arestas do grafo uma única vez, utilizando-se o algoritmo de Fleury (COLOCAR REFERENCIA). Por fim, calcula-se um caminho hamiltoniano a partir do caminho euleriano $P$ usando o algoritmo \ref{pseudocodigo-caminho-hamiltoniano}, cuja suposição é a de que o grafo $G = (V,E)$ do qual se origina o caminho $P$ é um grafo completo.
+
+A ideia por trás do algoritmo \ref{pseudocodigo-caminho-hamiltoniano} é usar a sequência de vértices do caminho euleriano $P$ caso eles não tenham sido inseridos no caminho hamiltoniano $C$, uma vez que $P$ foi calculado a partir da árvore geradora mínima; caso um vértice já tenha sido colocado em $C$, adiciona-se uma aresta que não está em $P$ mas está em $G$, sob a garantia de que, por $G$ ser completo, vão existir arestas para quaisquer pares de vértices de $V$.
+
+\begin{algorithm}[H]
+	\caption{Algoritmo para achar um caminho hamiltoniano a partir de um caminho euleriano}
+	\label{pseudocodigo-caminho-hamiltoniano}
+	\begin{algorithmic}
+		\REQUIRE $G = (V,E)$
+		\REQUIRE $P =$ sequência de vértices $v_0, v_1, \dots, v_n$
+		
+		\STATE $C \gets v_0$
+		
+		\FOR{$v_i \in P$}
+			\IF{$v_i \notin C$}
+				\STATE $C \gets v_i$
+			\ENDIF
+		\ENDFOR
+		
+		\STATE $C \gets v_0$
+		
+		\RETURN C\;
+	\end{algorithmic}
+\end{algorithm}
+
+No algoritmo \ref{pseudocodigo-caminho-hamiltoniano}, $P$ é um caminho euleriano em $G$. A sequência de vértices $C$ representa as arestas de $G$ que formam o caminho hamiltoniano, de tal forma que dois vértices consecutivos na sequência $v_i$ e $v_{i+1}$, $i \in 0, \dots, n-1$, implicam que a aresta $\bar{v_{i}v_{i+1}} \in E$ está contida no caminho. Note que o vértice $v_0$ é adicionado uma segunda vez ao final do algoritmo, para representar a aresta $\bar{v_{n}v_0}$ que fecha o caminho hamiltoniano.
+
+Na implementação em C, o código usa uma estrutura denominada \texttt{Edge}, descrita melhor no código \ref{estrutura-edge}. Os campos \texttt{to} e \texttt{from} guardam os vértices de origem e destino da aresta, ainda que o grafo seja adirecionado. O campo \texttt{weight} guarda o peso da aresta, e \texttt{deleted} é usado nas subrotinas do algoritmo para simular a exclusão das arestas do grafo. Além de \texttt{Edge}, uma matriz de adjacência foi utilizada para guardar os pesos de todas as arestas do grafo, além de vetores quem contêm os caminhos euleriano e hamiltoniano, e a árvore geradora mínima. Todos os campos são do tipo \texttt{short int} na tentativa de diminuir o tamanho das entradas e, por consequência, a quantidade de memória utilizada no circuito gerado.
+\newpage
+
+\begin{lstlisting}[style=c, label={estrutura-edge}, caption={Estrutura Edge da implementação do algoritmo de Rosenkrantz-Stearn-Lewis}]
+typedef struct edge {
+	short int from;
+	short int to;
+	short int weight;
+	short int deleted;
+} Edge;
+\end{lstlisting}
+
+O grafo usado na implementação foi pensado de tal forma que o cálculo do caminho ótimo seja dado por uma expressão matemática fechada, a fim de comparar se o resultado devolvido pelo algoritmo \ref{pseudocodigo-aprox-tsp} é, de fato, no máximo duas vezes maior que ele. A modelagem parte da árvore geradora mínima do grafo, como ilustrado pelo grafo da figura \ref{grafo-2tsp}. Para a construção dele, foram usados números de vértices $n$ tais que $n$ é múltiplo de $3$.\\
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=10cm]{figuras/grafo-implementacao}
+	\caption{\label{grafo-2tsp}\textit{Modelo de grafo usado na implementação da aproximação do TSP}}
+\end{figure}
+
+Na figura \ref{grafo-2tsp}, as arestas pertencentes à árvore geradora mínima têm peso $5$, enquanto todas as outras arestas do grafo $G$ possuem peso $10$. Os módulos dos pesos foram escolhidos de tal forma que o grafo obedeça à desiguldade triangular para qualquer subconjunto de arestas de $G$. O peso total de um caminho ótimo de tal grafo pode ser calculado pela expressão \ref{equacao-caminho-otimo}, e o caminho é ilustrado na figura \ref{grafo-caminho-otimo}.
+
+\begin{equation}
+	\label{equacao-caminho-otimo}
+	pesoTotal = 2 \cdot 5 \cdot \frac{n}{3} + 10 \cdot \frac{n}{3} = 20 \cdot \frac{n}{3}
+\end{equation}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=12cm]{figuras/grafo-caminho-otimo}
+	\caption{\label{grafo-caminho-otimo}\textit{Caminho ótimo do TSP aplicado ao grafo modelado}}
+\end{figure}
+
+%\begin{psmatrix}[colsep=1.5cm,rowsep=1.5cm,mnode=circle]	
+%	$2$&$5$&$8$&&$n-1$\\
+%	$1$&$4$&$7$&$\cdots$&$n-2$\\
+%	$0$&$3$&$6$&&$n-3$
+%	\ncline{<-}{1,1}{2,1}<{5}
+%	\ncline{<-}{2,1}{3,1}<{5}
+%	\ncline{->}{1,1}{3,2}^{10}
+%
+%	\ncline{->}{3,2}{2,2}>{5}
+%	\ncline{->}{2,2}{1,2}<{5}
+%	\ncline{->}{1,2}{3,3}^{10}
+%	
+%	\ncline{->}{3,3}{2,3}>{5}
+%	\ncline{->}{2,3}{1,3}<{5}
+%	\ncline{->}{1,3}{2,4}^{10}
+%	
+%	\ncline{->}{2,4}{3,5}^{10}
+%	
+%	\ncline{->}{3,5}{2,5}>{5}
+%	\ncline{->}{2,5}{1,5}<{5}
+%	\ncarc[arcangle=120,linestyle=dotted]{->}{1,5}{3,1}_{10}
+%	%\caption{\label{grafo-2tsp}Grafo utilizado na implementação da aproximação do TSP}
+%\end{psmatrix}
+$\;$\\
+
+
+
+O tempo de execução do algoritmo é de ordem $O(n^2 \cdot log_{2}n)$. A principal vantagem do uso da implementação do TSP sobre o algoritmo de Huffman é a capacidade de aumentar o processamento realizado de forma mais expressiva: dobrar o número de vértices da entrada do TSP impacta mais o tempo de processamento do que dobrar a sequência de entrada do algoritmo de Huffman. 
+
+Além disso, para realizarem-se experimentações expressivas deste segundo algoritmo seriam necessárias, no circuito gerado, a implementação de uma interface de comunicação USB entre a placa FPGA e um computador, e a adaptação do programa sintetizado para captar a entrada por essa interface, o que fugiria muito do escopo do trabalho. No caso do TSP, menos recursos do \textit{chip} são alocados para aumentar expressivamente a latência do processamento devido ao tempo de execução de maior ordem.

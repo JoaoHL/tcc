@@ -1,12 +1,12 @@
-\chapter{Projeto LLVM}
+\section{Projeto LLVM}
 \label{cap:ape-llvm}
 
 
 LLVM (antigo acrônimo para \textit{"Low-level virtual machine"}) é um projeto de código aberto que dispobiliza ferramentas de compilação e otimização para diversas linguagens. Tais ferramentas conseguem compilar códigos de diferentes linguagens e otimizá-los em tempo de compilação, provido de um \textit{front-end} e um \textit{back-end} do usuário. Por \textit{front-end} entende-se um \textit{parser} e um \textit{lexer} da linguagem de programação a qual se deseja compilar, enquanto que por \textit{back-end} entende-se uma lógica de transformação do código próprio da LLVM em código de máquina. Um exemplo de uma ferramenta famosa pertencente ao projeto LLVM é o (Clang)(http://clang.llvm.org/), um compilador de C/C++/Objective-C alternativo ao GCC, que (pode apresentar perfomances superiores a este)(http://clang.llvm.org/features.html\#performance).
 
-Neste apêndice, serão apontadas características do projeto de forma direcionada ao entendimento do LegUp, descrito no capítulo \ref{cap:ape-legup}.
+Nesta seção, serão apontadas características do projeto de forma direcionada ao entendimento do LegUp, descrito no capítulo \ref{cap:ape-legup}.
 
-\section{Estrutura}
+\subsection{Estrutura}
 
 \begin{figure}[htb]
 \centering
@@ -26,7 +26,7 @@ A principal vantagem de se adotar esse tipo de estrutura é a modularização do si
 
 A LLVM, além de adotar essa arquitetura, também apresenta uma forte modularização em seu código, através da orientação a objetos da linguagem C++. Isso porque aplicações como o GCC, ainda que sigam a arquitetura trifásica, possuem módulos altamente acoplados, tal que o desenvolvimento do \textit{back-end} necessita do conhecimento do \textit{front-end} e vice-versa. Esses tipos de aplicações são chamadas de \textit{monolíticas}, ou seja, aplicações que possui um código altamente acoplado, com dependências difíceis de serem desfeitas sem alterar partes críticas e variadas do sistema.
 
-\section{Representação intermediária}
+\subsection{Representação intermediária}
 
 As implementações e detalhes de ambos \textit{front-end} e \textit{back-end} dependem muito da aplicação para qual a LLVM está sendo usada. O \textit{front-end} pode consistir de um \textit{parser} e \textit{lexer} de uma linguagem totalmente nova, cuja sintaxe siga um padrão bem diferente das linguagens já existentes, ou até um novo paradigma. O \textit{back-end}, por sua vez, pode transformar o código em instruções ou outros códigos de outras linguagens, como [Scratch](https://scratch.mit.edu/about), destinadas a robôs feitos de peças Lego, ou até um texto simples que contém o número de instruções do programa compilado em cada uma das arquiteturas de hardware existentes. Como as possibilidades são muitas, o projeto adotou um tipo de representação de código utilizado em sua arquitetura, a chamada \textit{representação intermediária da LLVM}, mais conhecida como \textit{LLVM IR} ("\textit{LLVM intermediate representation}"). Esta é enviada do \textit{front-end} ao otimizador, onde é modificada de acordo com as regras descritas pelos desenvolvedores da aplicação e, depois, encaminhada para o \textit{back-end} construir a saída apropriada para o alvo da aplicação. Um exemplo da LLVM IR pode ser visto abaixo.
 
@@ -50,7 +50,7 @@ unsigned int add1(unsigned int a, unsigned int b) {
 
 O uso dessa representação intermediária facilita o desenvolvimento de uma aplicação ao padronizar a saída do \textit{front-end} e a entrada do \textit{back-end}, bem como partes do otimizador. Assim, ao criar um novo \textit{front-end} para a LLVM, por exemplo, um programador deve saber apenas as características da entrada e da LLVM IR. Como o otimizador e o \textit{back-end} utilizam a LLVM IR de forma independente, não é necessário saber sobre eles para a execução de seu trabalho.
 
-\section{LLVM Pass Framework}
+\subsection{LLVM Pass Framework}
 
 No meio do processo de compilação, e considerando a arquitetura trifásica, encontra-se o otimizador do código. Ele é responsável por realizar modificações que melhorem, por exemplo, o tempo de execução do programa e o uso de espaço de memória do computador. No caso da LLVM, o otimizador recebe um código descrito pela LLVM IR e altera as instruções ao reconhecer determinados padrões. Por exemplo, se houver uma instrução onde há a subtração de um número inteiro por ele mesmo é atribuída a uma variável:
 

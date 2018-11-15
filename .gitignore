@@ -4,3 +4,10 @@ anotacoes/template/ape-exemplo.aux
 *.aux
 *.brf
 *.out
+*.bbl
+*.blg
+*.idx
+*.gz
+*.toc
+*.gz
+*.gz

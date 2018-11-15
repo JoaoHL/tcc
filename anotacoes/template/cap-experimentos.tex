@@ -1,0 +1,32 @@
+%% ------------------------------------------------------------------------- %%
+\chapter{Experimentos}
+\label{cap:experimentos}
+
+Este capítulo descreve os experimentos feitos com os códigos desenvolvidos, especificando ambientes, configurações e metodologia utilizados para avaliar o desempenho da implementação dos algoritmos em \textit{hardware}, via síntese de alto nível, e \textit{software}.
+
+\section{Metodologia}
+
+\subsection{Configurações dos algoritmos}
+
+Para a execução dos experimentos, entradas específicas foram utilizadas em cada um dos algoritmos. As entradas foram utilizadas igualmente em ambas as implementações em \textit{software} e \textit{hardware}.
+
+O algoritmo de Huffman foi configurado com um texto de $682$ caracteres, parte de um texto de teste chamado \textit{Lorem ipsum}, gerado automaticamente por diversas ferramentas \textit{online}. O alfabeto utilizado foi a tabela ASCII, contendo 128 caracteres (incluindo os não-imprimíveis).
+
+A 2-aproximação do TSP recebeu como entrada o $n = 501$, $n$ sendo o número de vértices do grafo.
+
+\subsection{Implementação em software}
+
+A execução dos algoritmos implementados em \textit{software} foi feita com o uso do \textit{profiler} \texttt{oprofile}, disponível no repositório padrão da distribuição Ubuntu do sistema operacional Linux (COLOCAR REFERENCIA). O \texttt{oprofile} consegue medir uma contagem aproximada de eventos do processador que ocorrem durante a execução de um programa. No caso deste trabalho, ele foi utilizado para contar a quantidade de ciclos de \textit{clock} executados enquanto o processo especificado estava usando o processador. Apesar do interesse em se medir também o número de acessos à memória, a dificuldade em se instrumentar essa medição nos algoritmos em \textit{hardware} faria com que o resultado não fosse utilizado, devido à falta de dados da execução em \textit{hardware} para comparação.
+
+A compilação dos códigos foi feita usando o compilador da linguagem C \texttt{gcc} versão $5.4.0$, sem nenhuma opção de otimização. A execução foi realizada $15$ vezes via terminal em um computador com processador Intel Core $i5$, com dois núcleos de $1.8$ GHz (totalizando frequência de $3.2$ GHz em programas paralelizáveis), com aproximadamente $10$ \textit{gigabytes} de memória DDR3.
+
+\subsection{Implementação em hardware}
+
+Os códigos C criados no desenvolvimento dos algoritmos descritos foram utilizados como entrada do LegUp no fluxo de puro \textit{hardware}. Não foram utilizadas opções de otimização, como as de compilação do compilador \texttt{clang}, ou as de emparelhamento e escalonamento, como \textit{pipelining} de laços ou compartilhamento de unidades funcionais de adição.
+
+Devido à dificuldade em lidar com as saídas serializadas da placa, foram executadas $15$ simulações utilizando a ferramenta \texttt{ModelSim}, dispobilizada pela Intel junto da ferramenta de programação de FPGAs \texttt{Quartus Prime}.
+
+O \textit{bitcode} gerado pelo fluxo do LegUp foi programado na FPGA a fim de testar se o resultado da síntese era relevante para fins práticos. Após uma pequena modificação no código para acender um LED caso o resultado do algoritmo fosse correto, a placa foi programada e o resultado foi positivo, executando os algoritmos e acendendo o LED dado o resultado correto da execução.
+
+\section{Resultados}
+

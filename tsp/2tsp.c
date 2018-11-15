@@ -3,9 +3,9 @@
 
 #define TRUE 1
 #define FALSE 0
-#define OPT_TOTAL_WEIGHT 6670
+#define OPT_TOTAL_WEIGHT 6660
 #define MAX_WEIGHT 30000
-#define NUM_VERTEX 1000
+#define NUM_VERTEX 501
 #define NUM_EDGES ((NUM_VERTEX*(NUM_VERTEX-1))/2)
 #define NUM_MST_EDGES (NUM_VERTEX-1)
 #define MAX_HEAP_SIZE (NUM_VERTEX*NUM_VERTEX)
@@ -59,29 +59,28 @@ void init_adj();
 int main(void) {
 	int i, j, sum_w = 0;
 
-	printf("Começando inicialização\n");
-	for (i = 0; i < 1000; i++) //só pro programa não terminar muito rápido
-		init_adj();
+	//printf("Começando inicialização\n");
+	init_adj();
 	ufind_init();
 	init_heap();
 	init_edges();
-	printf("Inicialização finalizada\n\n");
+	//printf("Inicialização finalizada\n\n");
 
-	printf("Gerando MST\n");
+	//printf("Gerando MST\n");
 	mst();
-	printf("MST gerada\n\n");
+	//printf("MST gerada\n\n");
 
-	printf("Duplicando aresta\n");
+	//printf("Duplicando aresta\n");
 	mst_duplicate_edges();
-	printf("Arestas duplicadas\n\n");
+	//printf("Arestas duplicadas\n\n");
 
-	printf("Calculando caminho euleriano\n");
+	//printf("Calculando caminho euleriano\n");
 	find_euler_path();
-	printf("Caminho euleriano calculado\n\n");
+	//printf("Caminho euleriano calculado\n\n");
 
-	printf("Calculando caminho hamiltoniano\n");
+	//printf("Calculando caminho hamiltoniano\n");
 	sum_w = find_hamiltonian_path();
-	printf("Caminho hamiltoniano calculado\n\n");
+	//printf("Caminho hamiltoniano calculado\n\n");
 
 	if (sum_w <= 2*OPT_TOTAL_WEIGHT) {
 		printf("ALGORITMO PASSOU!\n");
@@ -104,18 +103,13 @@ void init_adj() {
     adj_matrix[1][2] = 5;
     adj_matrix[2][1] = 5;
     adj_matrix[1][4] = 5;
-    for (i = 3; i < NUM_VERTEX - 3; i += 3) {
+    for (i = 3; i < NUM_VERTEX; i += 3) {
         adj_matrix[i][i+1] = 5;
         adj_matrix[i+1][i] = 5;
         adj_matrix[i+1][i+2] = 5;
         adj_matrix[i+2][i+1] = 5;
         adj_matrix[i+1][i-2] = 5;
-        if  (i + 4 < 1000)
-            adj_matrix[i+1][i+4] = 5;
-        else
-            adj_matrix[i+1][i+3] = 5;
     }
-    adj_matrix[999][997] = 5;
 }
 
 void ufind_init() {

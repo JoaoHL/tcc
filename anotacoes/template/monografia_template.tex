@@ -19,7 +19,8 @@
 \usepackage[T1]{fontenc}
 \usepackage[brazil]{babel}
 \usepackage[latin1]{inputenc}
-\usepackage[pdftex]{graphicx}           % usamos arquivos pdf/png como figuras
+%\usepackage{fontspec}
+\usepackage{graphicx}           % usamos arquivos pdf/png como figuras
 \usepackage{setspace}                   % espaçamento flexível
 \usepackage{indentfirst}                % indentação do primeiro parágrafo
 \usepackage{makeidx}                    % índice remissivo
@@ -33,8 +34,8 @@
 \usepackage[font=small,format=plain,labelfont=bf,up,textfont=it,up]{caption}
 \usepackage[usenames,svgnames,dvipsnames]{xcolor}
 \usepackage[a4paper,top=2.54cm,bottom=2.0cm,left=2.0cm,right=2.54cm]{geometry} % margens
-%\usepackage[pdftex,plainpages=false,pdfpagelabels,pagebackref,colorlinks=true,citecolor=black,linkcolor=black,urlcolor=black,filecolor=black,bookmarksopen=true]{hyperref} % links em preto
-\usepackage[pdftex,plainpages=false,pdfpagelabels,pagebackref,colorlinks=true,citecolor=DarkGreen,linkcolor=NavyBlue,urlcolor=DarkRed,filecolor=green,bookmarksopen=true]{hyperref} % links coloridos
+\usepackage[pdftex,plainpages=false,pdfpagelabels,pagebackref,colorlinks=true,citecolor=black,linkcolor=black,urlcolor=black,filecolor=black,bookmarksopen=true]{hyperref} % links em preto
+%\usepackage[plainpages=false,pagebackref,colorlinks=true,citecolor=DarkGreen,linkcolor=NavyBlue,urlcolor=DarkRed,filecolor=green,bookmarksopen=true]{hyperref} % links coloridos para pstricks
 \usepackage[all]{hypcap}                    % soluciona o problema com o hyperref e capitulos
 \usepackage[round,sort,nonamebreak]{natbib} % citação bibliográfica textual(plainnat-ime.bst)
 \usepackage{emptypage}  % para não colocar número de página em página vazia
@@ -42,10 +43,18 @@
 
 % pacotes para representar a llvm %
 \usepackage{xcolor}
-\usepackage{listings}
 \usepackage{textcomp}
 \usepackage{amsmath,amsthm}
+\usepackage{float}
 \usepackage{algorithm,algorithmic}
+\usepackage{graphics,graphicx}
+\usepackage[svgnames,x11names]{pstricks}
+\usepackage{pstricks-add}
+
+\floatname{algorithm}{Algoritmo}
+\renewcommand{\algorithmicrequire}{\textbf{Entrada:}}
+\renewcommand{\algorithmicensure}{\textbf{Saída:}}
+\renewcommand{\algorithmicreturn}{\textbf{Devolve}}
 
 
 \lstset{
@@ -164,7 +173,6 @@
 \fontsize{60}{62}\usefont{OT1}{cmr}{m}{n}{\selectfont}
 \cleardoublepage
 \normalsize
-
 % ---------------------------------------------------------------------------- %
 % Opções de listing usados para o código fonte
 % Ref: http://en.wikibooks.org/wiki/LaTeX/Packages/Listings
@@ -260,7 +268,7 @@
 % Resumo
 \chapter*{Resumo}
 
-O presente trabalho visa o estudo e experimentação do uso de ferramentas de síntese de alto nível para o design de circuitos eletrônicos. O intuito é destacar tecnologias emergentes de hardware, como os FPGAs, assim como aproximar engenheiros de software do desenvolvimento de hardware. Para tanto, foi usado o LegUp, um arcabouço de código aberto para síntese de alto nível em FPGAs. Logo, o estudo do funcionamento interno e uso dessa ferramenta foi primordial para a elaboração do projeto. Com ele, dois algoritmos foram desenvolvidos na linguagem de programação C e, dessa forma, efetuar-se a síntese de alto nível do algoritmo para um circuito descrito em Verilog e implementado em FPGA. Como efeito secundário, foi criada uma referência em português para o estudo e uso da síntese de alto nível usando o sistema operacional Ubuntu, a placa SoC FPGA Cyclone V, da Altera, e o arcabouço de código aberto LegUp.\newline
+O presente trabalho visa o estudo e experimentação do uso de ferramentas de síntese de alto nível para o design de circuitos eletrônicos. O intuito é destacar tecnologias emergentes de hardware, como os FPGAs, assim como aproximar engenheiros de software do desenvolvimento de hardware. Para tanto, foi usado o LegUp, um arcabouço de código aberto para síntese de alto nível em FPGAs. Logo, o estudo do funcionamento interno e uso dessa ferramenta foi primordial para a elaboração do projeto. Com ele, dois algoritmos foram desenvolvidos na linguagem de programação C e, dessa forma, efetuar-se a síntese de alto nível do algoritmo para um circuito descrito em Verilog e implementado em FPGA. \newline
 
 
 \noindent \textbf{Palavras-chave:} FPGA, síntese de alto nível, hardware, algoritmos, C, Verilog.
@@ -269,7 +277,7 @@ O presente trabalho visa o estudo e experimentação do uso de ferramentas de sínt
 % Abstract
 \chapter*{Abstract}
 
-This work aims the study and usage of high-level synthesis tools for electronic circuits design. Alongside that, there is emphasis in newer technologies, such as FPGAs, as well as bringing together software engineers and hardware development. To do that, LegUp, a open-source high-level synthesis framework, is used along with a system-on-a-chip FPGA. Furthermore, the internal structure and usage of the framework was essential for the project development. Using LegUp, two algorithms were implemented using C programming language to feed its high-level synthesis process and create a Verilog HDL, which was downloaded into a FPGA. As side effect, there is the creation of a brazilian reference for this area of study, which is quite scarse.\newline
+This work aims to study and use of high-level synthesis tools for electronic circuits design. Alongside, there is emphasis in newer technologies, such as FPGAs, as well as bringing together software engineers and hardware development. To do that, LegUp, a open-source high-level synthesis framework, is used along with a system-on-a-chip FPGA. Furthermore, the internal structure and usage of the framework was essential for the project development. Using LegUp, two algorithms were implemented using C programming language to feed its high-level synthesis process and create a Verilog HDL, which was downloaded into a FPGA. \newline
 
 \noindent \textbf{Keywords:} FPGA, high-level synthesis, hardware, algorithms, C, Verilog.
 
@@ -316,19 +324,18 @@ This work aims the study and usage of high-level synthesis tools for electronic 
 %\onehalfspacing            % espaçamento um e meio
 
 
-\input cap-introducao        % associado ao arquivo: 'cap-introducao.tex'
+\input cap-introducao        % associado ao arquivo: 
 \input cap-fpga
-\input cap-hls
+\input cap-conceitos
 \input cap-legup
 \input cap-algoritmos
-\input cap-conclusoes        % associado ao arquivo: 'cap-conclusoes.tex'
+\input cap-experimentos
+\input cap-conclusoes
 
 % cabeçalho para os apêndices
 \renewcommand{\chaptermark}[1]{\markboth{\MakeUppercase{\appendixname\ \thechapter}} {\MakeUppercase{#1}} }
 \fancyhead[RE,LO]{}
 \appendix
-
-\include{ape-llvm}
 
 
 % ---------------------------------------------------------------------------- %
