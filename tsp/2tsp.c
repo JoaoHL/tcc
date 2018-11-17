@@ -3,10 +3,10 @@
 
 #define TRUE 1
 #define FALSE 0
-#define OPT_TOTAL_WEIGHT 6660
 #define MAX_WEIGHT 30000
-#define NUM_VERTEX 501
-#define NUM_EDGES ((NUM_VERTEX*(NUM_VERTEX-1))/2)
+#define NUM_VERTEX 9999
+#define OPT_TOTAL_WEIGHT (20 * (NUM_VERTEX/3))
+#define NUM_EDGES (NUM_VERTEX*NUM_VERTEX)
 #define NUM_MST_EDGES (NUM_VERTEX-1)
 #define MAX_HEAP_SIZE (NUM_VERTEX*NUM_VERTEX)
 
@@ -84,6 +84,7 @@ int main(void) {
 
 	if (sum_w <= 2*OPT_TOTAL_WEIGHT) {
 		printf("ALGORITMO PASSOU!\n");
+		printf("%d vs %d\n", OPT_TOTAL_WEIGHT, sum_w);
 	}
 
 	return 0;
