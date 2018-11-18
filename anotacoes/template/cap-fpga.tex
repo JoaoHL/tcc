@@ -2,6 +2,8 @@
 \chapter{FPGA}
 \label{cap:fpga}
 
+Este capítulo descreve o que é um FPGA e do que são essencialmente compostos. As descrições aqui feitas foram sintetizadas a partir das obras de \cite{fpga:fpga-for-dummies} e \cite{fpga:fpga-an-overview}.
+
 \section{Introdução}
 \label{section:introducao}
 
@@ -66,9 +68,3 @@ As redes baseadas em malha (do inglês '\textit{mesh-based}', também conhecida co
 
 A maior vantagem de \textit{FPGAs} - sua flexibilidade - também é a causa de sua maior desvantagem. Essa característica baseia-se na reprogramação das rotas de interconexão, dos blocos lógicos e dos blocos de entrada e saída. Entretanto, a área usada por tais rotas ocupa a maior parte do dispositivo, chengando a quase 90\% da área útil do dispositivo, para permitir a sua reprogramação. 
 Não obstante, os \textit{switches} e os componentes necessários para implementar as LUTs geram resistência elétrica à propagação dos pulsos de \textit{clock} do sistema, o que obriga os fabricantes a diminuir a frequência máxima de \textit{clock} do \textit{chip} e da placa. Por consequência disto, os FPGAs são mais lentos e consomem mais energia do que os \textit{ASIC}s.
-
-Um exemplo de figura está na figura~\ref{fig:graph}.
-\begin{figure}[htb]
-\includegraphics[width=5cm]{figuras/graph}
-\caption{\label{fig:graph}Exemplo de uma figura.}
-\end{figure}

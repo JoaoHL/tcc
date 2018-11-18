@@ -11,20 +11,20 @@ Síntese de alto nível ("\textit{High level synthesis}") é o processo de transfor
 
 \subsection{Fluxo de síntese}
 
-O fluxo de síntese das ferramentas de HLS é composto pelas seguintes etapas:
+Segundo \citet{hls:hls-from-alg-to-circuit} e ~\citet{hls:an-introduction-to-hls}, o fluxo de síntese das ferramentas de HLS é composto pelas seguintes etapas:
 
 \begin{description}
-	\item[Compilação] - processo de transformação de linguagem de alto nível para algum tipo de representação intermediária
-	\item[Alocação] - 
-	\item[Escalonamento]
-	\item[Emparelhamento] 
-	\item[Geração]
+	\item[Compilação] - transformação de um algoritmo descrito em uma linguagem de alto nível para algum outro tipo de representação 
+	\item[Alocação] - definição das unidades funcionais disponíveis no \textit{hardware}
+	\item[Escalonamento] - mapeamento das instruções a cada ciclo de \textit{clock} do \textit{hardware}
+	\item[Emparelhamento] - ligar cada instrução à unidade funcional que a executará
+	\item[Geração] - criação do arquivo de saída a partir da arquitetura produzida nos passos anteriores
 \end{description}
 
 
 \subsection{Compilação}
 
-A entrada de uma ferramenta de síntese de alto nível consiste em um programa que descreve o comportamento desejado a ser feito via \textit{hardware}. Algumas dessas ferramentas, tais como o OpenCL(https://www.khronos.org/opencl/) e o LegUp(http://legup.eecg.utoronto.ca/), usam linguagens com sintaxes baseadas em C devido a uma proximidade maior delas com o \textit{hardware} de um computador sem diminuir demais o nível de abstração.
+A entrada de uma ferramenta de síntese de alto nível consiste em um programa que descreve o comportamento desejado a ser feito via \textit{hardware}. Algumas dessas ferramentas, tais como o OpenCL\footnote{\url{https://www.khronos.org/opencl/}} e o LegUp\footnote{\url{http://legup.eecg.utoronto.ca/}}, usam linguagens com sintaxes baseadas em C devido a uma proximidade maior delas com o \textit{hardware} de um computador sem diminuir demais o nível de abstração.
 
 Algoritmos podem ser descrito como um procedimento comportamental ou atemporal em relação a um \textit{hardware}. Idealmente,  eles recebem todos os dados de entrada simultaneamente, realizam seus processamentos de forma instantânea, e retornam todos os dados de saída de uma vez. Esse comportamento não é realista, divergindo muito da forma como um sistema de \textit{hardware} ou \textit{software} funciona. Um sistema de \textit{software}, ainda que seja executado através de instruções após compilado ou interpretado, também é desenvolvido de forma atemporal em relação ao \textit{hardware}, pois não há uma preocupação com quando (isto é, em qual ciclo de \textit{clock} específico) cada instrução será executada. Dessa forma, há a necessidade de transformar o programa em um procedimento temporal, onde cada instrução é executada em ciclos bem definidos.
 
@@ -78,12 +78,12 @@ As fases de alocação, escalonamento e emparelhamento estão intimamente ligadas, 
 Em geral, aplicações com restrições diferentes exigem ordens de execução diferentes. Aplicações com restrições de recurso severas (e.g. área de implementação, quantidade de unidades funcionais) rodam primeiro a alocação, para estabelecer o máximo de recursos e área que o circuito poderá utilizar e, a partir disso, otimizar sua geração nos outros passos. Por outro lado, restrições de tempo exigem o uso prévio do escalonador para estabelecer a latência máxima de todo o processamento dos dados e, em seguida, ocorrem as otimizações de recursos usando esses resultados. 
 
 \section{Projeto LLVM}
-\label{section:ape-llvm}
+\label{section:llvm}
 
 
-LLVM (antigo acrônimo para \textit{"Low-level virtual machine"}) é um projeto de código aberto que dispobiliza ferramentas de compilação e otimização para diversas linguagens. Tais ferramentas conseguem compilar códigos de diferentes linguagens e otimizá-los em tempo de compilação, provido de um \textit{front-end} e um \textit{back-end} do usuário. Por \textit{front-end} entende-se um \textit{parser} e um \textit{lexer} da linguagem de programação a qual se deseja compilar, enquanto que por \textit{back-end} entende-se uma lógica de transformação do código próprio da LLVM em código de máquina. Um exemplo de uma ferramenta famosa pertencente ao projeto LLVM é o (Clang)(http://clang.llvm.org/), um compilador de C/C++/Objective-C alternativo ao GCC, que (pode apresentar perfomances superiores a este)(http://clang.llvm.org/features.html\#performance).
+LLVM (antigo acrônimo para \textit{"Low-level virtual machine"}) é um projeto de código aberto que dispobiliza ferramentas de compilação e otimização para diversas linguagens. Tais ferramentas conseguem compilar códigos de diferentes linguagens e otimizá-los em tempo de compilação, provido de um \textit{front-end} e um \textit{back-end} do usuário. Por \textit{front-end} entende-se um \textit{parser} e um \textit{lexer} da linguagem de programação a qual se deseja compilar, enquanto que por \textit{back-end} entende-se uma lógica de transformação do código próprio da LLVM em código de máquina. Um exemplo de uma ferramenta famosa pertencente ao projeto LLVM é o Clang\footnote{\url{http://clang.llvm.org/}}, um compilador de C/C++/Objective-C alternativo ao GCC, que pode apresentar perfomances superiores a este\footnote{\url{http://clang.llvm.org/features.html\#performance}}.
 
-Nesta seção, serão apontadas características do projeto de forma direcionada ao entendimento do LegUp, descrito no capítulo \ref{cap:ape-legup}.
+Nesta seção, serão apontadas características do projeto de forma direcionada ao entendimento do LegUp, descrito no capítulo \ref{cap:legup}.
 
 \subsection{Estrutura}
 
@@ -107,7 +107,7 @@ A LLVM, além de adotar essa arquitetura, também apresenta uma forte modularizaçã
 
 \subsection{Representação intermediária}
 
-As implementações e detalhes de ambos \textit{front-end} e \textit{back-end} dependem muito da aplicação para qual a LLVM está sendo usada. O \textit{front-end} pode consistir de um \textit{parser} e \textit{lexer} de uma linguagem totalmente nova, cuja sintaxe siga um padrão bem diferente das linguagens já existentes, ou até um novo paradigma. O \textit{back-end}, por sua vez, pode transformar o código em instruções ou outros códigos de outras linguagens, como [Scratch](https://scratch.mit.edu/about), destinadas a robôs feitos de peças Lego, ou até um texto simples que contém o número de instruções do programa compilado em cada uma das arquiteturas de hardware existentes. Como as possibilidades são muitas, o projeto adotou um tipo de representação de código utilizado em sua arquitetura, a chamada \textit{representação intermediária da LLVM}, mais conhecida como \textit{LLVM IR} ("\textit{LLVM intermediate representation}"). Esta é enviada do \textit{front-end} ao otimizador, onde é modificada de acordo com as regras descritas pelos desenvolvedores da aplicação e, depois, encaminhada para o \textit{back-end} construir a saída apropriada para o alvo da aplicação. Um exemplo da LLVM IR pode ser visto abaixo.
+As implementações e detalhes de ambos \textit{front-end} e \textit{back-end} dependem muito da aplicação para qual a LLVM está sendo usada. O \textit{front-end} pode consistir de um \textit{parser} e \textit{lexer} de uma linguagem totalmente nova, cuja sintaxe siga um padrão bem diferente das linguagens já existentes, ou até um novo paradigma. O \textit{back-end}, por sua vez, pode transformar o código em instruções ou outros códigos de outras linguagens, como Scratch\footnote{\url{https://scratch.mit.edu/about}}, destinadas a robôs feitos de peças Lego, ou até um texto simples que contém o número de instruções do programa compilado em cada uma das arquiteturas de hardware existentes. Como as possibilidades são muitas, o projeto adotou um tipo de representação de código utilizado em sua arquitetura, a chamada \textit{representação intermediária da LLVM}, mais conhecida como \textit{LLVM IR} ("\textit{LLVM intermediate representation}"). Esta é enviada do \textit{front-end} ao otimizador, onde é modificada de acordo com as regras descritas pelos desenvolvedores da aplicação e, depois, encaminhada para o \textit{back-end} construir a saída apropriada para o alvo da aplicação. Um exemplo da LLVM IR pode ser visto abaixo.
 
 \begin{lstlisting}[style=llvm]
 define i32 @add1(i32 %a, i32 %b) {
@@ -118,7 +118,7 @@ ret i32 %tmp1
 \end{lstlisting}
 
 
-O código acima é dita como a \textit{representação textual} da LLVM IR, uma vez que ela também pode ser serializada em \textit{bitcode}, isto é, ter uma representação binária. O código define uma função chamada ```add1```, que recebe dois inteiros ```a``` e ```b``` e retorna a soma deles. Como é possível perceber para quem já estudou ou viu códigos de alguma linguagem de montagem, a LLVM IR se assemelha a esse tipo de linguagem, de uma arquitetura RISC. O equivalente da função, em C, seria:
+O código acima é dita como a \textit{representação textual} da LLVM IR, uma vez que ela também pode ser serializada em \textit{bitcode}, isto é, ter uma representação binária. O código define uma função chamada ```add1```, que recebe dois inteiros \texttt{a} e \texttt{b} e retorna a soma deles. Como é possível perceber para quem já estudou ou viu códigos de alguma linguagem de montagem, a LLVM IR se assemelha a esse tipo de linguagem, de uma arquitetura RISC. O equivalente da função, em C, seria:
 
 \begin{lstlisting}[style=c]
 unsigned int add1(unsigned int a, unsigned int b) {

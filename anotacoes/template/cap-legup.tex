@@ -14,7 +14,7 @@ Atualmente em sua versão 4.0, apresenta uma arquitetura que permite alterações e
 	\caption{\label{fig:graph}Fluxo de execução do LegUp.}
 \end{figure}
 
-A figura acima representa o fluxo geral do arcabouço. A entrada da ferramenta é um programa desenvolvido em C puro, que é compilado, otimizado e transformado em sua representação intermediária (IR) pela LLVM (vide apêndice \ref{cap:ape-llvm}). Em seguida, na fase de alocação, o LegUp usa os dados sobre o \textit{hardware} no qual queremos implementar o algoritmo para alocar os recursos disponíveis no \textit{chip}, tais como blocos de memória e unidades lógicas. Na etapa de escalonamento, as instruções da IR são mapeadas do grafo de controle e fluxo de dados para uma máquina de estados finita, onde cada estado é designado para um ciclo de \textit{clock} específico. Depois esse mapeamento, o algoritmo de síntese atribui, a cada estado da máquina de estados, os recursos do \textit{chip} necessários para a execução de suas instruções. Com as operações e recursos definidos, o arcabouço gera o RTL equivalente ao algoritmo e, por fim, o usa para criar um arquivo de descrição de \textit{hardware}, escrito em Verilog.
+A figura acima representa o fluxo geral do arcabouço. A entrada da ferramenta é um programa desenvolvido em C puro, que é compilado, otimizado e transformado em sua representação intermediária (IR) pela LLVM (seção \ref{section:llvm}). Em seguida, na fase de alocação, o LegUp usa os dados sobre o \textit{hardware} no qual queremos implementar o algoritmo para alocar os recursos disponíveis no \textit{chip}, tais como blocos de memória e unidades lógicas. Na etapa de escalonamento, as instruções da IR são mapeadas do grafo de controle e fluxo de dados para uma máquina de estados finita, onde cada estado é designado para um ciclo de \textit{clock} específico. Depois esse mapeamento, o algoritmo de síntese atribui, a cada estado da máquina de estados, os recursos do \textit{chip} necessários para a execução de suas instruções. Com as operações e recursos definidos, o arcabouço gera o RTL equivalente ao algoritmo e, por fim, o usa para criar um arquivo de descrição de \textit{hardware}, escrito em Verilog.
 
 Dada a forma como o arcabouço foi construído, isto é, na linguagem C++, utilizando o paradigma de programação orientada a objetos para modularizar o código, as etapas da síntese de alto nível feitas sobre o código compilado são implementadas em classes separadas, uma para cada etapa.
 
@@ -37,12 +37,11 @@ Utilizar esse fluxo dá a oportunidade de uso de técnicas importantes de programa
 
 
 \subsubsection{Fluxo híbrido}
+\label{subsubsection:fluxo-hibrido}
 
 No fluxo híbrido, o programa de entrada é compilado de forma semelhante à feita no fluxo de puro \textit{software}. A diferença principal é o fato de que o usuário pode definir marcações no código para dizer quais funções devem ser aceleradas por \textit{hardware}, gerando um acelerador a ser usado na chamada da função especificada. Assim, chamadas dela no código de entrada são substituídas por \textit{funções embrulhadas} (i.e. \textit{wrapper functions}), que enviam um sinal para o acelerador executar o processamento de dados representados pela função. Nesse cenário, o processador tem duas opções quanto a seu funcionamento durante tal chamada: continuar executando o código da aplicação enquanto continuamente verifica se o acelerador terminou sua execução, ou esperar o acelerador terminar seu processamento e então, retomar a execução da aplicação. No LegUp, a segunda opção foi adotada na implementação da ferramenta.
 
 O fluxo híbrido permite a aceleração de funções computacionalmente pesadas enquanto ainda dá abertura para o uso das técnicas de programação proibidas no fluxo de \textit{hardware}. Porém, sua velocidade de processamento ainda é consideravelmente inferior ao do algoritmo totalmente implementado em \textit{hardware}.
-
-\label{subsubsection:fluxo-hibrido}
 
 \subsection{Compilação}
 
