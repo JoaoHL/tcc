@@ -27,11 +27,11 @@ Devido à sua característica estática, as \textit{SRAM}s são mais rápidas e conso
 
 A composição de um \textit{FPGA} pode ser resumido em três componentes:
 
-\begin{itemize}
-\item Blocos lógicos
-\item Rotas de interconexão
-\item Blocos de entrada e saída
-\end{itemize}
+\begin{description}
+\item[Blocos lógicos] - blocos de \textit{hardware} responsáveis pelo processamento lógico dos dados
+\item[Rotas de interconexão] - fios e barramentos que transportam os sinais digitais pelo circuito
+\item[Blocos de entrada e saída] - unidades responsáveis pela comunicação entre o \textit{chip} e componentes externos
+\end{description}
 
 Os blocos lógicos são configuráveis e implementam funções lógicas e armazenamento de dados (i.e. memória). Os blocos de E/S recebem e enviam dados para fora do \textit{chip}. Por fim, as rotas de interconexão conectam os blocos lógicos entre si e entre os blocos de E/S. Uma forma de visualizar esses componentes é através de uma matriz, onde os blocos lógicos estão dispostos bidimensionalmente, numa grade, e conectados pelas rotas de interconexão. Nas bordas dessa matriz se encontram os blocos de E/S, integrados à matriz pelas rotas de interconexão, servindo para a comunicação do \textit{FPGA} com dispositivos exteriores a ele.
 

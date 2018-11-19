@@ -32,7 +32,13 @@ A modelagem atemporal deve ser traduzida em outra, temporal, onde os ciclos de \
 
 Como os DFGs representam apenas fluxos de dados, há dificuldades em utilizá-los para representar laços limitados por variáveis ao invés de constantes (e.g. \texttt{for (int i = 0; i < n; i++)}) ou trechos condicionais (e.g. \texttt{if-else}). Para tanto, seriam necessárias transformações no grafo que, dependendo da complexidade da implementação, poderia gastar mais memória para armazenamento e mais processamento.
 
-Pensando nisso, uma versão estendida do DFG foi criada, chamada CDFG ("\textit{Control and Data Flow Graph}", ou grafo de fluxo de controle e dados), onde os arcos são controles de fluxo (como \texttt{if-else}) e os nós são \textit{blocos básicos}. Blocos básicos são sequências de instruções com apenas um ponto de entrada e um ponto de saída. Os CDFGs são mais expressivos por conseguirem representar tanto o fluxo de dados quanto o de controle; no entanto, faz-se necessária uma análise mais profunda para explicitar as dependências de dados e memória entre as operações dentro dos blocos básicos e expor o parelelismo entre eles.
+Pensando nisso, uma versão estendida do DFG foi criada, chamada CDFG ("\textit{Control and Data Flow Graph}", ou grafo de fluxo de controle e dados), onde os arcos são controles de fluxo (como \texttt{if-else}) e os nós são \textit{blocos básicos}. Blocos básicos são sequências de instruções com apenas um ponto de entrada e um ponto de saída. Os CDFGs são mais expressivos por conseguirem representar tanto o fluxo de dados quanto o de controle; no entanto, faz-se necessária uma análise mais profunda para explicitar as dependências de dados e memória entre as operações dentro dos blocos básicos e expor o parelelismo entre eles. Um exemplo simples de um CDFG é dado pela figura \ref{fig:cdfg}.
+
+\begin{figure}[htb]
+	\centering
+	\includegraphics[width=10cm]{figuras/cdfg}
+	\caption{\label{fig:cdfg}Exemplo de um programa com seu grafo de fluxo de controle e dados.}
+\end{figure}
 
 Apesar da possibilidade de traduzir uma larga gama de algoritmos para uma descrição temporal, é importante ressaltar que nem todos podem ser descritos diretamente em \textit{hardware}. Um bom exemplo são algoritmos recursivos, que não são convertidos para formas iterativas de maneira automatizada caso não sejam casos de recursão de cauda.
 
@@ -53,6 +59,14 @@ Nela, a representação do modelo em um CDFG é de extrema valia. Ao usá-lo, o esca
 Na análise interna dos blocos básicos, a latência e a dependência de dados das operações contidas neles são usadas para determinar onde cada uma delas deve começar e terminar em relação às demais operações. Dependendo do algoritmo de escalonamento utilizado, é possível aplicar otimizações como o encadeamento de operações (ou \textit{operation chaining}), onde uma operação é colocada no mesmo ciclo de \textit{clock} que outra operação da qual ela depende. Dessa forma, a latência da execução geral do algoritmo é diminuída.
 
 É também durante essa fase que pode ocorrer a comunicação entre a alocação e o emparelhamento para otimizar aspectos do \textit{layout} do circuito digital. Essas três fases estão intimamente ligadas por lidarem diretamente com a síntese do circuito, diferente da compilação, que lida com o comportamento de forma ainda abstrata, e da geração da arquitetura RTL, que usa os dados gerados pela síntese para construir o circuito.
+
+Um exemplo de escalonamento de instruções pode ser visto na figura \ref{fig:escalonamento}. Nela, uma série de instruções dadas na LLVM IR (vide seção \ref{section:llvm}) são mapeadas para ciclos de \textit{clock} que respeitem as dependências de dados e fluxo entre elas.
+
+\begin{figure}[htb]
+	\centering
+	\includegraphics[width=10cm]{figuras/escalonamento}
+	\caption{\label{fig:escalonamento}Exemplo de escalonamento de uma sequência de instruções.}
+\end{figure}
 
 \subsection{Emparelhamento}
 

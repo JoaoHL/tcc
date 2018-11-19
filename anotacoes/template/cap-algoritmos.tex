@@ -6,7 +6,7 @@ Este capítulo descreve o processo de escolha e desenvolvimento dos algoritmos us
 
 Tal fluxo foi utilizado devido à mudança radical entre um algoritmo programado para um processador comum, e o mesmo algoritmo rodando puramente em \textit{hardware}. Usar os fluxos híbrido ou de puro \textit{software} trariam muitas semelhanças a sistemas já existentes e, possivelmente, mais eficientes, como sistemas embarcados com uso de microprocessadores (e.g. placas Arduino) ou mesmo um computador pessoal de propósito geral.
 
-Vale ressaltar que o intuito deste trabalho não é se aprofundar nas provas matemáticas envolvidas na construção dos algoritmos, mas sim em seus respectivos conceitos, contextualizações e implementações. Os códigos desenvolvidos estão disponíveis na página deste trabalho (COLOCAR REF PARA O SITE DO TCC).
+Vale ressaltar que o intuito deste trabalho não é se aprofundar nas provas matemáticas envolvidas na construção dos algoritmos, mas sim em seus respectivos conceitos, contextualizações e implementações. Os códigos desenvolvidos estão disponíveis na página deste trabalho\footnote{\url{https://linux.ime.usp.br/~joaoluciano/mac0499/}}.
 
 \section{Algoritmo de Huffman}
 
@@ -71,7 +71,7 @@ struct node {
 
 Considerando o uso de \textit{heap} mínimo em um vetor desordenado, o algoritmo de Huffman tem o tempo de execução de ordem $O(n \cdot log_2 n)$, onde $n$ é o tamanho do alfabeto. No entanto, essa análise é estritamente válida para sua execução de forma atemporal, isto é, considerando que a entrada é recebida em sua totalidade de forma instantânea. No caso da implementação feita para este trabalho, o alfabeto utilizado foi o código ASCII, e o arquivo comprimido usado como entrada possuía tamanho da ordem de $2$ \textit{gigabytes} contendo apenas caracteres ASCII. Dessa forma, a leitura do arquivo e a contagem de frequência de caracteres foram os gargalos principais da experimentação feita.
 
-Devido a esse gargalo, o foco das experiências feitas com a síntese de alto nível, na placa FPGA, foi no uso do algoritmo de aproximação para o problema do caixeiro viajante. No entanto, algumas métricas foram realizadas em termos de ciclos de \textit{clock}, que são exibidas no capítulo \ref{cap-experimentos}.
+Devido a esse gargalo, o foco das experiências feitas com a síntese de alto nível, na placa FPGA, foi no uso do algoritmo de aproximação para o problema do caixeiro viajante. No entanto, algumas métricas foram realizadas em termos de ciclos de \textit{clock}, que são exibidas no capítulo \ref{cap:experimentos}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% -----------------------------CAIXEIRO VIAJANTE-----------------------------%%%

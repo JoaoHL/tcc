@@ -4,7 +4,9 @@
 
 LegUp é um arcabouço \textit{open-source} de síntese de alto nível desenvolvido na Universidade de Toronto (Canadá). Sua síntese converte códigos em C para Verilog e usa algumas ferramentas comerciais como o Quartus Prime II, da Intel, e o Tiger MIPS Processor, da Universidade de Cambridge (Reino Unido). 
 
-Atualmente em sua versão 4.0, apresenta uma arquitetura que permite alterações em seus algoritmos de forma relativamente simples, devido à sua modularização. Como sua arquitetura usa uma compilação em escopo de funções para implementação em \textit{hardware} - isto é, ele usa funções como unidade básica para síntese de \textit{hardware} -, é possível, por exemplo, especificar funções específicas para aceleração em \textit{hardware} enquanto o resto do programa é executado em \textit{software}; tal técnica é chamada de "fluxo híbrido" pelos criadores da ferramenta e é explicada melhor na seção \ref{subsection:fluxo-hibrido}.
+Atualmente em sua versão 4.0, apresenta uma arquitetura que permite alterações em seus algoritmos de forma relativamente simples, devido à sua modularização. Como sua arquitetura usa uma compilação em escopo de funções para implementação em \textit{hardware} - isto é, ele usa funções como unidade básica para síntese de \textit{hardware} -, é possível, por exemplo, especificar funções específicas para aceleração em \textit{hardware} enquanto o resto do programa é executado em \textit{software}; tal técnica é chamada de "fluxo híbrido" pelos criadores da ferramenta e é explicada melhor na seção \ref{subsubsection:fluxo-hibrido}.
+
+Os conhecimentos aqui expostos foram sintetizados a partir do uso da ferramenta, bem como da leitura da documentação e dos artigos escritos por \cite{legup:legup-article} e \cite{legup:legup-journal-chapter}.
 
 \section{Fluxo de execução}
 
