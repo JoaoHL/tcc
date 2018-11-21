@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf8">
+	<title>MAC0499 - Trabalho de Conclusão de Curso</title>
+	<link rel="stylesheet" type="text/css" href="css/global.css">
+	<link rel="stylesheet" type="text/css" href="css/img.css">
+	<link rel="stylesheet" type="text/css" href="css/header.css">
+	<link rel="stylesheet" type="text/css" href="css/menu.css">
+	<link rel="stylesheet" type="text/css" href="css/footer.css">
+	<link rel="stylesheet" type="text/css" href="css/textos.css">
+</head>
+
+<body>
+	<div class="header">
+		<span class="materia"><h2>MAC0499 - Trabalho de Conclusão de Curso</h3></span>
+		<br>
+		<span class="tema"> <h1><em>Avaliação de desempenho de algoritmos desenvolvidos para FPGAs via síntese de alto nível</em></h1><span>
+		<span class="aluno">Aluno: João Henrique Luciano</span>
+		<span class="orientador">Orientador: Alfredo Goldman</span>
+	</div>
+
+	<hr/>
+
+	<div class="menu-horizontal">
+		<nav>
+			<ul>
+				<li><a href="index.html">Início</a></li>
+				<li><a href="pdf/monografia.pdf" download>Monografia (PDF)</a></li>
+				<li><a href="arquivos.html">Arquivos</a></li>
+				<li><a href="consideracoes.html">Considerações pessoais</a></li>
+				<li><a href="contato.html">Contato</a></li>
+			</ul>
+		</nav>
+	</div>
+
+	<hr/>
+
+	<div class="corpo-texto">
+        <h1 id="introducao">Introdução</h1>
+
+        <p>A comunidade de desenvolvedores de <em>hardware</em> exibe, hoje, um grande interesse e necessidade de ferramentas que facilitem a implementação de algoritmos e funções em <em>hardware</em>. Nessa situação, junto da evolução de tecnologias como as placas <em>FPGA</em>s, temos o progresso da síntese de alto nível, que permite a tradução de algoritmos para circuitos lógicos. Logo, seria interessante um estudo sobre a síntese de alto nível voltada para <em>FPGA</em>s, implementando algoritmos tanto para <em>FPGA</em>s, utilizando ferramentas de síntese de alto nível como os arcabouços OpenCL e LegUp, quanto para computadores <em>multicore</em>. Além disso, é importante avaliar o quão vantajoso seria implementar tais algoritmos em <em>FPGA</em>s em termos de desempenho, fazendo-se necessário, então, o <em>benchmarking</em> e posterior avaliação de desempenho dos algoritmos implementados nas diferentes arquiteturas.</p>
+
+        <h1 id="motivacao">Motivação</h1>
+
+        <p>A melhoria da produtividade e manutenibilidade de projetos são desejáveis desde os primórdios do desenvolvimento de <em>software</em> e <em>hardware</em>. Na área de <em>software</em>, temos a evolução do uso direto da linguagem binária, familiar às máquinas, para as linguagens de programação interpretadas. Já em <em>hardware</em>, houve o desenvolvimento de arquiteturas de <em>hardwares</em> diferentes, tais como <em>multicore</em>, <em>GPU</em>s e, mais recentemente, <em>FPGA</em>s, cada uma introduzindo vantagens às arquiteturas tradicionais dos computadores <em>single core</em>. Além disso, temos o avanço da confecção e teste manuais de circuitos lógicos, até chegarmos na técnica atual da síntese de alto nível.</p>
+        <p>A síntese de alto nível é um processo que converte uma descrição comportamental - ou <em>algorítmica</em> - de um <em>hardware</em> para uma arquitetura de circuitos lógicos que implementa o algoritmo descrito. Desta forma, pode-se abstrair parte substancial do processo de <em>design</em> de <em>hardwares</em>, permitindo o reuso de código para diferentes arquiteturas.</p>
+        <p>Há, portanto, um grande interesse pela comunidade no avanço da síntese de alto nível, permitindo programar algoritmos em <em>hardware</em> de forma portável, produtiva, sem levar em consideração todas os detalhes inerentes a cada modelo arquitetural. Considera-se também, neste contexto, a exploração de tecnologias como <em>FPGA</em>s, dispositivos lógicos cujos circuitos são reprogramáveis após sua fabricação e que prometem reduzir o custo e tempo, além de aumentar a produtividade e manutenibilidade, do desenvolvimento de <em>hardware</em>.</p>
+
+        <h1 id="objetivos">Objetivos</h1>
+
+        <p>Os objetivos deste trabalho são estudar a fundo as arquiteturas <em>multicore</em> e <em>FPGA</em>, bem como o processo de síntese de alto nível e de desenvolvimento de algoritmos para <em>FPGA</em>s. Além disso, serão feitas avaliações de desempenho dos algoritmos desenvolvidos para comparar as diferenças nas arquiteturas mencionadas; os resultados serão utilizados para criar uma comparação objetiva entre as arquiteturas.</p>
+
+        <h1 id="etapas">Etapas do projeto</h1>
+
+        <p>As atividades realizadas no projeto podem ocorrer de forma paralela, e a cada atividade serão feitas anotações de seus resultados, como conhecimentos adquiridos e resultados de experimentos.
+        Os principais passos serão:</p>
+
+        <ol>
+            <li>Estudo sobre <em>benchmarking</em> e análise de desempenho</li>
+
+            <li>Estudo sobre arquiteturas de máquinas <em>multicore</em> e de <em>FPGA</em>s.</li>
+
+            <li>Estudo sobre o processo e ferramentas de síntese de alto nível</li>
+
+            <li>Estudo sobre algoritmos, suas implementações nas arquiteturas estudadas, e suas restrições</li>
+
+            <li>Implementação dos algoritmos em cada uma das arquiteturas estudadas</li>
+
+            <li><em>Benchmarking</em> dos algoritmos implementados</li>
+
+            <li>Análise de desempenho dos algoritmos e síntese dos resultados experimentais e teóricos adquiridos</li>
+        </ol>
+
+        <h1 id="cronograma">Cronograma</h1>
+
+        <div class="container-imagem">
+            <img src="img/planejamento.jpg">
+        </div>
+	</div>
+
+	<hr/>
+
+	<div class="footer">
+		IME-USP 2018
+	</div>
+
+</body>
+
+</html>

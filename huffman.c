@@ -5,8 +5,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <limits.h>
-#include <time.h>
 
 #define MAX 129
 #define MAX_INT 2147483647
@@ -53,9 +51,6 @@ int main(int argc, char const *argv[]) {
 	unsigned long int output_size = 0, input_size = 0;
 	Node *raiz, *aux;
 	char code[50], input;
-	clock_t start, end, total;
-
-	start = clock();
 
 	printf("\nInicializando nós...\n");
 	for (int i = 0; i < ALPHABET_SIZE; i++)	{
@@ -69,10 +64,7 @@ int main(int argc, char const *argv[]) {
 	printf("Inicialização OK\n");
 
 	printf("\nCalculando frequência de caracteres...\n");
-	while (scanf("%c", &input) != EOF) {
-		input_size++;
-		alfabeto[input].freq++;
-	}
+	count_frequencies();
 	for (int i = 0; i < ALPHABET_SIZE; i++)	{
 		if (alfabeto[i].freq > 0)
 			insert(&alfabeto[i]);
@@ -88,17 +80,6 @@ int main(int argc, char const *argv[]) {
 	generate_codes(raiz);
 	printf("Gerando códigos OK\n");
 
-	end = clock();
-
-	printf("\nTamanho original do arquivo (em megabytes): %.2f\n", (double) (input_size*sizeof(char))/1000000);
-	output_size = 0;
-	for (int i = 0; i < ALPHABET_SIZE; i++)	{
-		if (alfabeto[i].freq > 0)
-			output_size += (alfabeto[i].freq * strlen(alfabeto[i].code));
-	}
-	printf("Tamanho do arquivo codificado (em megabytes, aprox.): %.2f\n", (double) output_size/8000000);
-	printf("Taxa de compressão: %ld/%ld = %.2f%\n", output_size, input_size*sizeof(char)*CHAR_BIT, (double) output_size/(input_size*sizeof(char)*CHAR_BIT) * 100);
-	printf("Tempo de execução do programa (em segundos): %.5f\n", (double) (end-start)/CLOCKS_PER_SEC);
 	printf("\nFim do programa\n");
 	return 0;
 }
