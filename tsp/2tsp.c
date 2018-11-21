@@ -327,7 +327,7 @@ void find_euler_path() {
 
 	euler_path[next_index] = 0; //primeiro vertice do caminho é o 0.
 
-	while (!mst_empty) {
+	while (!mst_empty && last_index < 2*NUM_MST_EDGES) {
 		v = euler_path[next_index]; 
 		next_index++;
 
