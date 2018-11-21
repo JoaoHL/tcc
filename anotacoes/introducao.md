@@ -8,7 +8,24 @@ Como efeito secundário, foi criada uma referência em português para o estudo 
 
 ## Introdução (terminar e elaborar melhor)
 
-A pesquisa e desenvolvimento em hardware sofrem atualmente com um déficit de profissionais em relação aos de software. O número de engenheiros de software ultrapassa o de engenheiros de hardware numa proporção que pode chegar a 10 pra 1 em alguns países [colocar ref]. Causas possíveis para tal situação são o hardware usado atualmente, muito mais potente do que o usado a uma ou duas décadas atrás, o que pode trazer a falsa sensação de dispensabilidade quanto ao desenvolvimento de hardware; e a alta demanda de desenvolvedores de software para a criação e manutenção de serviços de software (conhecido como 'SaaS', ou 'Software as a Service').
+# tópicos (nessa ordem)
+
+ 1 - breve história da computação, com foco no desenvolvimento de hardware e citar lei de Moore
+
+ 2 - Falar sobre a procura de formas de melhorar o desempenho de processamento de dados (multicore, GPUs, **FPGA** como hardware dedicado a certas tarefas)
+
+ 3 - falar sobre a situação atual do desenvolvimento de hardware, problemas do método de desenvolvimento atual, citar FPGA como solução de alguns desses problemas e citar o problema de incluir engenheiros de software no dev de hardware
+
+ 4 - introdução à HLS como solução pra integrar o dev de algoritmos em hardware, falar o que é e citar um pouco do processo, desde uma linguagem tipo C até um verilog/VHDL da vida
+
+ 5 - citar o LegUp, motivos de se ter escolhido ele como ferramenta etc
+
+ A melhoria do desempenho dos computadores sempre foi uma constante na história da Computação. Das válvulas à vácuo até os nanotransístores, por muito tempo o desenvolvimento de *hardware* foi regido pela famosa Lei de Moore, dizendo que a cada 18 meses a quantidade de transístores em um *chip* de silício dobraria e, por consequência, seu desempenho. Atualmente, tal lei chega aos limites da Física Moderna, onde um nanotransístor de 1 nanômetro de comprimento já foi inventado [(ref)](http://science.sciencemag.org/content/354/6308/99). Novas técnicas estão sendo estudadas e aplicadas na melhoria da fabricação de *chip*s, como a manipulação de novos tipos de partículas físicas [(ref)](https://www.nature.com/articles/nnano.2017.178) e de propriedades quânticas de partículas já existentes, como o *spin* [(ref)](https://arxiv.org/abs/1212.3362), mas a observação feita por Gordon E. Moore está atingindo seus limites.
+
+Para impulsionar o desempenho computacional sem envolver diretamente a quantidade de transístores em um *chip* ou as propriedades das partículas envolvidas na fabricação, novas metodologias computacionais foram adotadas. Por exemplo, a paralelização do processamento de dados a partir do trabalho conjunto entre *hardwares* dedicados e de propósito geral tem sido amplamente empregada em aplicações que demandam baixa latência de resposta, como processamento gráfico [(ref)](https://link.springer.com/chapter/10.1007/3-540-63508-4_107) e gerenciamento de memória [(ref)](https://patents.google.com/patent/US9652230). Um bom exemplo desses *hardwares* dedicados é a *GPU* (*Graphics Processing Unit*), criada com o intuito de paralelizar o processamento gráfico de computadores de uso geral a fim de acelerar a visualização das interfaces gráficas destes.
+
+Apesar do desempenho adquirido no uso de *hardwares* dedicados, é necessário um grande esforço para inventar ou otimizar dispositivos, 
+
 
 Um grande empecilho no *design* de *hardware* é a quantidade de recursos para a fabricação de uma única peça de hardware customizado. Esses recursos incluem custos na ordem de milhares de reais, bem como a demora meses entre o pedido e a entrega no Brasil [colocar ref]. Não só o custo e o tempo são chaves nesse processo, como também a reusabilidade deve ser considerada: cada circuito ainda pode apresentar defeitos de fabricação que inviabilizam seu uso, acarretando em um novo pedido, levando ao gasto de ainda mais recursos e tempo.
 

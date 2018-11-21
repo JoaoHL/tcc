@@ -1,0 +1,166 @@
+%% ------------------------------------------------------------------------- %%
+\chapter{Conceitos fundamentais}
+\label{cap:conceitos}
+
+Este capítulo descreve alguns dos conceitos fundamentais sobre dois tópicos essenciais para o desenvolvimento e entendimento do presente trabalho: síntese de alto nível e o projeto LLVM.
+
+\section{Síntese de alto nível}
+\label{section:hls}
+
+Síntese de alto nível ("\textit{High level synthesis}") é o processo de transformação de linguagens de programação de alto nível para sintetizar arquiteturas RTL ("\textit{Register-transfer level}"), ou seja, sintetizar arquiteturas de circuitos digitais síncronos a partir de descrições comportamentais, algorítmicas, do \textit{hardware}. As saídas geradas são, em sua maioria, arquivos em linguagens HDL ("\textit{Hardware description language}") usados para configurar o \textit{hardware} através de ferramentas próprias de compilação. As ferramentas de síntese de alto nível realizam o mesmo fluxo geral na sintetização dos circuitos, desde a compilação dos programas de entrada até a geração de arquiteturas RTL.
+
+\subsection{Fluxo de síntese}
+
+Segundo \citet{hls:hls-from-alg-to-circuit} e ~\citet{hls:an-introduction-to-hls}, o fluxo de síntese das ferramentas de HLS é composto pelas seguintes etapas:
+
+\begin{description}
+	\item[Compilação] - transformação de um algoritmo descrito em uma linguagem de alto nível para algum outro tipo de representação 
+	\item[Alocação] - definição das unidades funcionais disponíveis no \textit{hardware}
+	\item[Escalonamento] - mapeamento das instruções a cada ciclo de \textit{clock} do \textit{hardware}
+	\item[Emparelhamento] - ligar cada instrução à unidade funcional que a executará
+	\item[Geração] - criação do arquivo de saída a partir da arquitetura produzida nos passos anteriores
+\end{description}
+
+
+\subsection{Compilação}
+
+A entrada de uma ferramenta de síntese de alto nível consiste em um programa que descreve o comportamento desejado a ser feito via \textit{hardware}. Algumas dessas ferramentas, tais como o OpenCL\footnote{\url{https://www.khronos.org/opencl/}} e o LegUp\footnote{\url{http://legup.eecg.utoronto.ca/}}, usam linguagens com sintaxes baseadas em C devido a uma proximidade maior delas com o \textit{hardware} de um computador sem diminuir demais o nível de abstração.
+
+Algoritmos podem ser descrito como um procedimento comportamental ou atemporal em relação a um \textit{hardware}. Idealmente,  eles recebem todos os dados de entrada simultaneamente, realizam seus processamentos de forma instantânea, e devolvem todos os dados de saída de uma vez. Esse comportamento não é realista, divergindo muito da forma como um sistema de \textit{hardware} ou \textit{software} funciona. Um sistema de \textit{software}, ainda que seja executado através de instruções após compilado ou interpretado, também é desenvolvido de forma atemporal em relação ao \textit{hardware}, pois não há uma preocupação com quando (isto é, em qual ciclo de \textit{clock} específico) cada instrução será executada. Dessa forma, há a necessidade de transformar o programa em um procedimento temporal, onde cada instrução é executada em ciclos bem definidos.
+
+A modelagem atemporal deve ser traduzida em outra, temporal, onde os ciclos de \textit{clock} do circuito são levados em consideração na execução das operações descritas. Para tanto, um modelo formal do comportamento do circuito é criado para visualizar melhor as dependências de dados e de controle de fluxo do algoritmo. O modelo é representado por um grafo direcionado chamado DFG ('\textit{Data flow graph}' ou grafo de fluxo de dados), onde os arcos são valores constantes ou variáveis e os vértices são operações que usam os valores. Essa forma de representação explicita o paralelismo intrínseco ao algoritmo descrito, facilitando as fases seguintes da síntese.
+
+Como os DFGs representam apenas fluxos de dados, há dificuldades em utilizá-los para representar laços limitados por variáveis ao invés de constantes (e.g. \texttt{for (int i = 0; i < n; i++)}) ou trechos condicionais (e.g. \texttt{if-else}). Para tanto, seriam necessárias transformações no grafo que, dependendo da complexidade da implementação, poderia gastar mais memória para armazenamento e mais processamento.
+
+Pensando nisso, uma versão estendida do DFG foi criada, chamada CDFG ("\textit{Control and Data Flow Graph}", ou grafo de fluxo de controle e dados), onde os arcos são controles de fluxo (como \texttt{if-else}) e os nós são \textit{blocos básicos}. Blocos básicos são sequências de instruções com apenas um ponto de entrada e um ponto de saída. Os CDFGs são mais expressivos por conseguirem representar tanto o fluxo de dados quanto o de controle; no entanto, faz-se necessária uma análise mais profunda para explicitar as dependências de dados e memória entre as operações dentro dos blocos básicos e expor o parelelismo entre eles. Um exemplo simples de um CDFG é dado pela figura \ref{fig:cdfg}.
+
+\begin{figure}[htb]
+	\centering
+	\includegraphics[width=10cm]{figuras/cdfg}
+	\caption{\label{fig:cdfg}Exemplo de um programa com seu grafo de fluxo de controle e dados.}
+\end{figure}
+
+Apesar da possibilidade de traduzir uma larga gama de algoritmos para uma descrição temporal, é importante ressaltar que nem todos podem ser descritos diretamente em \textit{hardware}. Um bom exemplo são algoritmos recursivos, que não são convertidos para formas iterativas de maneira automatizada caso não sejam casos de recursão de cauda.
+
+\subsection{Alocação}
+
+A compilação do modelo comportamental explicita as operações feitas no algoritmo e em qual ordem devem ser feitas. Após essa etapa, é preciso transformar essas representações abstratas no modelo lógico/físico do circuito.
+
+Na fase de alocação, ocorre a identificação dos recursos de \textit{hardware} necessários para implementar o circuito desejado. Dentre esses recursos, podemos citar as unidades funcionais, unidades de memória, barramentos de comunicação, dentre outros. A alocação destes componentes é feita usando a biblioteca RTL das ferramenta de HLS. Ela contém os recursos disponíveis para cada modelo de \textit{hardware} coberto pela ferramenta, bem como dados sobre esses recursos (e.g. área necessária, consumo de energia, latência) necessários para outras fases da síntese.
+
+Certos componentes a serem alocadas, principalmente as de comunicação como os barramentos, podem ser deixadas para uma alocação tardia a fim de otimizar sua utilização. Ela pode ser realizada depois da fase de emparelhamento, para otimizar as comunicações entre as unidades funcionais, ou da fase de escalonamento, para não introduzir restrições de paralelismo entre as operações das unidades funcionais.
+
+\subsection{Escalonamento}
+
+A fase de escalonamento é responsável por mapear as operações feitas pelo circuito a cada ciclo de \textit{clock} do \textit{hardware}, levando em consideração as dependências de dados, fluxo e memória entre elas, as restrições desejadas do modelo (como área ou consumo de energia máximos) e os componentes alocados.
+
+Nela, a representação do modelo em um CDFG é de extrema valia. Ao usá-lo, o escalonador reconhece o possível paralelismo entre blocos básicos, que é aplicado para otimizar o processamento dentro das restrições estabelecidas. Aproveitam-se possíveis faltas de dependência de dados para realizar múltiplas operações por ciclo de \textit{clock}, sob a restrição de haver unidades funcionais suficientes para tal. Neste caso, é notável como aumentar a área implementada de circuito, o número de recursos alocados e a energia consumida, pode diminuir o consumo de tempo e aumentar a taxa de processamento de dados.
+
+Na análise interna dos blocos básicos, a latência e a dependência de dados das operações contidas neles são usadas para determinar onde cada uma delas deve começar e terminar em relação às demais operações. Dependendo do algoritmo de escalonamento utilizado, é possível aplicar otimizações como o encadeamento de operações (ou \textit{operation chaining}), onde uma operação é colocada no mesmo ciclo de \textit{clock} que outra operação da qual ela depende. Dessa forma, a latência da execução geral do algoritmo é diminuída.
+
+É também durante essa fase que pode ocorrer a comunicação entre a alocação e o emparelhamento para otimizar aspectos do \textit{layout} do circuito digital. Essas três fases estão intimamente ligadas por lidarem diretamente com a síntese do circuito, diferente da compilação, que lida com o comportamento de forma ainda abstrata, e da geração da arquitetura RTL, que usa os dados gerados pela síntese para construir o circuito.
+
+Um exemplo de escalonamento de instruções pode ser visto na figura \ref{fig:escalonamento}. Nela, uma série de instruções dadas na LLVM IR (vide seção \ref{section:llvm}) são mapeadas para ciclos de \textit{clock} que respeitem as dependências de dados e fluxo entre elas.
+
+\begin{figure}[htb]
+	\centering
+	\includegraphics[width=10cm]{figuras/escalonamento}
+	\caption{\label{fig:escalonamento}Exemplo de escalonamento de uma sequência de instruções.}
+\end{figure}
+
+\subsection{Emparelhamento}
+
+Para cada operação que um algoritmo executa, é preciso não só alocar os recursos necessários para efetuá-la, como também definir a unidade funcional, de memória ou de comunicação na qual ela será feita. A fase de emparelhamento é a responsável por essa tarefa, utilizando-se dos resultados das outras fases para fazer tais ligações. Nela, podem ocorrer mais otimizações, usufruindo da comunicação com as fases de escalonamento e alocação, para diminuir a área utilizada.
+
+Por exemplo: se duas operações são feitas em ciclos diferentes pelo mesmo tipo de unidade funcional, pode-se reutilizar a unidade funcional designada para elas, apresentando economia de recursos do \textit{hardware}. Da mesma forma, unidades de memória podem guardar valores de variáveis que possuem tempos de vida diferentes, possivelmente detectados pela análise de vida de variáveis (\textit{live variable analysis}) feita na fase de compilação.
+
+\subsection{Geração}
+
+Após a ferramenta de síntese de alto nível ter realizado todas as suas fases, é gerada uma arquitetura RTL representando, em \textit{hardware}, o comportamento descrito pelo modelo. O arquivo de saída pode ser de diversos formatos, tais como SystemC, Verilog e VHDL. Cada arcabouço trabalha com um número limitado de modelos de placa FPGA, uma vez que o uso de FPGAs em placas integradas (\textit{SoC FPGAs}, do inglês "\textit{System-on-a-Chip FPGA}") está crescendo e, por consequência, a variedade de FPGAs está aumentando.
+
+
+\subsection{Considerações especiais}
+
+As fases de alocação, escalonamento e emparelhamento estão intimamente ligadas, como já observado ao longo da seção anterior. A compilação do programa e a geração do RTL transformam, respectivamente, linguagens de alto nível, seja de programação ou de descrição de \textit{hardware}, em uma representação intermediária e vice-versa. Por sua vez, essas três fases manipulam a representação intermediária com o objetivo de dizer, de forma concreta, de quais recursos do \textit{chip} e quando o algoritmo em execução precisará deles. Essas etapas podem ocorrer de forma concorrente ou sequencial, dependendo da arquitetura da ferramenta, e a ordem de execução delas pode alterar a construção do circuito. Por exemplo:
+
+\begin{itemize}
+	\item A alocação pode ocorrer primeiro quando há restrição de recursos. Dessa forma, a ferramenta otimiza a latência e o \textit{throughput} (isto é, a quantidade de dados processados por unidade de tempo) do circuito a partir da quantidade de recursos disponível. É mais usado ao programar \textit{chips} com poucas LUTs.
+	\item Em contrapartida, o escalonamento pode tomar lugar antes da alocação quando há restrição de tempo. Assim, o algoritmo de síntese tenta otimizar a quantidade de recursos alocados e área utilizada dado o tempo máximo de cada operação. Essa estratégia pode se fazer mais útil em aplicações críticas, como FPGAs automotivos aplicados a carros inteligentes, onde as decisões feitas pelo algoritmo têm que ocorrer sempre em um espaço de tempo previsível e limitado (e.g. RTOS).
+	\item A execução das três fases podem ocorrer de forma concorrente e intercomunicativa, de forma que os três processos se otimizem mutuamente. Apesar desse ser o modelo ideal, ele cria um modelo complexo demais, que acaba não sendo possível de se aplicar no processo de síntese de alto nível em exemplos realistas.
+\end{itemize}
+
+Em geral, aplicações com restrições diferentes exigem ordens de execução diferentes. Aplicações com restrições de recurso severas (e.g. área de implementação, quantidade de unidades funcionais) rodam primeiro a alocação, para estabelecer o máximo de recursos e área que o circuito poderá utilizar e, a partir disso, otimizar sua geração nos outros passos. Por outro lado, restrições de tempo exigem o uso prévio do escalonador para estabelecer a latência máxima de todo o processamento dos dados e, em seguida, ocorrem as otimizações de recursos usando esses resultados. 
+
+\section{Projeto LLVM}
+\label{section:llvm}
+
+
+LLVM (antigo acrônimo para \textit{"Low-level virtual machine"}) é um projeto de código aberto que dispobiliza ferramentas de compilação e otimização para diversas linguagens. Tais ferramentas conseguem compilar códigos de diferentes linguagens e otimizá-los em tempo de compilação, provido de um \textit{front-end} e um \textit{back-end} do usuário. Por \textit{front-end} entende-se um \textit{parser} e um \textit{lexer} da linguagem de programação a qual se deseja compilar, enquanto que por \textit{back-end} entende-se uma lógica de transformação do código próprio da LLVM em código de máquina. Um exemplo de uma ferramenta famosa pertencente ao projeto LLVM é o Clang\footnote{\url{http://clang.llvm.org/}}, um compilador de C/C++/Objective-C alternativo ao GCC, que pode apresentar perfomances superiores a este\footnote{\url{http://clang.llvm.org/features.html\#performance}}.
+
+Nesta seção, serão apontadas características do projeto de forma direcionada ao entendimento do LegUp, descrito no capítulo \ref{cap:legup}.
+
+\subsection{Estrutura}
+
+\begin{figure}[htb]
+	\centering
+	\includegraphics[width=10cm]{figuras/SimpleCompiler}
+	\caption{\label{fig:simplecompiler}Estrutura básica de um compilador.}
+\end{figure}
+
+A arquitetura mais utilizada na construção de um compilador é a chamada \textit{arquitetura trifásica}, apresentando um \textit{front-end}, um otimizador de código, e um \textit{back-end}, como mostra a figura acima. O \textit{front-end} é responsável pela transformação do arquivo de entrada em algum tipo de representação que permita sua leitura e otimização como, por exemplo, os \textit{bytecodes} da linguagem Java. O otimizador recebe uma representação de um programa e realiza otimizações no código, que podem diminuir seu tempo de execução e/ou reduzir a quantidade de memória utilizada em sua execução. Por fim, o \textit{back-end} converte o código otimizado na representação final desejada (também chamada de "\textit{target}" ou "alvo"), que pode consistir em diversas representações, tais como um arquivo de texto simples que descreve o programa, ou um arquivo binário compatível com processadores da arquitetura x86. A LLVM também adota esse tipo de arquitetura, como visto na figura \ref{fig:llvm-implementation}.
+
+\begin{figure}[htb]
+	\centering
+	\includegraphics[width=10cm]{figuras/llvm-implementation-big}
+	\caption{\label{fig:llvm-implementation}Abstração da implementação do Projeto LLVM.}
+\end{figure}
+
+A principal vantagem de se adotar esse tipo de estrutura é a modularização do sistema, resultando na possibilidade de se reutilizar partes do sistema para novas aplicações. Por exemplo: se existir uma aplicação cujo \textit{front-end} recebe um código em Python, com um otimizador do código gerado pelo \textit{front-end}, e um \textit{back-end} que gera o código equivalente em Java, e houvesse a necessidade de mudar o alvo de Java para Haskell, não seria necessário reescrever todo o sistema apenas para mudar o \textit{back-end}: bastaria mudar apenas a geração do código em Haskell, sem precisar repensar o resto do código.
+
+A LLVM, além de adotar essa arquitetura, também apresenta uma forte modularização em seu código, através da orientação a objetos da linguagem C++. Isso porque aplicações como o GCC, ainda que sigam a arquitetura trifásica, possuem módulos altamente acoplados, tal que o desenvolvimento do \textit{back-end} necessita do conhecimento do \textit{front-end} e vice-versa. Esses tipos de aplicações são chamadas de \textit{monolíticas}, ou seja, aplicações que possui um código altamente acoplado, com dependências difíceis de serem desfeitas sem alterar partes críticas e variadas do sistema.
+
+\subsection{Representação intermediária}
+
+As implementações e detalhes de ambos \textit{front-end} e \textit{back-end} dependem muito da aplicação para qual a LLVM está sendo usada. O \textit{front-end} pode consistir de um \textit{parser} e \textit{lexer} de uma linguagem totalmente nova, cuja sintaxe siga um padrão bem diferente das linguagens já existentes, ou até um novo paradigma. O \textit{back-end}, por sua vez, pode transformar o código em instruções ou outros códigos de outras linguagens, como Scratch\footnote{\url{https://scratch.mit.edu/about}}, destinadas a robôs feitos de peças Lego, ou até um texto simples que contém o número de instruções do programa compilado em cada uma das arquiteturas de hardware existentes. Como as possibilidades são muitas, o projeto adotou um tipo de representação de código utilizado em sua arquitetura, a chamada \textit{representação intermediária da LLVM}, mais conhecida como \textit{LLVM IR} ("\textit{LLVM intermediate representation}"). Esta é enviada do \textit{front-end} ao otimizador, onde é modificada de acordo com as regras descritas pelos desenvolvedores da aplicação e, depois, encaminhada para o \textit{back-end} construir a saída apropriada para o alvo da aplicação. Um exemplo da LLVM IR pode ser visto abaixo.
+
+\begin{lstlisting}[style=llvm]
+define i32 @add1(i32 %a, i32 %b) {
+entry:
+%tmp1 = add i32 %a, %b
+ret i32 %tmp1
+}
+\end{lstlisting}
+
+
+O código acima é dita como a \textit{representação textual} da LLVM IR, uma vez que ela também pode ser serializada em \textit{bitcode}, isto é, ter uma representação binária. O código define uma função chamada ```add1```, que recebe dois inteiros \texttt{a} e \texttt{b} e devolve a soma deles. Como é possível perceber para quem já estudou ou viu códigos de alguma linguagem de montagem, a LLVM IR se assemelha a esse tipo de linguagem, de uma arquitetura RISC. O equivalente da função, em C, seria:
+
+\begin{lstlisting}[style=c]
+unsigned int add1(unsigned int a, unsigned int b) {
+unsigned int tmp1 = a + b;
+return tmp1;
+}
+\end{lstlisting}
+
+O uso dessa representação intermediária facilita o desenvolvimento de uma aplicação ao padronizar a saída do \textit{front-end} e a entrada do \textit{back-end}, bem como partes do otimizador. Assim, ao criar um novo \textit{front-end} para a LLVM, por exemplo, um programador deve saber apenas as características da entrada e da LLVM IR. Como o otimizador e o \textit{back-end} utilizam a LLVM IR de forma independente, não é necessário saber sobre eles para a execução de seu trabalho.
+
+\subsection{LLVM Pass Framework}
+
+No meio do processo de compilação, e considerando a arquitetura trifásica, encontra-se o otimizador do código. Ele é responsável por realizar modificações que melhorem, por exemplo, o tempo de execução do programa e o uso de espaço de memória do computador. No caso da LLVM, o otimizador recebe um código descrito pela LLVM IR e altera as instruções ao reconhecer determinados padrões. Por exemplo, se houver uma instrução onde há a subtração de um número inteiro por ele mesmo é atribuída a uma variável:
+
+\begin{lstlisting}[style=llvm]
+...
+%tmp1 = sub i32 %a, %a
+...
+\end{lstlisting}
+
+É possível, ao invés disso, atribuir $0$ à variável:
+
+\begin{lstlisting}[style=llvm]
+%tmp1 = i32  0
+\end{lstlisting}
+
+
+Ou seja, reconhecendo um padrão na instrução (e.g. subtração de um inteiro por ele mesmo), substitui-se a instrução por outra mais eficiente (e.g. atribuir $0$ à variável).
+
+O mecanismo empregado na LLVM para realizar essas otimizações são os chamados \textit{passes}, do arcabouço \textit{LLVM Pass Framework}, pertencente ao projeto. Em termos práticos, os passes são etapas, possivelmente independentes entre si, pelas quais o código (ou parte dele) passa por uma análise, onde há a busca por padrões desejados em suas instruções e há possíveis alterações feitas nelas; em termos técnicos, os passes são classes derivadas da superclasse \texttt{Pass} direta ou indiretamente, que indicam o escopo mínimo pelo qual o passe é responsável (e.g. escopo global, de função, de bloco básico, de \textit{loop}) e que implementam interfaces usados pelo arcabouço para realizar as otimizações. Cada passe é, assim, responsável por identificar padrões de instrução dentro do seu escopo e otimizar o padrão observado. A alteração retratada acima, onde temos a subtração de um inteiro por ele mesmo trocada pela atribuição da variável pelo valor $0$, poderia ser colocada dentro de um passe junto de outras otimizações com respeito à aritmética de inteiros, como transformar $x - 0$ em $x$.
+

@@ -1,0 +1,13 @@
+
+anotacoes/template/ape-exemplo.aux
+*.log
+*.aux
+*.brf
+*.out
+*.bbl
+*.blg
+*.idx
+*.gz
+*.toc
+*.gz
+*.gz

@@ -1,0 +1,137 @@
+%% ------------------------------------------------------------------------- %%
+\chapter{LegUp High-Level Synthesis}
+\label{cap:legup}
+
+LegUp é um arcabouço \textit{open-source} de síntese de alto nível desenvolvido na Universidade de Toronto (Canadá). Sua síntese converte códigos em C para Verilog e usa algumas ferramentas comerciais como o Quartus Prime II, da Intel, e o Tiger MIPS Processor, da Universidade de Cambridge (Reino Unido). 
+
+Atualmente em sua versão 4.0\footnote{A partir da versão 5.0, o LegUp tornou-se comercial.}, apresenta uma arquitetura que permite alterações em seus algoritmos de forma relativamente simples, devido à sua modularização. Como sua arquitetura usa uma compilação em escopo de funções para implementação em \textit{hardware} - isto é, ele usa funções como unidade básica para síntese de \textit{hardware} -, é possível, por exemplo, especificar funções específicas para aceleração em \textit{hardware} enquanto o resto do programa é executado em \textit{software}; tal técnica é chamada de "fluxo híbrido" pelos criadores da ferramenta e é explicada melhor na seção \ref{subsubsection:fluxo-hibrido}.
+
+Os conhecimentos aqui expostos foram sintetizados a partir do uso da ferramenta, bem como da leitura da documentação e dos artigos escritos por \cite{legup:legup-article} e \cite{legup:legup-journal-chapter}.
+
+\section{Fluxo de execução}
+
+\begin{figure}[htb]
+	\centering
+	\includegraphics[width=13cm]{figuras/legup-flow}
+	\caption{\label{fig:graph}Fluxo de execução do LegUp.}
+\end{figure}
+
+A figura acima representa o fluxo geral do arcabouço. A entrada da ferramenta é um programa desenvolvido em C puro, que é compilado, otimizado e transformado em sua representação intermediária (IR) pela LLVM (seção \ref{section:llvm}). Em seguida, na fase de alocação, o LegUp usa os dados sobre o \textit{hardware} no qual queremos implementar o algoritmo para alocar os recursos disponíveis no \textit{chip}, tais como blocos de memória e unidades lógicas. Na etapa de escalonamento, as instruções da IR são mapeadas do grafo de controle e fluxo de dados para uma máquina de estados finita, onde cada estado é designado para um ciclo de \textit{clock} específico. Depois esse mapeamento, o algoritmo de síntese atribui, a cada estado da máquina de estados, os recursos do \textit{chip} necessários para a execução de suas instruções. Com as operações e recursos definidos, o arcabouço gera o RTL equivalente ao algoritmo e, por fim, o usa para criar um arquivo de descrição de \textit{hardware}, escrito em Verilog.
+
+Dada a forma como o arcabouço foi construído, isto é, na linguagem C++, utilizando o paradigma de programação orientada a objetos para modularizar o código, as etapas da síntese de alto nível feitas sobre o código compilado são implementadas em classes separadas, uma para cada etapa.
+
+\subsection{Fluxos de transformação}
+
+Apesar da existência do fluxo geral de funcionamento do LegUp, a ferramenta define três fluxos distintos chamados aqui de \textit{fluxos de transformação}. Cada um deles transforma o programa de entrada em um tipo de circuito diferente, cada qual apresentando suas vantagens e desvantagens. Os fluxos implementados são o de puro \textit{hardware}, puro \textit{software}, e híbrido. O fluxo utilizado neste trabalho foi o de puro \textit{hardware}, com o intuito de aproximar cientistas da computação à compreensão do processo de pesquisa e desenvolvimento em \textit{hardware}.
+
+\subsubsection{Puro hardware}
+
+Neste fluxo, todo o programa de entrada do LegUp é transformado em \textit{hardware}. Cada função do código é mapeada em um módulo Verilog que, ao ser compilado para o \textit{chip} FPGA, funciona de forma paralela. Devido à paralelização inerente aos componentes de \textit{hardware}, o controle do algoritmo é feito em um módulo Verilog chamado \texttt{main}, que descreve e controla a execução da máquina de estados finita que modela o algoritmo. 
+
+A maior vantagem desse fluxo é a velocidade de execução do algoritmo, que chega a ser 8 vezes maior, como mostrado via experiências por \cite{legup:legup-journal-chapter}. Porém, ele não permite a implementação de técnicas importantes como recursão ou alocação dinâmica de memória.
+
+
+\subsubsection{Puro software}
+
+Neste fluxo, todo o programa de entrada do LegUp é transformado em \textit{software}. Um processador \textit{soft} (\textit{softprocessor}) é instanciado pelo arcabouço, junto dos dados da aplicação, como instruções a serem executadas. Após a compilação da descrição de \textit{hardware} na placa FPGA, o processador é executado no tecido FPGA como um processador comum. O processador usado pelo LegUp é descrito na subseção \ref{subsubsection:tiger}. 
+
+Utilizar esse fluxo dá a oportunidade de uso de técnicas importantes de programação, como recursão e alocação dinâmica de memória, ambas inviáveis via \textit{hardware} puro. Além disso, ao executar um processador de forma isolada, o único processo existente para utilizá-lo é o da aplicação da FPGA, resultando em um menor \textit{overhead} de troca de processos por parte de um sistema operacional. Entretanto, devido à frequência de \textit{clock} de um \textit{chip} FPGA ser da ordem de 10 vezes menor que o de um processador médio de um computador pessoal atual (\textbf{colocar referencia}), mesmo com a exclusividade de acesso do processo ao processador, a velocidade de execução pode ser muito inferior a um sistema embarcado com processador de uso geral implementado em um ASIC.
+
+
+\subsubsection{Fluxo híbrido}
+\label{subsubsection:fluxo-hibrido}
+
+No fluxo híbrido, o programa de entrada é compilado de forma semelhante à feita no fluxo de puro \textit{software}. A diferença principal é o fato de que o usuário pode definir marcações no código para dizer quais funções devem ser aceleradas por \textit{hardware}, gerando um acelerador a ser usado na chamada da função especificada. Assim, chamadas dela no código de entrada são substituídas por \textit{funções embrulhadas} (i.e. \textit{wrapper functions}), que enviam um sinal para o acelerador executar o processamento de dados representados pela função. Nesse cenário, o processador tem duas opções quanto a seu funcionamento durante tal chamada: continuar executando o código da aplicação enquanto continuamente verifica se o acelerador terminou sua execução, ou esperar o acelerador terminar seu processamento e então, retomar a execução da aplicação. No LegUp, a segunda opção foi adotada na implementação da ferramenta.
+
+O fluxo híbrido permite a aceleração de funções computacionalmente pesadas enquanto ainda dá abertura para o uso das técnicas de programação proibidas no fluxo de \textit{hardware}. Porém, sua velocidade de processamento ainda é consideravelmente inferior ao do algoritmo totalmente implementado em \textit{hardware}.
+
+\subsection{Compilação}
+
+O código usado como entrada do arcabouço deve ser escrito em C e possui limitações para certos fluxos. A versão gratuita mais recente da ferramenta não cobre implementações de recursão ou alocação dinâmica de memória; apesar disso, o LegUp consegue sintetizar estruturas, controles de fluxo, aritmética de inteiros, manipulação de ponteiros (inclusive ponteiros de funções), dentre outras características da linguagem.
+
+A compilação do código é feita no \textit{front-end} da LLVM usando o Clang 3.5, um compliador da linguagem C pertencente ao projeto LLVM, e cria um arquivo de \textit{bytecode} contendo a LLVM IR correspondente ao programa de entrada. Algumas funções nativas da linguagem que lidam com o manejo da memória (como \texttt{memset} e \texttt{memcopy}, da biblioteca \texttt{string.h}) são compiladas pelo Clang em funções já implementadas pela LLVM, chamadas \textit{funções intrínsecas}. Para contornar a situação, passes do otimizador são executados no código para substituir as funções intrínsecas para funções implementadas manualmente pelo arcabouço, gerando um \textit{bytecode} composto da LLVM IR pura, sem funções intrínsecas.
+
+\subsubsection{Processador}
+\label{subsubsection:tiger}
+
+O processador \textit{soft} utilizado pelo arcabouço é o Tiger MIPS Soft Processor\footnote{\url{https://www.cl.cam.ac.uk/teaching/0910/ECAD+Arch/mips.html}}, um processador que pode ser implementado usando síntese lógica, isto é, seu comportamento pode ser descrito por uma linguagem de descrição de \textit{hardware} (e.g. Verilog HDL) e então convertido em um \textit{design} de \textit{hardware}. Possuindo um tamanho de palavra (\textit{word size}) de $32$ bits, ele é usado na elaboração do circuito apenas nos fluxos híbrido e puro \textit{software}, onde há a necessidade de um módulo central que controle o funcionamento do circuito. A vantagem de se usar o Tiger é seu código aberto e sua arquitetura RISC, que permitem a adição de novas instruções no processador, e de maneira menos complexa que a arquitetura CISC.
+
+A possibilidade de modificação do processador do circuito é a característica chave do processo de autoavaliação que o LegUp realiza em seu fluxo de execução. Ao adicionar instrumentações para observar a execução do programa, é possível dizer quais instruções são mais utilizadas e por quais funções elas são mais chamadas. Isso permite uma análise extremamente precisa, uma vez que ela é feita a nível de instrução. Isso dá oportunidade ao usuário de verificar as instruções resultantes da compilação do código em C e otimizá-las manualmente, de acordo com suas necessidades.
+
+Apesar da utilização do Tiger, que é um \textit{softprocessor}, a versão mais recente do LegUp open-source também dá suporte aos processadores \textit{hard} da Altera e da Xilinx. Um processador \textit{hard} não pode ser descrito por uma HDL e, por isso, seu design é construído de forma rígida no \textit{chip}, como propriedade intelectual. O motivo dessa impossibilidade em descrevê-lo por uma HDL é pelo fato de que um processador \textit{hard} tem sua construção especificada a nível de transístor, resultando em uma arquitetura muito específica para ser precisamente descrita por uma descrição de \textit{hardware}. Apesar de afetar a flexibilidade de personalização do processador, o uso desses tipos de processador aumenta a eficiência do FPGA em termos de energia, latência e área.
+
+\subsection{Alocação de recursos}
+
+Essa etapa é feita pela classe \texttt{Allocation} da ferramenta, e usa \textit{scripts} TCL para efetuar a alocação dos recursos presentes no \textit{chip} FPGA. Um desses \textit{scripts} contém a especificação do dispositivo, opções de síntese de alto nível e restrições de tempo; outro contém as restrições de área e latência de operações. Todas essas informações são armazenadas em uma instância da classe para que os estágios seguintes da síntese possam usá-las.
+
+\subsection{Escalonamento}
+
+Cada função do código de entrada é transformado em uma função na LLVM IR durante a compilação. O escalonador do LegUp transforma cada uma dessas funções em um objeto da classe \texttt{FiniteStateMachine}, que representa a máquina de estados finita daquela função. Cada objeto desses contém objetos da classe \texttt{State} que guardam cada estado da máquina de estados; este, por sua vez, contém instâncias da classe \textit{InstructionNodes} que guardam informações sobre as instruções a serem executadas no estado correspondente, tais como suas latências. Ao final do processo, o escalonador devolve um objeto \textit{FiniteStateMachine} para cada função compilada, que serão usados na etapa de emparelhamento.
+
+As instâncias de \texttt{InstructionNodes} são criadas por uma classe chamada \texttt{SchedulerDAG}, responsável por ler cada instrução do programa e calcular as dependências de memória e de dados entre elas e, depois, inserir nas instâncias tais cálculos. Depois do cálculo de dependências, o escalonador mapeia cada \texttt{InstructionNodes} para seus respectivos estados através da classe \texttt{SchedulerMapping}.
+
+A estratégia adotada pelo escalonador é baseada na formulação matemática das dependências como um problema de otimização linear, chamado \textit{sistema de restrições de diferenças}, como descrito por \cite{legup:sdc-scheduler}. Nessa formulação, o programa linear contém restrições da forma
+
+\begin{equation}\label{difference-constraint}
+x_1 - x_2 \; REL \;  y
+\end{equation} 
+
+onde
+
+\begin{equation}
+REL \in \{\leq, \geq, =\}
+\end{equation}
+
+O termo "restrições de diferenças" dá-se pelas restrições serem compostas por diferenças de valores. Os termos $x_1$ e $x_2$ em \ref{difference-constraint} representam os ciclo aos quais duas operações, $op_1$ e $op_2$, devem ser mapeadas, onde $op_1$ é dependente de $op_2$. O termo à direita da inequação é uma constante que pode surgir dada a natureza da operação. Por exemplo, uma das operações pode ser uma leitura de memória e, por isso, necessitar de pelo menos $y$ ciclos de \textit{clock} para ser concluída.
+
+No processo de criação do sistema linear, o arcabouço mapeia as operações para serem feitas o mais cedo possível, dado que suas dependências são satisfeitas. Tal estratégia, chamada \textit{as-soon-as-possible scheduling} ou \textit{ASAP scheduling}, pode ser trocada para outra, oposta, chamada \textit{as-late-as-possible scheduling} ou \textit{ALAP scheduling}. Finalmente, após a modelagem do programa linear com as operações e suas dependências, o sistema é resolvido utilizando-se a biblioteca \textit{open source} \texttt{lpsolve} (http://lpsolve.sourceforge.net/). Ao resolver o programa linear, o ciclo ao qual cada operação $op_n$ pertence será armazenado na variável $x_n$.
+
+Período de \textit{clock} do \textit{chip} utilizado, estratégia de escalonamento (\textit{ALAP} ou \textit{ASAP}), dentre outras informações importantes para o processo de escalonamento são encontradas em arquivos TCL pelos diretórios da ferramenta, que podem ser modificados para customizar o processo de síntese de alto nível de acordo com as necessidades do usuário.
+
+\subsection{Emparelhamento}
+
+Depois de calcular quais operações devem ser feitas em quais ciclos de \textit{clock}, o LegUp precisa atribuir cada uma dessas operações às unidades funcionais correspondentes. Como exposto no capítulo \ref{cap:fpga}, essas unidades são compostas de \textit{lookup tables} e registradores, e seus tipos e respectivas quantidades disponíveis no \textit{chip} são determinados na fase de alocação de acordo com o dispositivo almejado.
+
+Cada ciclo de \textit{clock} contém um conjunto de operações a serem feitas. Estas, por sua vez, podem ser executadas por um conjunto de unidades funcionais disponíveis no \textit{chip}. Uma única unidade funcional consegue ser usada para fazer mais de uma operação ao usar-se multiplexadores na entrada, e mapeando operações em ciclos diferentes. Este padrão de implementação de circuitos é chamado de \textit{compartilhamento de recursos} e,  em termos de recursos do \textit{chip}, pode ser custoso. Deve-se ter em mente três pontos principais sobre o compartilhamento de recursos:
+
+\begin{itemize}
+	\item É preferível que, caso haja necessidade de compartilhar unidades funcionais, isso seja feito da forma mais uniforme possível. Assim, evita-se sobrecarregar uma única unidade funcional com muitas entradas, remetendo ao item anterior sobre multiplexadores com muitas entradas.
+	\item Ter um multiplexador com muitas entradas diminui a latência do circuito, devido à quantidade de lógica necessária para implementá-lo. Assim, operações que compartilham da mesma entrada no mesmo ciclo podem ser atribuídas à mesma unidade funcional sem precisar de um multiplexador.
+	\item Uma unidade funcional pode realizar operações pertencentes a ciclos distintos. Dessa forma, ela usará apenas um registrador de saída e, por consequência, não precisará de um multiplexador de saída.
+\end{itemize}
+
+Tendo em vista estes pontos, os desenvolvedores da ferramenta criaram uma função para calcular o custo de emparelhamento entre uma operação $op$ e uma unidade funcional $uf$, dada pela equação
+
+\begin{eqnarray}\label{equacao-custo-emparelhamento}
+\nonumber custo(op, uf) &=& \omega * numeroInputsDeMuxExistentes(fu)\\
+          && + \beta * novasEntradasParaMux(op, fu)\\
+\nonumber && - \theta * registradorDeSaidaCompartilhavel(op, fu)
+\end{eqnarray}
+
+onde $\omega = 0.1$, $\beta = 1$ e $\theta = 0.5$. Os pesos são atribuídos a cada item considerado no comaprtilhamento de recursos de forma a priorizar a economia de criação de novas entradas nos multiplexadores ($\beta$), depois a economia de registradores de saída ($\theta$) e, por fim, balancear as entradas nos multiplexadores existentes ($\omega$).
+
+Calculados os custos, a ferramenta modela o problema do emparelhamento da síntese de alto nível como um problema de emparelhamento de um grafo bipartido com pesos. Dois conjuntos, $O$ e $U$, representam as operações e as unidades funcionais, e cada arco entre $op \in  O$ e $uf \in U$ tem peso $custo(op, uf)$, como representado na equação \ref{equacao-custo-emparelhamento}. O problema pode ser resolvido usando-se o Método Húngaro em tempo polinomial, como descrito por \cite{legup:hungarian-method}. A cada ciclo de \textit{clock}, a ferramenta faz a formulação e resolução do problema, mapeando as operações às unidades funcionais mais adequadas para executá-las.
+
+\subsection{Geração do RTL}
+
+A geração do RTL correspondente ao programa de entrada é feito pela classe \texttt{GenerateRTL} e, posteriormente, escrito em um arquivo Verilog pela classe \texttt{VerilogWriter}.
+
+A classe \texttt{GenerateRTL} recebe os dados das etapas de escalonamento e emparelhamento para gerar o circuito do algoritmo usando cinco outras classes que, quando aninhadas entre si, geram a arquitetura desejada. As classes são:
+
+\begin{itemize}
+	\item \texttt{RTLModule} - um módulo de \textit{hardware}.
+	\item \texttt{RTLSignal} - um registrador ou sinal no circuito. O sinal pode ser gerenciado por outros \texttt{RTLSignal}, também gerenciados por um \texttt{RTLSignal}, a fim de se criar um multiplexador.
+	\item \texttt{RTLConst} - um valor constante.
+	\item \texttt{RTLOp} - uma unidade funcional que representa uma operação com um, dois ou três operandos.
+	\item \texttt{RTLWidth} - o tamanho, em bits, de um \texttt{RTLSignal}.
+\end{itemize}
+
+No RTL gerado há algumas otimizações feitas pela ferramenta a fim de melhorar o desempenho do circuito, principalmente no que diz respeito à implementação da memória dos módulos. O LegUp define a arquitetura de memória em quatro tipos: memória local, global, cache e \textit{off-chip}. As duas últimas, que correspondem à memória cache do processador e ao gerenciador de memória externa ao \textit{chip} FPGA, não são pertinentes ao fluxo de puro \textit{hardware} uma vez que não existe um processador para gerenciar seus funcionamentos.
+
+As duas hierarquias comuns a todos os fluxos, a local e a global, são usadas de acordo com a localidade das variáveis e estruturas de dados empregadas no programa, e são gerenciadas por um controlador de memória. Ao fazer uma análise sobre as referências de memória feitas durante a execução do programa (\textit{points-to analysis}), o LegUp verifica quais regiões de memória (e.g. vetores) são usadas por quais módulos. Se uma região é usada apenas por um módulo, uma memória local é instanciada para lidar com ela. Por outro lado, se uma região for usada por mais de um módulo, ou se a análise de ponteiros não chegar a uma conclusão definitiva sobre os ponteiros, uma memória global é instanciada.
+
+A memória global é composta por blocos de memória \textit{RAM} e possui um controlador de memória usado como interface entre a memória em si e os módulos que desejam acessá-la. Para cada bloco de memória, existe uma etiqueta ou \textit{tag} que o identifica de forma única. Um endereço de memória global é composto de $32$ bits, dos quais os $8$ bits mais significativos são os bits de etiqueta (ou \textit{tag bits}) e os outros $24$ bits são o endereço de memória que se deseja acessar. Considerando que as etiquetas \texttt{0x0} e \texttt{0x1} são reservadas para ponteiros nulos e endereços do processador, respectivamente, é possível, então, endereçar $254$ blocos de $16$ \textit{megabytes}, totalizando $4080$ \textit{megabytes} de memória. Essa quantidade é especialmente útil em placas que possuem uma memória \textit{off-chip} grande; no entanto, no fluxo de puro \textit{hardware}, torna-se desnecessária dada a pouca quantidade de memória  que pode ser alocada pelos recursos do \textit{chip} FPGA.
+
+A memória local, por sua vez, é também uma instância de um bloco de memória \textit{RAM}, mas utilizada apenas pelo módulo que a instanciou. Com isso, a latência de acesso é menor, uma vez que não há necessidade um controlador de memória. Além disso, como cada módulo tem sua memória local, há a paralelização de acesso dos módulos a elas, propriedade inexistente na memória global por conta de sua natureza compartilhável.
+
+Na implementação dos algoritmos, é interessante utilizar uma função a cada passo complexo deles, para que dessa forma seja criado um único módulo em Verilog que contenha toda a lógica da função descrita. Por exemplo, no caso do algoritmo de aproximação do problema do caixeiro viajante, criar uma função que contenha todos os passos do cálculo de uma árvore geradora mínima de um grafo facilita a depuração e otimização do código. Essa aproximação de desenvolvimento foi utilizada nos programas dos algoritmos estudados neste trabalho, descritos no próximo capítulo.
