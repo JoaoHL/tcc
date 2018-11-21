@@ -26,7 +26,7 @@ Segundo \citet{hls:hls-from-alg-to-circuit} e ~\citet{hls:an-introduction-to-hls
 
 A entrada de uma ferramenta de síntese de alto nível consiste em um programa que descreve o comportamento desejado a ser feito via \textit{hardware}. Algumas dessas ferramentas, tais como o OpenCL\footnote{\url{https://www.khronos.org/opencl/}} e o LegUp\footnote{\url{http://legup.eecg.utoronto.ca/}}, usam linguagens com sintaxes baseadas em C devido a uma proximidade maior delas com o \textit{hardware} de um computador sem diminuir demais o nível de abstração.
 
-Algoritmos podem ser descrito como um procedimento comportamental ou atemporal em relação a um \textit{hardware}. Idealmente,  eles recebem todos os dados de entrada simultaneamente, realizam seus processamentos de forma instantânea, e retornam todos os dados de saída de uma vez. Esse comportamento não é realista, divergindo muito da forma como um sistema de \textit{hardware} ou \textit{software} funciona. Um sistema de \textit{software}, ainda que seja executado através de instruções após compilado ou interpretado, também é desenvolvido de forma atemporal em relação ao \textit{hardware}, pois não há uma preocupação com quando (isto é, em qual ciclo de \textit{clock} específico) cada instrução será executada. Dessa forma, há a necessidade de transformar o programa em um procedimento temporal, onde cada instrução é executada em ciclos bem definidos.
+Algoritmos podem ser descrito como um procedimento comportamental ou atemporal em relação a um \textit{hardware}. Idealmente,  eles recebem todos os dados de entrada simultaneamente, realizam seus processamentos de forma instantânea, e devolvem todos os dados de saída de uma vez. Esse comportamento não é realista, divergindo muito da forma como um sistema de \textit{hardware} ou \textit{software} funciona. Um sistema de \textit{software}, ainda que seja executado através de instruções após compilado ou interpretado, também é desenvolvido de forma atemporal em relação ao \textit{hardware}, pois não há uma preocupação com quando (isto é, em qual ciclo de \textit{clock} específico) cada instrução será executada. Dessa forma, há a necessidade de transformar o programa em um procedimento temporal, onde cada instrução é executada em ciclos bem definidos.
 
 A modelagem atemporal deve ser traduzida em outra, temporal, onde os ciclos de \textit{clock} do circuito são levados em consideração na execução das operações descritas. Para tanto, um modelo formal do comportamento do circuito é criado para visualizar melhor as dependências de dados e de controle de fluxo do algoritmo. O modelo é representado por um grafo direcionado chamado DFG ('\textit{Data flow graph}' ou grafo de fluxo de dados), onde os arcos são valores constantes ou variáveis e os vértices são operações que usam os valores. Essa forma de representação explicita o paralelismo intrínseco ao algoritmo descrito, facilitando as fases seguintes da síntese.
 
@@ -46,9 +46,9 @@ Apesar da possibilidade de traduzir uma larga gama de algoritmos para uma descri
 
 A compilação do modelo comportamental explicita as operações feitas no algoritmo e em qual ordem devem ser feitas. Após essa etapa, é preciso transformar essas representações abstratas no modelo lógico/físico do circuito.
 
-Na fase de alocação, ocorre a identificação dos recursos de \textit{hardware} necessários para implementar o circuito desejado. Dentre esses recursos, podemos citar as unidades funcionais, unidades de memória, barramentos de comunicação, dentre outros. A alocação destas componentes é feita usando a biblioteca RTL das ferramenta de HLS. Ela contém os recursos disponíveis para cada modelo de \textit{hardware} suportados pela ferramenta, bem como dados sobre esses recursos (e.g. área necessária, consumo de energia, latência) necessários para outras fases da síntese.
+Na fase de alocação, ocorre a identificação dos recursos de \textit{hardware} necessários para implementar o circuito desejado. Dentre esses recursos, podemos citar as unidades funcionais, unidades de memória, barramentos de comunicação, dentre outros. A alocação destes componentes é feita usando a biblioteca RTL das ferramenta de HLS. Ela contém os recursos disponíveis para cada modelo de \textit{hardware} coberto pela ferramenta, bem como dados sobre esses recursos (e.g. área necessária, consumo de energia, latência) necessários para outras fases da síntese.
 
-Certas componentes a serem alocadas, principalmente as de comunicação como os barramentos, podem ser deixadas para uma alocação tardia a fim de otimizar sua utilização. Ela pode ser realizada depois da fase de emparelhamento, para otimizar as comunicações entre as unidades funcionais, ou da fase de escalonamento, para não introduzir restrições de paralelismo entre as operações das unidades funcionais.
+Certos componentes a serem alocadas, principalmente as de comunicação como os barramentos, podem ser deixadas para uma alocação tardia a fim de otimizar sua utilização. Ela pode ser realizada depois da fase de emparelhamento, para otimizar as comunicações entre as unidades funcionais, ou da fase de escalonamento, para não introduzir restrições de paralelismo entre as operações das unidades funcionais.
 
 \subsection{Escalonamento}
 
@@ -76,7 +76,7 @@ Por exemplo: se duas operações são feitas em ciclos diferentes pelo mesmo tipo d
 
 \subsection{Geração}
 
-Após a ferramenta de síntese de alto nível ter realizado todas as suas fases, é gerada uma arquitetura RTL representando, em \textit{hardware}, o comportamento descrito pelo modelo. O arquivo de saída pode ser de diversos formatos, tais como SystemC, Verilog e VHDL. Cada arcabouço trabalha com um número limitado de modelos de placa FPGA, uma vez que o uso de FPGAs em placas integradas (\textit{SoC FPGAs}, do inglês "\textit{System-on-a-Chip FPGA}") está crescendo e, por consequência, a varidade de FPGAs está aumentando.
+Após a ferramenta de síntese de alto nível ter realizado todas as suas fases, é gerada uma arquitetura RTL representando, em \textit{hardware}, o comportamento descrito pelo modelo. O arquivo de saída pode ser de diversos formatos, tais como SystemC, Verilog e VHDL. Cada arcabouço trabalha com um número limitado de modelos de placa FPGA, uma vez que o uso de FPGAs em placas integradas (\textit{SoC FPGAs}, do inglês "\textit{System-on-a-Chip FPGA}") está crescendo e, por consequência, a variedade de FPGAs está aumentando.
 
 
 \subsection{Considerações especiais}
@@ -85,7 +85,7 @@ As fases de alocação, escalonamento e emparelhamento estão intimamente ligadas, 
 
 \begin{itemize}
 	\item A alocação pode ocorrer primeiro quando há restrição de recursos. Dessa forma, a ferramenta otimiza a latência e o \textit{throughput} (isto é, a quantidade de dados processados por unidade de tempo) do circuito a partir da quantidade de recursos disponível. É mais usado ao programar \textit{chips} com poucas LUTs.
-	\item Em contrapartida, o escalonamento pode tomar lugar antes da alocação quando há restrição de tempo. Assim, o algoritmo de síntese tenta otimizar a quantidade de recursos alocados e área utilizada dado o tempo máximo de cada operação. Essa estratégia pode se fazer mais útil em aplicações críticas, como FPGAs automotivos.
+	\item Em contrapartida, o escalonamento pode tomar lugar antes da alocação quando há restrição de tempo. Assim, o algoritmo de síntese tenta otimizar a quantidade de recursos alocados e área utilizada dado o tempo máximo de cada operação. Essa estratégia pode se fazer mais útil em aplicações críticas, como FPGAs automotivos aplicados a carros inteligentes, onde as decisões feitas pelo algoritmo têm que ocorrer sempre em um espaço de tempo previsível e limitado (e.g. RTOS).
 	\item A execução das três fases podem ocorrer de forma concorrente e intercomunicativa, de forma que os três processos se otimizem mutuamente. Apesar desse ser o modelo ideal, ele cria um modelo complexo demais, que acaba não sendo possível de se aplicar no processo de síntese de alto nível em exemplos realistas.
 \end{itemize}
 
@@ -132,7 +132,7 @@ ret i32 %tmp1
 \end{lstlisting}
 
 
-O código acima é dita como a \textit{representação textual} da LLVM IR, uma vez que ela também pode ser serializada em \textit{bitcode}, isto é, ter uma representação binária. O código define uma função chamada ```add1```, que recebe dois inteiros \texttt{a} e \texttt{b} e retorna a soma deles. Como é possível perceber para quem já estudou ou viu códigos de alguma linguagem de montagem, a LLVM IR se assemelha a esse tipo de linguagem, de uma arquitetura RISC. O equivalente da função, em C, seria:
+O código acima é dita como a \textit{representação textual} da LLVM IR, uma vez que ela também pode ser serializada em \textit{bitcode}, isto é, ter uma representação binária. O código define uma função chamada ```add1```, que recebe dois inteiros \texttt{a} e \texttt{b} e devolve a soma deles. Como é possível perceber para quem já estudou ou viu códigos de alguma linguagem de montagem, a LLVM IR se assemelha a esse tipo de linguagem, de uma arquitetura RISC. O equivalente da função, em C, seria:
 
 \begin{lstlisting}[style=c]
 unsigned int add1(unsigned int a, unsigned int b) {

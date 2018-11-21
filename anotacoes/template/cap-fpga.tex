@@ -41,7 +41,7 @@ Os blocos lógicos são configuráveis e implementam funções lógicas e armazenament
 Os blocos lógicos configuráveis (BLCs) são as unidades que provêm capacidade lógica e de armazenamento para o FPGA. BLCs podem ser implementados de diversas maneiras, desde simples transistores até processadores inteiros, e essa implementação define sua granularidade. BLCs com granularidade muito pequena, como transistores, ocupam muito espaço e os torna ineficientes em termos de área. Por outro lado, os de granularidade muito grande, como processadores, podem representar um desperdício de recurso quando tratamos de funções mais simples.
 Entre esses máximos, temos um espectro de implementações de BLCs. 
 
-Os BLCs são compostos blocos lógicos básicos (BLBs), que podem ser usados em conjunto ou de forma isolada, ou seja, um BLC pode ser composto por um único BLB ou por um conjunto deles. As componentes usadas noss BLBs podem variar, mas a fabricante da placa usada no presente trabalho, a Altera, utiliza \textit{lookup tables} e \textit{flip-flops} para armazenamento. As LUTs são usadas como tabela de valor para representar qualquer função booleana com determinado número de \textit{bits} de entrada e de saída. Assim, uma LUT que recebe $k$ \textit{bits} é chamada de \textit{k-LUT} e representa qualquer função booleana $f$ tal que
+Os BLCs são compostos blocos lógicos básicos (BLBs), que podem ser usados em conjunto ou de forma isolada, ou seja, um BLC pode ser composto por um único BLB ou por um conjunto deles. As componentes usadas nos BLBs podem variar, mas a fabricante da placa usada no presente trabalho, a Altera, utiliza \textit{lookup tables} e \textit{flip-flops} para armazenamento. As LUTs são usadas como tabela de valor para representar qualquer função booleana com determinado número de \textit{bits} de entrada e de saída. Assim, uma LUT que recebe $k$ \textit{bits} é chamada de \textit{k-LUT} e representa qualquer função booleana $f$ tal que
 
 \begin{center}
 $f: \{0, 1\}^k \rightarrow \{0, 1\}^k $
@@ -58,13 +58,24 @@ Como já mencionado, a flexibilidade de um FPGA vem da capacidade de ter sua rede
 Cerca de 85\% da área de um FPGA consiste da rede de interconexão entre os blocos lógicos. Visando otimizar a comunicação de acordo com a finalidade do circuito, essa rede pode ser construída usando arquiteturas diferentes. A arquitetura utilizada neste trabalho é a baseada em malha.
 
 As redes baseadas em malha (do inglês '\textit{mesh-based}', também conhecida como '\textit{island-style}') são organizadas em formato matricial, com blocos lógicos cercados de fios de conexão - por isso o termo 'estilo de ilha', onde os BLs parecem estar "ilhados" em um "mar de fios". Nas extremidades se encontram os blocos de entrada e saída. Na rede de conexão estão localizadas concentrações de \textit{switches} que estabelecem a rota dos sinais entre os blocos lógicos. Por último, existem as conexões entre os blocos lógicos e a rede de comunicação, que são chamadas de caixas de comunicação, também configuráveis. A figura \ref{fig:mashed-based-fpga} mostra essa arquitetura.
+
 \begin{figure}[htb]
 \centering
 \includegraphics[width=10cm]{figuras/mashed-based-fpga}
 \caption{\label{fig:mashed-based-fpga}Exemplo de um FPGA com rede de interconexão em malha.}
 \end{figure}
 
+Um exemplo de FPGA que segue o modelo de rede baseada em malha é a Stratix IV, da Altera, com o modelo EP4SGX230 ilustrado na figura \ref{fig:stratix}. A Stratix é uma das famílias de FPGAs industriais da Altera usadas principalmente para aplicações que demandam alto desempenho. O modelo ilustrado, por exemplo, possui $228.000$ elementos lógicos (BLBs) compostos de 4-LUTs e \textit{flip-flops} tipo D, $182.400$ registradores, $91.200$ BLCs, 22 blocos de memória M144K (que guardam até $144$ \textit{kilobits} endereçáveis), dentre outras características que o tornam uma boa escolha para usuários que necessitam de um bom desempenho.
+
+\begin{figure}[htb]
+	\centering
+	\includegraphics[width=10cm]{figuras/Altera_StratixIV_FPGA}
+	\caption{\label{fig:stratix}SoC FPGA usando um FPGA Stratix IV EP4SGX 230, da Altera.}
+\end{figure}
+
 \section{Desvantagens}
 
 A maior vantagem de \textit{FPGAs} - sua flexibilidade - também é a causa de sua maior desvantagem. Essa característica baseia-se na reprogramação das rotas de interconexão, dos blocos lógicos e dos blocos de entrada e saída. Entretanto, a área usada por tais rotas ocupa a maior parte do dispositivo, chengando a quase 90\% da área útil do dispositivo, para permitir a sua reprogramação. 
-Não obstante, os \textit{switches} e os componentes necessários para implementar as LUTs geram resistência elétrica à propagação dos pulsos de \textit{clock} do sistema, o que obriga os fabricantes a diminuir a frequência máxima de \textit{clock} do \textit{chip} e da placa. Por consequência disto, os FPGAs são mais lentos e consomem mais energia do que os \textit{ASIC}s.
+Não obstante, os \textit{switches} e os componentes necessários para implementar as LUTs geram resistência elétrica à propagação dos pulsos de \textit{clock} do sistema, o que obriga os fabricantes a diminuir a frequência máxima de \textit{clock} do \textit{chip} e da placa. Por consequência, os FPGAs são mais lentos e consomem mais energia do que os \textit{ASIC}s.
+
+Outra desvantagem de FPGAs é a programação. Apesar da popularidade de linguagens de descrição de \textit{hardware} no desenvolvimento de ASICs, o uso delas na programação de FPGAs por parte de pessoas leigas da área pode ser um empecilho inicial considerável, dada a necessidade de conhecimentos básicos de circuitos eletrônicos, como sinais de comunicação, protocolos de processamento de dados, máquinas de estados etc. A utilização de linguagens de alto nível, tais como C, para especificar o comportamento do circuito pode ajudar no entendimento desses conceitos básicos de desenvolvimento de \textit{hardware}, sabendo como os elementos e comandos da linguagem são mapeados a componentes do circuito.

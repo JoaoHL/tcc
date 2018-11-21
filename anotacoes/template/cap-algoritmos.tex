@@ -97,7 +97,7 @@ O TSP é frequentemente modelado usando grafos adirecionados. As cidades são cons
 	\end{itemize}
 \end{tsp-metrico}
 
-O caso métrico do TSP surge de forma natural pois, em exemplos reais como visitar todas as cidades de um estado brasileiro, sempre há uma rota entre duas cidades; além disso, percorrer a distância equivalente de uma rota que passa por uma cidade intermediária não deve ser maior do que a rota que vai direto para a cidade destino. Esse exemplo evidencia uma das grandes utilidades da resolução do problema: a otimização de rotas em aplicações de localização, com uso de GPS, a fim de diminuir gastos com transporte.
+O caso métrico do TSP surge de forma natural pois, em exemplos reais como visitar todas as cidades de um estado brasileiro, sempre há uma rota entre duas cidades; além disso, percorrer a distância equivalente de uma rota que passa por uma cidade intermediária não deve ser maior do que a rota que vai direto para a cidade destino. Esse exemplo aponta uma das grandes utilidades da resolução do problema: a otimização de rotas em aplicações de localização, com uso de GPS, a fim de diminuir gastos com transporte.
 
 O TSP métrico foi escolhido para implementação por ser condizente com situações reais, e apresentar um algoritmo de aproximação de tempo polinomial e implementação razoavelmente simples. O algoritmo em questão é uma 2-aproximação do TSP que calcula um caminho, no máximo, duas vezes mais comprido que o caminho ótimo do problema, como demonstrado por ~\cite{tsp:heuristics-tsp}.
 
@@ -149,7 +149,6 @@ A ideia por trás do algoritmo \ref{pseudocodigo-caminho-hamiltoniano} é usar a s
 No algoritmo \ref{pseudocodigo-caminho-hamiltoniano}, $P$ é um caminho euleriano em $G$. A sequência de vértices $C$ representa as arestas de $G$ que formam o caminho hamiltoniano, de tal forma que dois vértices consecutivos na sequência $v_i$ e $v_{i+1}$, $i \in 0, \dots, n-1$, implicam que a aresta $\bar{v_{i}v_{i+1}} \in E$ está contida no caminho. Note que o vértice $v_0$ é adicionado uma segunda vez ao final do algoritmo, para representar a aresta $\bar{v_{n}v_0}$ que fecha o caminho hamiltoniano.
 
 Na implementação em C, o código usa uma estrutura denominada \texttt{Edge}, descrita melhor no código \ref{estrutura-edge}. Os campos \texttt{to} e \texttt{from} guardam os vértices de origem e destino da aresta, ainda que o grafo seja adirecionado. O campo \texttt{weight} guarda o peso da aresta, e \texttt{deleted} é usado nas subrotinas do algoritmo para simular a exclusão das arestas do grafo. Além de \texttt{Edge}, uma matriz de adjacência foi utilizada para guardar os pesos de todas as arestas do grafo, além de vetores quem contêm os caminhos euleriano e hamiltoniano, e a árvore geradora mínima. Todos os campos são do tipo \texttt{short int} na tentativa de diminuir o tamanho das entradas e, por consequência, a quantidade de memória utilizada no circuito gerado.
-\newpage
 
 \begin{lstlisting}[style=c, label={estrutura-edge}, caption={Estrutura Edge da implementação do algoritmo de Rosenkrantz-Stearn-Lewis}]
 typedef struct edge {
