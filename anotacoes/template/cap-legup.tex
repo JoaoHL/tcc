@@ -82,7 +82,7 @@ onde
 REL \in \{\leq, \geq, =\}
 \end{equation}
 
-O termo "restrições de diferenças" dá-se pelas restrições serem compostas por diferenças de valores. Os termos $x_1$ e $x_2$ em \ref{difference-constraint} representam os ciclo aos quais duas operações, $op_1$ e $op_2$, devem ser mapeadas, onde $op_1$ é dependente de $op_2$. O termo à direita da inequação é uma constante que pode surgir dada a natureza da operação. Por exemplo, uma das operações pode ser uma leitura de memória e, por isso, necessitar de pelo menos $y$ ciclos de \textit{clock} para ser concluída.
+O termo "restrições de diferenças" ~dá-se pelas restrições serem compostas por diferenças de valores. Os termos $x_1$ e $x_2$ em \ref{difference-constraint} representam os ciclo aos quais duas operações, $op_1$ e $op_2$, devem ser mapeadas, onde $op_1$ é dependente de $op_2$. O termo à direita da inequação é uma constante que pode surgir dada a natureza da operação. Por exemplo, uma das operações pode ser uma leitura de memória e, por isso, necessitar de pelo menos $y$ ciclos de \textit{clock} para ser concluída.
 
 No processo de criação do sistema linear, o arcabouço mapeia as operações para serem feitas o mais cedo possível, dado que suas dependências são satisfeitas. Tal estratégia, chamada \textit{as-soon-as-possible scheduling} ou \textit{ASAP scheduling}, pode ser trocada para outra, oposta, chamada \textit{as-late-as-possible scheduling} ou \textit{ALAP scheduling}. Finalmente, após a modelagem do programa linear com as operações e suas dependências, o sistema é resolvido utilizando-se a biblioteca \textit{open source} \texttt{lpsolve} (http://lpsolve.sourceforge.net/). Ao resolver o programa linear, o ciclo ao qual cada operação $op_n$ pertence será armazenado na variável $x_n$.
 

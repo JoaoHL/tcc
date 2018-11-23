@@ -10,9 +10,11 @@ Este capítulo descreve os experimentos feitos com os códigos desenvolvidos, espe
 
 Para a execução dos experimentos, entradas específicas foram utilizadas em cada um dos algoritmos. As entradas foram utilizadas igualmente em ambas as implementações em \textit{software} e \textit{hardware}.
 
-O algoritmo de Huffman foi configurado com um texto de $682$ caracteres, parte de um texto de teste chamado \textit{Lorem ipsum}, gerado automaticamente por diversas ferramentas \textit{online}. O alfabeto utilizado foi a tabela ASCII, contendo 128 caracteres (incluindo os não-imprimíveis).
+O algoritmo de Huffman foi configurado com um texto de $682$ caracteres, parte de um texto de teste chamado \textit{Lorem ipsum}, gerado automaticamente por diversas ferramentas \textit{online}. O alfabeto utilizado foi a tabela ASCII, contendo 128 caracteres (incluindo os não-imprimíveis). Para testar a ordem de tempo de execução do programa, foram usados textos \textit{Lorem Ipsum} de tamanhos $n$ tais que $n \in {682, 1364, 2782, 5456}$.
 
-A 2-aproximação do TSP recebeu como entrada o $n = 999$, $n$ sendo o número de vértices do grafo.
+A 2-aproximação do TSP recebeu como entrada um número $m$ representando o número de vértices do grafo, tal que $m \in {24, 48, 96, 192}$. 
+
+Devido ao ambiente usado na simulação (uma máquina virtual Java), as simulações demoraram substancialmente, a ponto de demorar $24$ horas e $3$ minutos para $m = 192$. No entanto, os testes foram suficientes para mostrar a curva de crescimento da quantidade de ciclos de \textit{clock} em função do tamanho das entradas.
 
 \subsection{Implementação em software}
 
@@ -24,39 +26,76 @@ A compilação dos códigos foi feita usando o compilador da linguagem C \texttt{gc
 
 Os códigos C criados no desenvolvimento dos algoritmos descritos foram utilizados como entrada do LegUp no fluxo de puro \textit{hardware}. Não foram utilizadas opções de otimização, como as de compilação do compilador \textit{clang}, ou as de emparelhamento e escalonamento, como \textit{pipelining} de laços ou compartilhamento de unidades funcionais de adição.
 
-Devido à dificuldade em lidar com as saídas serializadas da placa, foram executadas $15$ simulações utilizando a ferramenta \textit{ModelSim}, dispobilizada pela Intel junto da ferramenta de programação de FPGAs \textit{Quartus Prime}\footnote{\url{https://www.intel.com/content/www/us/en/software/programmable/quartus-prime/overview.html}}. O \textit{ModelSim}\footnote{\url{https://www.intel.com/content/www/us/en/software/programmable/quartus-prime/model-sim.html}} foi executado através de uma opção de execução do \textit{makefile} do LegUp, dada a disponibilidade do arquivo Verilog gerado pela síntese de alto nível.
+Devido à dificuldade em lidar com as saídas serializadas da placa, foi executada $1$ simulação por entrada e por algoritmo, utilizando a ferramenta \textit{ModelSim}, dispobilizada pela Intel junto da ferramenta de programação de FPGAs \textit{Quartus Prime}\footnote{\url{https://www.intel.com/content/www/us/en/software/programmable/quartus-prime/overview.html}}. Inicialmente, mais simulações de \textit{hardware} foram feitas por instância de teste, mas como as medidas iniciais apresentaram variância e desvio padrão iguais a $0$, os testes subsequentes foram executados uma única vez. O \textit{ModelSim}\footnote{\url{https://www.intel.com/content/www/us/en/software/programmable/quartus-prime/model-sim.html}} foi executado através de uma opção de execução do \textit{makefile} do LegUp, dada a disponibilidade do arquivo Verilog gerado pela síntese de alto nível.
 
 O \textit{bitcode} gerado pelo fluxo do LegUp foi programado na FPGA a fim de testar se o resultado da síntese era relevante para fins práticos. Após uma pequena modificação no código para acender um LED caso o resultado do algoritmo fosse correto, a placa foi programada e o resultado foi positivo, executando os algoritmos e acendendo o LED dado o resultado correto da execução.
 
 \section{Resultados}
 
-Infelizmente, os resultados dos experimentos foram inconclusivos. Alguns problemas surgiram nessa fase para cada um dos algoritmos, de tal forma que não foi possível comparar a execução das duas implementações de cada um deles.
 
-No algoritmo de Huffman, as simulações do \textit{hardware} foram executadas com sucesso usando a metodologia descrita anteriormente, e os resultados estão descritos na tabela \ref{tabela-simulacao-hardware-huffman}. Nota-se que a variância e o desvio padrão são iguais a $0$, dada a exatidão da simulação dos ciclos de \textit{clock} de um \textit{hardware} e da execução das instruções da máquina de estados do circuito.
 
-A avaliação de desempenho realizada com o \textit{OProfile} no algoritmo de Huffman não gerou resultados conclusivos. A principal razão reside no fato de que a execução do \textit{profiler} com o arquivo compilado do algoritmo, devido à rapidez com que o programa terminava, não conseguiu medir os ciclos de \textit{clock} utilizados pelo processo de forma relevante. O relatório do \textit{profiler} acusava ter medido quantidades em torno de 15 ciclos de \textit{clock}, o que, dada a natureza do algoritmo, não é condizente com o esperado. 
-
-\begin{table}[H]
+\begin{table}[htb]
 	\centering
-	\begin{tabular}{|c|c|c|} \hline
-		Média & Variância & Desvio padrão  \\
+	\begin{tabular}{|c|c|c|c|} \hline
+		Tamanho do texto (caracteres) & Média (ciclos de \textit{clock}) & Desvio padrão\\\hline
+		682 &  816.830  & 29.301,11 \\\hline
+		1.364 & 841.969 & 262.462,75 \\\hline
+		2.728 & 946.833 & 50.362,63 \\\hline
+		5.456 & 990.615 & 315.394,97 \\\hline
+	\end{tabular}
+	\caption{\label{tabela-simulacao-software-huffman}Dados das execuções do algoritmo de Huffman em software}
+\end{table}
+
+\begin{table}[htb]
+	\centering
+	\begin{tabular}{|c|c|} \hline
+		Tamanho do texto (caracteres) & Ciclos de \textit{clock}\\
 		\hline
-		12.066 & 0 & 0  \\
-		\hline
+		682 & 12.066 \\\hline
+		1364 & 16.158 \\\hline
+		2728 & 24.342 \\\hline
+		5456 & 40.710 \\\hline
 	\end{tabular}
 	\caption{\label{tabela-simulacao-hardware-huffman}Dados da simulação em hardware do algoritmo de Huffman}
 \end{table}
 
-O oposto ocorreu no caso da aproximação do TSP. Devido à complexidade do algoritmo, foi possível medir mais precisamente os ciclos de \textit{clock} utilizados pelo arquivo compilado e executado via \textit{software}, apresentando os resultados descritos na tabela \ref{tabela-simulacao-software-tsp}. Na simulação de \textit{hardware}, entretanto, ocorreram problemas de referência de memória não acusados no programa compilado mas acusados no Verilog gerado pelo LegUp, de tal forma que durante a etapa de cálculo do circuito euleriano do grafo, a simulação não terminava. Dessa forma, não foi possível refazer as experiências em tempo hábil usando a placa, devido à falta de conhecimento necessário para visualizar os ciclos de \textit{clock} percorridos até o fim da execução do algoritmo.
+falar sobre a comparação dos ciclos
 
-\begin{table}[H]
+\begin{figure}[H]
 	\centering
+	\includegraphics[width=15cm]{figuras/grafico-huffman}
+	\caption{\label{fig:grafico-huffman}Comparação de ciclos de clock do algoritmo de Huffman entre execuções em software e hardware.}
+\end{figure}
+
+
+
+\begin{table}[htb]
 	\centering
 	\begin{tabular}{|c|c|c|} \hline
-		Média & Variância & Desvio padrão  \\
-		\hline
-		248.013 & 1.032.845 & 1.016,3  \\
-		\hline
+		Tamanho da entrada (vértices) & Média (ciclos de \textit{clock}) & Desvio padrão\\\hline
+		24  & 1.376.867   & 62.074,81 \\\hline
+		48  & 4.238.226   & 25.501,12 \\\hline
+		96  & 25.392.184  & 174.893,74 \\\hline
+		192 & 184.441.878 & 441.135,94 \\\hline
 	\end{tabular}
-	\caption{\label{tabela-simulacao-software-tsp}Dados da simulação em software do algoritmo de aproximação do TSP}
+	\caption{\label{tabela-simulacao-software-huffman}Dados das execuções do algoritmo de Huffman em software}
 \end{table}
+
+\begin{table}[htb]
+	\centering
+	\begin{tabular}{|c|c|} \hline
+		Tamanho da entrada (vértices) & Ciclos de \textit{clock}\\
+		\hline
+		24  & 229.790 \\\hline
+		48  & 1.405.427 \\\hline
+		96  & 9.519.171 \\\hline
+		192 & 69.323.457 \\\hline
+	\end{tabular}
+	\caption{\label{tabela-simulacao-hardware-huffman}Dados da simulação em hardware do algoritmo de Huffman}
+\end{table}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=15cm]{figuras/grafico-tsp}
+	\caption{\label{fig:grafico-tsp}Comparação de ciclos de clock do algoritmo de Rosenkrantz-Stearn-Lewis entre execuções em software e hardware.}
+\end{figure}

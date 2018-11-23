@@ -7,26 +7,53 @@
 
       function drawChart() {
         var data = google.visualization.arrayToDataTable([
-          ['N', 'Ciclos de clock (hardware)', 'Ciclos de clock (software)'],
-          [ 171,  6729, 5],
-          [ 381,  9052/6729, 10/5],
-          [ 682,  12066/9052, 15/10],
-          [ 1364, 16158/12066, 20/15]
+          ['N', 'Ciclos de clock (hardware)', 'Média de ciclos de clock (software)'],
+          [ 24,  229790,   1376867],
+          [ 48,  1405427,  4238226],
+          [ 96,  9519171,  25392184],
+          [ 192, 69323457, 184441878]
         ]);
 
         var options = {
-          title: 'Simulações do algoritmo de Huffman',
+          title: 'Comparação de ciclos de clock - TSP',
           curveType: 'function',
           legend: { position: 'bottom' }
         };
 
-        var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
+        var chart = new google.visualization.LineChart(document.getElementById('curve_chart_tsp'));
+
+        chart.draw(data, options);
+      }
+    </script>
+
+    <script type="text/javascript">
+      google.charts.load('current', {'packages':['corechart']});
+      google.charts.setOnLoadCallback(drawChart);
+
+      function drawChart() {
+        var data = google.visualization.arrayToDataTable([
+          ['Tamanho do texto', 'Ciclos (hardware, offset = 900.000)', 'Média de ciclos (software)'],
+          [ 682,    12066+900000, 816830],
+          [ 2*682,  16158+900000, 841969],
+          [ 4*682,  24342+900000, 946833],
+          [ 8*682,  40710+900000, 990615]
+        ]);
+
+        var options = {
+          title: 'Comparação de ciclos de clock - Huffman',
+          curveType: 'function',
+          legend: { position: 'bottom' }
+        };
+
+        var chart = new google.visualization.LineChart(document.getElementById('curve_chart_huffman'));
 
         chart.draw(data, options);
       }
     </script>
   </head>
   <body>
-    <div id="curve_chart" style="width: 900px; height: 500px"></div>
+    <div id="curve_chart_huffman" style="width: 900px; height: 500px"></div>
+    <p><br/></p>
+    <div id="curve_chart_tsp" style="width: 900px; height: 500px"></div>
   </body>
 </html>
