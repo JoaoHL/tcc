@@ -2,7 +2,7 @@
 \chapter{LegUp High-Level Synthesis}
 \label{cap:legup}
 
-LegUp é um arcabouço \textit{open-source} de síntese de alto nível desenvolvido na Universidade de Toronto (Canadá). Sua síntese converte códigos em C para Verilog e usa algumas ferramentas comerciais como o Quartus Prime II, da Intel, e o Tiger MIPS Processor, da Universidade de Cambridge (Reino Unido). 
+LegUp é um arcabouço \textit{open-source} de síntese de alto nível desenvolvido na Universidade de Toronto (Canadá). Sua síntese converte códigos em C para Verilog e usa algumas ferramentas comerciais como o Quartus Prime II, da Intel, e o Tiger MIPS Processor, da Universidade de Cambridge (Reino Unido). Seguindo o modelo trifásico de compiladores (como explicado no capítulo capítulo \ref{cap:conceitos}), ele implementa o \textit{back-end} de um compilador, usando o CLang como \textit{front-end} e o LLVM Pass Framework como otimizador.
 
 Atualmente em sua versão 4.0\footnote{A partir da versão 5.0, o LegUp tornou-se comercial.}, apresenta uma arquitetura que permite alterações em seus algoritmos de forma relativamente simples, devido à sua modularização. Como sua arquitetura usa uma compilação em escopo de funções para implementação em \textit{hardware} - isto é, ele usa funções como unidade básica para síntese de \textit{hardware} -, é possível, por exemplo, especificar funções específicas para aceleração em \textit{hardware} enquanto o resto do programa é executado em \textit{software}; tal técnica é chamada de "fluxo híbrido" pelos criadores da ferramenta e é explicada melhor na seção \ref{subsubsection:fluxo-hibrido}.
 
@@ -18,7 +18,7 @@ Os conhecimentos aqui expostos foram sintetizados a partir do uso da ferramenta,
 
 A figura acima representa o fluxo geral do arcabouço. A entrada da ferramenta é um programa desenvolvido em C puro, que é compilado, otimizado e transformado em sua representação intermediária (IR) pela LLVM (seção \ref{section:llvm}). Em seguida, na fase de alocação, o LegUp usa os dados sobre o \textit{hardware} no qual queremos implementar o algoritmo para alocar os recursos disponíveis no \textit{chip}, tais como blocos de memória e unidades lógicas. Na etapa de escalonamento, as instruções da IR são mapeadas do grafo de controle e fluxo de dados para uma máquina de estados finita, onde cada estado é designado para um ciclo de \textit{clock} específico. Depois esse mapeamento, o algoritmo de síntese atribui, a cada estado da máquina de estados, os recursos do \textit{chip} necessários para a execução de suas instruções. Com as operações e recursos definidos, o arcabouço gera o RTL equivalente ao algoritmo e, por fim, o usa para criar um arquivo de descrição de \textit{hardware}, escrito em Verilog.
 
-Dada a forma como o arcabouço foi construído, isto é, na linguagem C++, utilizando o paradigma de programação orientada a objetos para modularizar o código, as etapas da síntese de alto nível feitas sobre o código compilado são implementadas em classes separadas, uma para cada etapa.
+Dada a forma como o arcabouço foi construído, isto é, na linguagem C++ e utilizando o paradigma de programação orientada a objetos para modularizar o código, as etapas da síntese de alto nível feitas sobre o código compilado são implementadas em classes separadas, uma para cada etapa.
 
 \subsection{Fluxos de transformação}
 

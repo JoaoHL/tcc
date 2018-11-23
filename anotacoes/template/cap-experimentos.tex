@@ -8,17 +8,19 @@ Este capítulo descreve os experimentos feitos com os códigos desenvolvidos, espe
 
 \subsection{Configurações dos algoritmos}
 
-Para a execução dos experimentos, entradas específicas foram utilizadas em cada um dos algoritmos. As entradas foram utilizadas igualmente em ambas as implementações em \textit{software} e \textit{hardware}.
+Para a execução dos experimentos, tamanhos de entrada específicos foram utilizados em cada um dos algoritmos. As entradas foram utilizadas igualmente em ambas as implementações em \textit{software} e \textit{hardware}.
 
-O algoritmo de Huffman foi configurado com um texto de $682$ caracteres, parte de um texto de teste chamado \textit{Lorem ipsum}, gerado automaticamente por diversas ferramentas \textit{online}. O alfabeto utilizado foi a tabela ASCII, contendo 128 caracteres (incluindo os não-imprimíveis). Para testar a ordem de tempo de execução do programa, foram usados textos \textit{Lorem Ipsum} de tamanhos $n$ tais que $n \in {682, 1364, 2782, 5456}$.
+O algoritmo de Huffman foi configurado com um texto de $682$ caracteres, parte de um texto de teste chamado \textit{Lorem ipsum}, gerado automaticamente por diversas ferramentas \textit{online}. O alfabeto utilizado foi a tabela ASCII, contendo 128 caracteres (incluindo os não-imprimíveis). Para testar a ordem de tempo de execução do programa, foram usados textos \textit{Lorem Ipsum} de tamanhos $n$ tais que $n \in \{682, 1364, 2782, 5456\}$.
 
-A 2-aproximação do TSP recebeu como entrada um número $m$ representando o número de vértices do grafo, tal que $m \in {24, 48, 96, 192}$. 
+A 2-aproximação do TSP recebeu como entrada um número $m$ representando o número de vértices do grafo, tal que $m \in \{24, 48, 96, 192\}$. 
 
 Devido ao ambiente usado na simulação (uma máquina virtual Java), as simulações demoraram substancialmente, a ponto de demorar $24$ horas e $3$ minutos para $m = 192$. No entanto, os testes foram suficientes para mostrar a curva de crescimento da quantidade de ciclos de \textit{clock} em função do tamanho das entradas.
 
 \subsection{Implementação em software}
 
-A execução dos algoritmos implementados em \textit{software} foi feita com o uso do \textit{profiler} \textit{OProfile}\footnote{\url{http://oprofile.sourceforge.net/news/}}, disponível no repositório padrão da distribuição Ubuntu do sistema operacional Linux. O \textit{OProfile} consegue medir uma contagem aproximada de eventos do processador que ocorrem durante a execução de um programa. No caso deste trabalho, ele foi utilizado para contar a quantidade de ciclos de \textit{clock} executados enquanto o processo especificado estava usando o processador. Apesar do interesse em se medir também o número de acessos à memória, a dificuldade em se instrumentar essa medição nos algoritmos em \textit{hardware} faria com que o resultado não fosse utilizado, devido à falta de dados da execução em \textit{hardware} para comparação.
+A execução dos algoritmos implementados em \textit{software} foi feita com o uso do \textit{profiler} \textit{OProfile}\footnote{\url{http://oprofile.sourceforge.net/news/}}, disponível no repositório padrão da distribuição Ubuntu do sistema operacional Linux. O \textit{OProfile} consegue medir uma contagem aproximada de eventos do processador que ocorrem durante a execução de um programa. No caso deste trabalho, ele foi utilizado para contar a quantidade total de ciclos de \textit{clock} executados enquanto o processo especificado estava sendo executado, usando o comando \texttt{ocount} do OProfile. Por "quantidade total" entende-se a quantidade de ciclos que todos os processos usaram, não apenas os ciclos nos quais os programas a serem testados usavam o processador. Tal técnica foi adotada pois foi considerada mais verossímil com a realidade, onde circuitos de propósito geral frequentemente têm vários processos em execução.
+
+Apesar do interesse em se medir também o número de acessos à memória, a dificuldade em se instrumentar essa medição nos algoritmos em \textit{hardware} faria com que o resultado não fosse utilizado, devido à falta de dados da execução em \textit{hardware} para comparação.
 
 A compilação dos códigos foi feita usando o compilador da linguagem C \texttt{gcc} versão $5.4.0$, sem nenhuma opção de otimização. A execução foi realizada $15$ vezes via terminal em um computador com processador Intel Core $i5$, com dois núcleos de $1.8$ GHz (totalizando frequência de $3.2$ GHz em programas paralelizáveis), com aproximadamente $10$ \textit{gigabytes} de memória DDR3.
 
@@ -30,9 +32,12 @@ Devido à dificuldade em lidar com as saídas serializadas da placa, foi executada
 
 O \textit{bitcode} gerado pelo fluxo do LegUp foi programado na FPGA a fim de testar se o resultado da síntese era relevante para fins práticos. Após uma pequena modificação no código para acender um LED caso o resultado do algoritmo fosse correto, a placa foi programada e o resultado foi positivo, executando os algoritmos e acendendo o LED dado o resultado correto da execução.
 
+A placa utilizada foi a Helio Board SoC FPGA, cujo \textit{chip} FPGA é uma Intel Cyclone V, modelo 5CSXFC6C6U23C\footnote{Mais informações sobre a placa: \url{https://rocketboards.org/foswiki/Documentation/MacnicaHelioSoCEvaluationKit}}. Dentre os recursos disponíveis, destaca-se a presença de $41.509$ BLCs, $110.000$ BLBs e $557$ blocos M10K de memória RAM que totalizam $696.250$ bytes de memória.
+Ambas as execuções via simulação e via programação da placa usaram uma frequência de \textit{clock} de $70$ MHz.
+
 \section{Resultados}
 
-
+Os resultados das experiências com respeito ao algoritmo de Huffman são mostrados nas tabelas \ref{tabela-simulacao-software-huffman} e \ref{tabela-simulacao-hardware-huffman}. O gráfico \ref{fig:grafico-huffman}, construído a partir dos dados dessas tabelas, ilustra o aspecto linear da ordem de tempo de execução do algoritmo para um texto suficientemente maior que o tamanho do alfabeto adotado no programa.
 
 \begin{table}[htb]
 	\centering
@@ -59,15 +64,13 @@ O \textit{bitcode} gerado pelo fluxo do LegUp foi programado na FPGA a fim de te
 	\caption{\label{tabela-simulacao-hardware-huffman}Dados da simulação em hardware do algoritmo de Huffman}
 \end{table}
 
-falar sobre a comparação dos ciclos
-
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=15cm]{figuras/grafico-huffman}
 	\caption{\label{fig:grafico-huffman}Comparação de ciclos de clock do algoritmo de Huffman entre execuções em software e hardware.}
 \end{figure}
 
-
+Para os experimentos feitos com o algoritmo de Rosenkrantz-Stearn-Lewis, os dados gerados são representados nas tabelas \ref{tabela-simulacao-software-tsp} e \ref{tabela-simulacao-hardware-tsp}. O gráfico \ref{fig:grafico-tsp} mostra uma comparação visual desses dados. Nota-se o caráter quadrático da ordem do tempo de execução do algoritmo.
 
 \begin{table}[htb]
 	\centering
@@ -78,8 +81,8 @@ falar sobre a comparação dos ciclos
 		96  & 25.392.184  & 174.893,74 \\\hline
 		192 & 184.441.878 & 441.135,94 \\\hline
 	\end{tabular}
-	\caption{\label{tabela-simulacao-software-huffman}Dados das execuções do algoritmo de Huffman em software}
-\end{table}
+	\caption{\label{tabela-simulacao-software-tsp}Dados das execuções do algoritmo de Rosenkrantz-Stearn-Lewis em software}
+\end{table}Além disso, o
 
 \begin{table}[htb]
 	\centering
@@ -91,7 +94,7 @@ falar sobre a comparação dos ciclos
 		96  & 9.519.171 \\\hline
 		192 & 69.323.457 \\\hline
 	\end{tabular}
-	\caption{\label{tabela-simulacao-hardware-huffman}Dados da simulação em hardware do algoritmo de Huffman}
+	\caption{\label{tabela-simulacao-hardware-tsp}Dados da simulação em hardware do algoritmo de Rosenkrantz-Stearn-Lewis}
 \end{table}
 
 \begin{figure}[H]
@@ -99,3 +102,22 @@ falar sobre a comparação dos ciclos
 	\includegraphics[width=15cm]{figuras/grafico-tsp}
 	\caption{\label{fig:grafico-tsp}Comparação de ciclos de clock do algoritmo de Rosenkrantz-Stearn-Lewis entre execuções em software e hardware.}
 \end{figure}
+
+Ambos os gráficos apontam que o crescimento do tempo de execução no ambiente de \textit{software} é maior que no ambiente de \textit{hardware}. A causa mais provável para esse fenômeno é o fato de que ao aumentar o tamanho da entrada do \textit{software}, são necessários mais períodos de escalonamento dos processos por parte do sistema operacional, já que o tempo de execução dos programas em si aumenta. Em \textit{hardware}, como todo o processamento é dedicado à execução dos algoritmos (uma vez que o circuito foi construído especificamente para a execução do algoritmo), não há \textit{overhead} gerado pela execução da troca de contexto dos escalonadores, nem ociosidade do algoritmo enquanto outros processos são executados. Ou seja: em \textit{hardware}, os algoritmos estão sendo executados $100\%$ do tempo.
+
+Mesmo com a exclusividade dos algoritmos em usar os recursos da placa, vale lembrar que a diferença entre as frequências de \textit{clock} máxima de um \textit{chip} ASIC (como um processador Intel) e de uma placa FPGA é de $1$ ou $2$ ordens de grandezas. Por exemplo, a frequência máxima da placa usada nos experimentos é de $100$ MHz, contra $3.2$ GHz da máquina utilizada para executar os \textit{softwares}, apresentando uma proporção de $1$ para $32$ ciclos de \textit{clock} entre os dispositivos. No caso das máquinas usadas neste trabalho, a placa FPGA e o computador executavam, respectivamente, $1$ ciclo de \textit{clock} a cada $1,4 \times 10^{-8}$ e $5,6 \times 10^{-10}$ segundos. Usando os dados do algoritmo de Huffman para um texto de $5.456$ caracteres, o tempo de execução (em segundos) em \textit{hardware} e \textit{software} apresentados em \ref{calculo-tempo-hardware-huffman} e \ref{calculo-tempo-software-huffman}.
+
+\begin{equation}
+\label{calculo-tempo-hardware-huffman}
+\centering
+1,4 \times 10^{-8} \times 40.710 = 5,6994 \times 10^{-4}s
+\end{equation}
+
+\begin{equation}
+\label{calculo-tempo-software-huffman}
+\centering
+5,6 \times 10^{-10} \times 990.615 = 5,5474 \times 10^{-4}s
+\end{equation}
+
+Há evidências, portanto, que a utilização de um \textit{hardware} dedicado e uma máquina de proósito geral podem apresentar o mesmo desempenho, no que diz respeito ao tempo de execução.
+
