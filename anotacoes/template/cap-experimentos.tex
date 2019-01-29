@@ -10,9 +10,9 @@ Este capítulo descreve os experimentos feitos com os códigos desenvolvidos, espe
 
 Para a execução dos experimentos, tamanhos de entrada específicos foram utilizados em cada um dos algoritmos. As entradas foram utilizadas igualmente em ambas as implementações em \textit{software} e \textit{hardware}.
 
-O algoritmo de Huffman foi configurado com um texto de $682$ caracteres, parte de um texto de teste chamado \textit{Lorem ipsum}, gerado automaticamente por diversas ferramentas \textit{online}. O alfabeto utilizado foi a tabela ASCII, contendo 128 caracteres (incluindo os não-imprimíveis). Para testar a ordem de tempo de execução do programa, foram usados textos \textit{Lorem Ipsum} de tamanhos $n$ tais que $n \in \{682, 1364, 2782, 5456\}$.
+O algoritmo de Huffman foi configurado com um texto de $682$ caracteres, parte de um texto de teste chamado \textit{Lorem ipsum}, gerado automaticamente por diversas ferramentas \textit{online}. O alfabeto utilizado foi a tabela ASCII, contendo 128 caracteres (incluindo os não-imprimíveis). Para testar a ordem de tempo de execução do programa, foram usados textos \textit{Lorem Ipsum} de tamanhos $n$ tais que $n \in \{682, 1364, 2046, 2728, 3410, 4092, 4774, 5456, 6138, 6820, 7502, 8184, 8866, 9548, 10230, 10912\}$.
 
-A 2-aproximação do TSP recebeu como entrada um número $m$ representando o número de vértices do grafo, tal que $m \in \{24, 48, 96, 192\}$. 
+A 2-aproximação do TSP recebeu como entrada um número $m$ representando o número de vértices do grafo, tal que $m \in \{12, 24, 36, 48,, 60, 72, 84, 96, 108, 120, 132, 144, 156, 168, 180, 192\}$. 
 
 Devido ao ambiente usado na simulação (uma máquina virtual Java), as simulações demoraram substancialmente, a ponto de demorar $24$ horas e $3$ minutos para $m = 192$. No entanto, os testes foram suficientes para mostrar a curva de crescimento da quantidade de ciclos de \textit{clock} em função do tamanho das entradas.
 
@@ -39,59 +39,107 @@ Ambas as execuções via simulação e via programação da placa usaram uma frequênci
 
 Os resultados das experiências com respeito ao algoritmo de Huffman são mostrados nas tabelas \ref{tabela-simulacao-software-huffman} e \ref{tabela-simulacao-hardware-huffman}. O gráfico \ref{fig:grafico-huffman}, construído a partir dos dados dessas tabelas, ilustra o aspecto linear da ordem de tempo de execução do algoritmo para um texto suficientemente maior que o tamanho do alfabeto adotado no programa. A curva no gráfico \ref{fig:grafico-huffman} sobre os ciclos em \textit{hardware} foi deslocada em $900.000$ unidades para melhorar a visualização do gráfico como um todo.
 
-\begin{table}[htb]
+\begin{table}[H]
 	\centering
 	\begin{tabular}{|c|c|c|c|} \hline
 		Tamanho do texto (caracteres) & Média (ciclos de \textit{clock}) & Desvio padrão\\\hline
 		682 &  816.830  & 29.301,11 \\\hline
 		1.364 & 841.969 & 26.246,27 \\\hline
+		2.046 & 919.522 & 29.937,78 \\\hline
 		2.728 & 946.833 & 50.362,63 \\\hline
+		3.410 & 975.786 & 79.094,14 \\\hline
+		4.092 & 978.415 & 51.311,15 \\\hline
+		4.774 & 964.691 & 35.301,45 \\\hline
 		5.456 & 990.615 & 31.539,49 \\\hline
+		6.138 & 996.154 & 59.283,06 \\\hline
+		6.820 & 1.006.365 & 44.616,39 \\\hline
+		7.502 & 1.012.693 & 33.215,43 \\\hline
+		8.184 & 1.017.322 & 24.861,31 \\\hline
+		8.866 & 1.025.059 & 24.720,50 \\\hline
+		9.548 & 1.038.327 & 49.803,70 \\\hline
+		10.230 & 1.037.896 & 35.646,26 \\\hline
+		10.912 & 1.053.150 & 37.941,55 \\\hline
 	\end{tabular}
 	\caption{\label{tabela-simulacao-software-huffman}Dados das execuções do algoritmo de Huffman em software}
 \end{table}
 
-\begin{table}[htb]
+\begin{table}[H]
 	\centering
 	\begin{tabular}{|c|c|} \hline
 		Tamanho do texto (caracteres) & Ciclos de \textit{clock}\\
 		\hline
 		682 & 12.066 \\\hline
-		1364 & 16.158 \\\hline
-		2728 & 24.342 \\\hline
-		5456 & 40.710 \\\hline
+		1.364 & 16.158 \\\hline
+		2.046 & 20.250 \\\hline
+		2.728 & 24.342 \\\hline
+		3.410 & 28.434 \\\hline
+		4.092 & 32.526 \\\hline
+		4.774 & 36.618 \\\hline
+		5.456 & 40.710 \\\hline
+		6.138 & 44.802 \\\hline
+		6.820 & 48.894 \\\hline
+		7.502 & 52.986 \\\hline
+		8.184 & 57.078 \\\hline
+		8.866 & 61.170 \\\hline
+		9.548 & 65.262 \\\hline
+		10.230 & 69.354 \\\hline
+		10.912 & 74.235 \\\hline
 	\end{tabular}
 	\caption{\label{tabela-simulacao-hardware-huffman}Dados da simulação em hardware do algoritmo de Huffman}
 \end{table}
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=15cm]{figuras/grafico-huffman}
+	\includegraphics[width=13cm]{figuras/grafico-huffman}
 	\caption{\label{fig:grafico-huffman}Comparação de ciclos de clock do algoritmo de Huffman entre execuções em software e hardware.}
 \end{figure}
 
 Para os experimentos feitos com o algoritmo de Rosenkrantz-Stearn-Lewis, os dados gerados são representados nas tabelas \ref{tabela-simulacao-software-tsp} e \ref{tabela-simulacao-hardware-tsp}. O gráfico \ref{fig:grafico-tsp} mostra uma comparação visual desses dados. Nota-se o caráter quadrático da ordem do tempo de execução do algoritmo.
 
-\begin{table}[htb]
+\begin{table}[H]
 	\centering
 	\begin{tabular}{|c|c|c|} \hline
 		Tamanho da entrada (vértices) & Média (ciclos de \textit{clock}) & Desvio padrão\\\hline
+		12  & 979.847     & 4.966,96 \\\hline
 		24  & 1.376.867   & 62.074,81 \\\hline
+		36  & 2.544.276   & 36.565,32 \\\hline
 		48  & 4.238.226   & 25.501,12 \\\hline
+		60  & 7.290.301   & 95.772,14 \\\hline
+		72  & 12.240.208   & 188.018,34 \\\hline
+		84  & 18.376.907   & 317.427,61 \\\hline
 		96  & 25.392.184  & 174.893,74 \\\hline
+		108  & 36.580.303   & 651.705,61 \\\hline
+		120  & 45.496.549   & 12.77.070,90 \\\hline
+		132  & 63.995.800   & 1.383.403,12 \\\hline
+		144  & 82.581.032   & 1.260.099,51 \\\hline
+		156  & 104.586.325   & 1.046.594,03 \\\hline
+		168  & 129.343.059   & 878.890,74 \\\hline
+		180  & 150.005.045   & 1.107.449,01 \\\hline
 		192 & 184.441.878 & 441.135,94 \\\hline
 	\end{tabular}
 	\caption{\label{tabela-simulacao-software-tsp}Dados das execuções do algoritmo de Rosenkrantz-Stearn-Lewis em software}
-\end{table}Além disso, o
+\end{table}
 
-\begin{table}[htb]
+\begin{table}[H]
 	\centering
 	\begin{tabular}{|c|c|} \hline
 		Tamanho da entrada (vértices) & Ciclos de \textit{clock}\\
 		\hline
+		12  & 41.855 \\\hline
 		24  & 229.790 \\\hline
+		36  & 655.461 \\\hline
 		48  & 1.405.427 \\\hline
+		60  & 2.580.465 \\\hline
+		72  & 4.253.286 \\\hline
+		84  & 6.547.620 \\\hline
 		96  & 9.519.171 \\\hline
+		108  & 13.280.668 \\\hline
+		120  & 17.911.164 \\\hline
+		132 &  23.519.271 \\\hline
+		144  & 30.181.566 \\\hline
+		156  & 38.028.744 \\\hline
+		168  & 47.178.533 \\\hline
+		180  & 57.484.346 \\\hline
 		192 & 69.323.457 \\\hline
 	\end{tabular}
 	\caption{\label{tabela-simulacao-hardware-tsp}Dados da simulação em hardware do algoritmo de Rosenkrantz-Stearn-Lewis}
@@ -99,7 +147,7 @@ Para os experimentos feitos com o algoritmo de Rosenkrantz-Stearn-Lewis, os dado
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=15cm]{figuras/grafico-tsp}
+	\includegraphics[width=13cm]{figuras/grafico-tsp}
 	\caption{\label{fig:grafico-tsp}Comparação de ciclos de clock do algoritmo de Rosenkrantz-Stearn-Lewis entre execuções em software e hardware.}
 \end{figure}
 
@@ -119,5 +167,19 @@ Mesmo com a exclusividade dos algoritmos em usar os recursos da placa, vale lemb
 5,6 \times 10^{-10} \times 990.615 = 5,5474 \times 10^{-4}s
 \end{equation}
 
-Há evidências, portanto, que a utilização de um \textit{hardware} dedicado e uma máquina de proósito geral podem apresentar o mesmo desempenho, no que diz respeito ao tempo de execução.
+Da mesma forma, para o algoritmo de Rosenkrantz-Stern-Lewis, para um grafo de $192$ vértices, temos o tempo de execução, em segundos, apresentados em \ref{calculo-tempo-hardware-tsp} e \ref{calculo-tempo-software-tsp}.
+
+\begin{equation}
+\label{calculo-tempo-hardware-tsp}
+\centering
+1,4 \times 10^{-8} \times 69.323.457 = 9,7053 \times 10^{-1}s
+\end{equation}
+
+\begin{equation}
+\label{calculo-tempo-software-tsp}
+\centering
+5,6 \times 10^{-10} \times 184.441.878 = 1,0328 \times 10^{-1}s
+\end{equation}
+
+Há evidências, portanto, que a utilização de um \textit{hardware} dedicado e uma máquina de propósito geral podem apresentar desempenhos muito similares no que diz respeito ao tempo de execução.
 
