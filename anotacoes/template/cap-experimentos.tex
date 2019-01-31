@@ -10,11 +10,11 @@ Este capítulo descreve os experimentos feitos com os códigos desenvolvidos, espe
 
 Para a execução dos experimentos, tamanhos de entrada específicos foram utilizados em cada um dos algoritmos. As entradas foram utilizadas igualmente em ambas as implementações em \textit{software} e \textit{hardware}.
 
-O algoritmo de Huffman foi configurado com um texto de $682$ caracteres, parte de um texto de teste chamado \textit{Lorem ipsum}, gerado automaticamente por diversas ferramentas \textit{online}. O alfabeto utilizado foi a tabela ASCII, contendo 128 caracteres (incluindo os não-imprimíveis). Para testar a ordem de tempo de execução do programa, foram usados textos \textit{Lorem Ipsum} de tamanhos $n$ tais que $n \in \{682, 1364, 2046, 2728, 3410, 4092, 4774, 5456, 6138, 6820, 7502, 8184, 8866, 9548, 10230, 10912\}$.
+O algoritmo de Huffman foi configurado com um texto de $682$ caracteres, parte de um texto de teste chamado \textit{Lorem ipsum}, gerado automaticamente por diversas ferramentas \textit{online}. O alfabeto utilizado foi a tabela ASCII, contendo 128 caracteres (incluindo os não-imprimíveis). Para testar a ordem de tempo de execução do programa, foram usados textos \textit{Lorem Ipsum} de tamanhos $n$ tais que $n \in$ \{682, 1364, 2046, 2728, 3410, 4092, 4774, 5456, 6138, 6820, 7502, 8184, 8866, 9548, 10230, 10912\}.
 
-A 2-aproximação do TSP recebeu como entrada um número $m$ representando o número de vértices do grafo, tal que $m \in \{12, 24, 36, 48,, 60, 72, 84, 96, 108, 120, 132, 144, 156, 168, 180, 192\}$. 
+A 2-aproximação do TSP recebeu como entrada um número $m$ representando o número de vértices do grafo, tal que $m \in$ \{12, 24, 36, 48, 60, 72, 84, 96, 108, 120, 132, 144, 156, 168, 180, 192\}. 
 
-Devido ao ambiente usado na simulação (uma máquina virtual Java), as simulações demoraram substancialmente, a ponto de demorar $24$ horas e $3$ minutos para $m = 192$. No entanto, os testes foram suficientes para mostrar a curva de crescimento da quantidade de ciclos de \textit{clock} em função do tamanho das entradas.
+O tamanho e quantidade das instâncias de ambos os algoritmos foram escolhidas visando uma visualização melhor dos dados, junto de uma maior verossimilhança com a realidade. Ambos os algoritmos tiveram o tamanho de suas instâncias uniformemente espaçados em $682$ caracteres no algoritmo de Huffman, e $12$ vértices no algoritmo de Rosenkrantz-Stearn-Lewis. Devido ao ambiente usado na simulação (uma máquina virtual Java), as simulações demoraram substancialmente, a ponto de demorar $24$ horas e $3$ minutos para $m = 192$. O tamanho máximo do texto no algoritmo de Huffman foi limitado em $10912$ caracteres devido ao esgotamento da memória interna do modelo de placa usado na simulação. Apesar disso, os testes foram suficientes para mostrar a curva de crescimento da quantidade de ciclos de \textit{clock} em função do tamanho das entradas.
 
 \subsection{Implementação em software}
 
@@ -30,19 +30,19 @@ Os códigos C criados no desenvolvimento dos algoritmos descritos foram utilizado
 
 Devido à dificuldade em lidar com as saídas serializadas da placa, foi executada $1$ simulação por entrada e por algoritmo, utilizando a ferramenta \textit{ModelSim}, dispobilizada pela Intel junto da ferramenta de programação de FPGAs \textit{Quartus Prime}\footnote{\url{https://www.intel.com/content/www/us/en/software/programmable/quartus-prime/overview.html}}. Inicialmente, mais simulações de \textit{hardware} foram feitas por instância de teste, mas como as medidas iniciais apresentaram variância e desvio padrão iguais a $0$, os testes subsequentes foram executados uma única vez. O \textit{ModelSim}\footnote{\url{https://www.intel.com/content/www/us/en/software/programmable/quartus-prime/model-sim.html}} foi executado através de uma opção de execução do \textit{makefile} do LegUp, dada a disponibilidade do arquivo Verilog gerado pela síntese de alto nível.
 
-O \textit{bitcode} gerado pelo fluxo do LegUp foi programado na FPGA a fim de testar se o resultado da síntese era relevante para fins práticos. Após uma pequena modificação no código para acender um LED caso o resultado do algoritmo fosse correto, a placa foi programada e o resultado foi positivo, executando os algoritmos e acendendo o LED dado o resultado correto da execução.
+O \textit{bitcode} gerado pelo fluxo do LegUp foi programado na FPGA a fim de testar se o resultado da síntese era relevante para fins práticos. Após uma pequena modificação no código para acender um LED caso o resultado do algoritmo fosse correto, a placa foi programada e o resultado foi positivo, executando os algoritmos e acendendo o LED dado o resultado correto da execução. Vale notar que o tempo de compilação do RTL para \textit{bitcode} e transferência deste para a placa FPGA através do Intel Quartus Prime foi consideravelmente alto, variando entre 6 e 8 minutos para sua execução completa.
 
 A placa utilizada foi a Helio Board SoC FPGA, cujo \textit{chip} FPGA é uma Intel Cyclone V, modelo 5CSXFC6C6U23C\footnote{Mais informações sobre a placa: \url{https://rocketboards.org/foswiki/Documentation/MacnicaHelioSoCEvaluationKit}}. Dentre os recursos disponíveis, destaca-se a presença de $41.509$ BLCs, $110.000$ BLBs e $557$ blocos M10K de memória RAM que totalizam $696.250$ bytes de memória.
 Ambas as execuções via simulação e via programação da placa usaram uma frequência de \textit{clock} de $70$ MHz.
 
 \section{Resultados}
 
-Os resultados das experiências com respeito ao algoritmo de Huffman são mostrados nas tabelas \ref{tabela-simulacao-software-huffman} e \ref{tabela-simulacao-hardware-huffman}. O gráfico \ref{fig:grafico-huffman}, construído a partir dos dados dessas tabelas, ilustra o aspecto linear da ordem de tempo de execução do algoritmo para um texto suficientemente maior que o tamanho do alfabeto adotado no programa. A curva no gráfico \ref{fig:grafico-huffman} sobre os ciclos em \textit{hardware} foi deslocada em $900.000$ unidades para melhorar a visualização do gráfico como um todo.
+Os resultados das experiências com respeito ao algoritmo de Huffman são mostrados nas tabelas \ref{tabela-simulacao-software-huffman} e \ref{tabela-simulacao-hardware-huffman}. Os gráficos \ref{fig:grafico-huffman}, construídos a partir dos dados dessas tabelas, ilustram o aspecto linear da ordem de tempo de execução do algoritmo para um texto suficientemente maior que o tamanho do alfabeto adotado no programa. As barras verticais ortogonais à curva do primeiro gráfico em \ref{fig:grafico-huffman} indicam o intervalo de confiança de $95\%$ sobre o conjunto amostral das experiências. O intervalo não se aplica às execuções em \textit{hardware} pois dada a natureza determinística da execução da simulação no ambiente usado, não houve variação no número de ciclos de \textit{clock} para duas execuções da mesma instância dos algoritmos.
 
 \begin{table}[H]
 	\centering
 	\begin{tabular}{|c|c|c|c|} \hline
-		Tamanho do texto (caracteres) & Média (ciclos de \textit{clock}) & Desvio padrão\\\hline
+		Número de caracteres & Média (ciclos de \textit{clock}) & Desvio padrão\\\hline
 		682 &  816.830  & 29.301,11 \\\hline
 		1.364 & 841.969 & 26.246,27 \\\hline
 		2.046 & 919.522 & 29.937,78 \\\hline
@@ -66,7 +66,7 @@ Os resultados das experiências com respeito ao algoritmo de Huffman são mostrado
 \begin{table}[H]
 	\centering
 	\begin{tabular}{|c|c|} \hline
-		Tamanho do texto (caracteres) & Ciclos de \textit{clock}\\
+		Número de caracteres & Ciclos de \textit{clock}\\
 		\hline
 		682 & 12.066 \\\hline
 		1.364 & 16.158 \\\hline
@@ -90,11 +90,12 @@ Os resultados das experiências com respeito ao algoritmo de Huffman são mostrado
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=13cm]{figuras/grafico-huffman}
-	\caption{\label{fig:grafico-huffman}Comparação de ciclos de clock do algoritmo de Huffman entre execuções em software e hardware.}
+	\includegraphics[width=8cm]{figuras/grafico-huffman-software}
+	\includegraphics[width=8cm]{figuras/grafico-huffman-hardware}
+	\caption{\label{fig:grafico-huffman}Comparação de ciclos de clock do algoritmo de Huffman entre execuções em software (à esquerda) e hardware (à direita).}
 \end{figure}
 
-Para os experimentos feitos com o algoritmo de Rosenkrantz-Stearn-Lewis, os dados gerados são representados nas tabelas \ref{tabela-simulacao-software-tsp} e \ref{tabela-simulacao-hardware-tsp}. O gráfico \ref{fig:grafico-tsp} mostra uma comparação visual desses dados. Nota-se o caráter quadrático da ordem do tempo de execução do algoritmo.
+Para os experimentos feitos com o algoritmo de Rosenkrantz-Stearn-Lewis, os dados gerados são representados nas tabelas \ref{tabela-simulacao-software-tsp} e \ref{tabela-simulacao-hardware-tsp}, bem como nos gráficos presentes em \ref{fig:grafico-tsp}. Nota-se o caráter quadrático da ordem do tempo de execução do algoritmo. Da mesma forma que o algoritmo de Huffman, foi adotado um intervalo de confiança de $95\%$ com base no conjunto amostral de experiências.
 
 \begin{table}[H]
 	\centering
@@ -109,7 +110,7 @@ Para os experimentos feitos com o algoritmo de Rosenkrantz-Stearn-Lewis, os dado
 		84  & 18.376.907   & 317.427,61 \\\hline
 		96  & 25.392.184  & 174.893,74 \\\hline
 		108  & 36.580.303   & 651.705,61 \\\hline
-		120  & 45.496.549   & 12.77.070,90 \\\hline
+		120  & 45.496.549   & 1.277.070,90 \\\hline
 		132  & 63.995.800   & 1.383.403,12 \\\hline
 		144  & 82.581.032   & 1.260.099,51 \\\hline
 		156  & 104.586.325   & 1.046.594,03 \\\hline
@@ -147,8 +148,9 @@ Para os experimentos feitos com o algoritmo de Rosenkrantz-Stearn-Lewis, os dado
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=13cm]{figuras/grafico-tsp}
-	\caption{\label{fig:grafico-tsp}Comparação de ciclos de clock do algoritmo de Rosenkrantz-Stearn-Lewis entre execuções em software e hardware.}
+	\includegraphics[width=8cm]{figuras/grafico-tsp-software}
+	\includegraphics[width=8cm]{figuras/grafico-tsp-hardware}
+	\caption{\label{fig:grafico-tsp}Comparação de ciclos de clock do algoritmo de Rosenkrantz-Stearn-Lewis entre execuções em software (à esquerda) e hardware (à direita).}
 \end{figure}
 
 Ambos os gráficos apontam que o crescimento do tempo de execução no ambiente de \textit{software} é maior que no ambiente de \textit{hardware}. A causa mais provável para esse fenômeno é o fato de que ao aumentar o tamanho da entrada do \textit{software}, são necessários mais períodos de escalonamento dos processos por parte do sistema operacional, já que o tempo de execução dos programas em si aumenta. Em \textit{hardware}, como todo o processamento é dedicado à execução dos algoritmos (uma vez que o circuito foi construído especificamente para a execução do algoritmo), não há \textit{overhead} gerado pela execução da troca de contexto dos escalonadores, nem ociosidade do algoritmo enquanto outros processos são executados. Ou seja: em \textit{hardware}, os algoritmos estão sendo executados $100\%$ do tempo.
@@ -167,7 +169,7 @@ Mesmo com a exclusividade dos algoritmos em usar os recursos da placa, vale lemb
 5,6 \times 10^{-10} \times 990.615 = 5,5474 \times 10^{-4}s
 \end{equation}
 
-Da mesma forma, para o algoritmo de Rosenkrantz-Stern-Lewis, para um grafo de $192$ vértices, temos o tempo de execução, em segundos, apresentados em \ref{calculo-tempo-hardware-tsp} e \ref{calculo-tempo-software-tsp}.
+Da mesma forma, para o algoritmo de Rosenkrantz-Stern-Lewis, para um grafo de $192$ vértices, temos o tempo de execução, em segundos e respectivamente, para os experimentos em \textit{hardware} e \textit{software}  apresentados em \ref{calculo-tempo-hardware-tsp} e \ref{calculo-tempo-software-tsp}.
 
 \begin{equation}
 \label{calculo-tempo-hardware-tsp}
@@ -181,5 +183,5 @@ Da mesma forma, para o algoritmo de Rosenkrantz-Stern-Lewis, para um grafo de $1
 5,6 \times 10^{-10} \times 184.441.878 = 1,0328 \times 10^{-1}s
 \end{equation}
 
-Há evidências, portanto, que a utilização de um \textit{hardware} dedicado e uma máquina de propósito geral podem apresentar desempenhos muito similares no que diz respeito ao tempo de execução.
+Há evidências, portanto, de que a utilização de um \textit{hardware} dedicado, implementado em um \textit{chip} FPGA, e uma máquina de propósito geral podem apresentar desempenhos muito similares no que diz respeito ao tempo de execução, mas altamente discrepantes em termos de ciclos de \textit{clock}.
 
